@@ -16,7 +16,13 @@ You have following options to get Pykit:
 Table of Contents
 ---
 
-1. [Defining modules](#defining-modules)
+1. [Initializing components](#initializing-components)
+1. [Defining new components](#defining-new-components)
+1. [Extending components](#extending-components)
+1. [Defining abstract extensions](#defining-abstract-extensions)
+1. [Defining required extensions](#defining-required-extensions)
+1. [Initialization handling](#initialization-handling)
+1. [Standard components](#standard-components)
 
 Usage
 ---
@@ -112,7 +118,7 @@ pykit.defUI({
 
 ## Defining abstract extensions
 For generic extensions, similar to Mixins, one can just define them as regular objects.
-```
+```javascript
 ClickEvents = {
 	$setters: {
 		target: function(value) {
@@ -242,7 +248,7 @@ pykit.defUI({
 }, pykit.UI.element);
 ```
 
-Standard Components
+Standard components
 ---
 
 A list of standard components can be found below.
