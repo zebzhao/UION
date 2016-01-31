@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/zebzhao/Pykit.svg?branch=master)](https://travis-ci.org/zebzhao/Pykit)
 
-Pykit is a lightweight script loading library mocking Python modules.
+Pykit is a JSON user interface builder based on UIkit.
 
 Getting started
 ---
