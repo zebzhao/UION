@@ -1,0 +1,18 @@
+{
+  "name": "pykit",
+  "version": "0.1.0",
+  "homepage": "https://github.com/zebzhao/Pykit",
+  "dependencies": {"uikit": "2.24.x"},
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "less",
+    "gulpfile.js",
+    "karma.conf.js",
+    "package.json",
+    "pykit.spec.js",
+    "bower.json",
+    ".gitignore",
+    ".travis.yml"
+  ]
+}
