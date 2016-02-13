@@ -1258,7 +1258,7 @@ pykit.UI.icon = pykit.defUI({
 	},
 	__init__: function(config) {
 		if (config.type == "button")
-			this.tagClass = "uk-icon-button";
+			config.tagClass = "uk-icon-button";
 	},
 	template:function(config){
 		return pykit.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
