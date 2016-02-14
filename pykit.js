@@ -1880,7 +1880,7 @@ pykit.UI.list = pykit.defUI({
 	setActive: function(key, value) {
 		this.unselectAll();
 		var item = this.findOne(key, value);
-		pykit.assert(item, pykit.replaceString("Could not find {key} {value} in {id}.", {key: key, value: value, id: this.id}));
+		pykit.assert(item, pykit.replaceString("Could not find {key} {label} in {id}.", {key: key, label: label, id: this.id}));
 		this.select(item);
 	},
 	isSelected: function(target) {
