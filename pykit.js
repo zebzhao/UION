@@ -1875,9 +1875,12 @@ pykit.UI.list = pykit.defUI({
 			this.dispatch("onItemSelectionChanged", [item]);
 	},
 	setActiveLabel: function(label) {
+		this.setActive("label", label)
+	},
+	setActive: function(key, value) {
 		this.unselectAll();
-		var item = this.findOne("label", label);
-		pykit.assert(item, pykit.replaceString("Could not find label {label} in {id}.", {label: label, id: this.id}));
+		var item = this.findOne(key, value);
+		pykit.assert(item, pykit.replaceString("Could not find {key} {value} in {id}.", {key: key, value: value, id: this.id}));
 		this.select(item);
 	},
 	isSelected: function(target) {
