@@ -6,7 +6,14 @@ var minifyCSS = require('gulp-minify-css');
 
 
 gulp.task('build-pykit', function() {
-    return gulp.src(['pykit.js'])
+    return gulp.src([
+        'bower_components/uikit/js/uikit.min.js',
+        'bower_components/uikit/js/autocomplete.min.js',
+        'bower_components/uikit/js/form-password.min.js',
+        'bower_components/uikit/js/notify.min.js',
+        'bower_components/uikit/js/search.min.js',
+        'bower_components/uikit/js/upload.min.js',
+        'pykit.js'])
         .pipe(concat('pykit.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('.'));
