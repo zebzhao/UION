@@ -3,7 +3,7 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
-Version 0.2.0
+Version 0.2.1
 -----------
 - packaged UIkit dependencies together
 - fixed uk-icon-button ({view: icon, type: button}) configuration
