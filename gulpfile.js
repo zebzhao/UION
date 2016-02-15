@@ -7,15 +7,28 @@ var minifyCSS = require('gulp-minify-css');
 
 gulp.task('build-pykit', function() {
     return gulp.src([
-        'bower_components/uikit/js/uikit.min.js',
-        'bower_components/uikit/js/autocomplete.min.js',
-        'bower_components/uikit/js/form-password.min.js',
-        'bower_components/uikit/js/notify.min.js',
-        'bower_components/uikit/js/search.min.js',
-        'bower_components/uikit/js/upload.min.js',
+        'bower_components/uikit/src/js/uikit.js',
+        'bower_components/uikit/src/js/components/autocomplete.js',
+        'bower_components/uikit/src/js/components/form-password.js',
+        'bower_components/uikit/src/js/components/notify.js',
+        'bower_components/uikit/src/js/components/search.js',
+        'bower_components/uikit/src/js/components/upload.js',
         'pykit.js'])
         .pipe(concat('pykit.min.js'))
         .pipe(uglify())
+        .pipe(gulp.dest('.'));
+});
+
+gulp.task('build-debug-pykit', function() {
+    return gulp.src([
+        'bower_components/uikit/src/js/uikit.js',
+        'bower_components/uikit/src/js/components/autocomplete.js',
+        'bower_components/uikit/src/js/components/form-password.js',
+        'bower_components/uikit/src/js/components/notify.js',
+        'bower_components/uikit/src/js/components/search.js',
+        'bower_components/uikit/src/js/components/upload.js',
+        'pykit.js'])
+        .pipe(concat('pykit.debug.js'))
         .pipe(gulp.dest('.'));
 });
 
@@ -26,4 +39,4 @@ gulp.task('build-less', function () {
         .pipe(gulp.dest('css'));
 });
 
-gulp.task('default', ['build-pykit', 'build-less']);
+gulp.task('default', ['build-pykit', 'build-debug-pykit', 'build-less']);
