@@ -268,9 +268,8 @@ Standard components
 ---
 
 A list of standard components can be found below.
-Note that additional corresponding files need to be included from UIkit.
 
-* autocomplete (requires uikit/js/components/autocomplete.js)
+* autocomplete
 * button
 * dropdown
 * element
@@ -283,9 +282,9 @@ Note that additional corresponding files need to be included from UIkit.
 * label
 * link
 * list
-* modal (requires uikit/js/components/modal.js)
-* password (requires uikit/js/components/password.js)
-* search (requires uikit/js/components/search.js)
+* modal
+* password
+* search
 * table
 * tree
 
