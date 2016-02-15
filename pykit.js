@@ -2325,7 +2325,7 @@ pykit.UI.fieldset = pykit.defUI({
 	}),
 	_itemHTML: function(config) {
 		if (config.title) {
-			return pykit.html.createElement("LEGEND");
+			return pykit.html.createElement("LEGEND", {class: config.$itemCSS ? config.$itemCSS : ""});
 		}
 		else {
 			return pykit.html.createElement("DIV", {class: config.$itemCSS ? config.$itemCSS : "uk-form-row"});
