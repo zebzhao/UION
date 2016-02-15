@@ -4,30 +4,40 @@ var concat = require('gulp-concat');
 var less = require('gulp-less');
 var minifyCSS = require('gulp-minify-css');
 
+var files = [
+    'bower_components/uikit/src/js/uikit.js',
+    'bower_components/uikit/src/js/core/core.js',
+    'bower_components/uikit/src/js/core/touch.js',
+    'bower_components/uikit/src/js/core/utility.js',
+    'bower_components/uikit/src/js/core/smooth-scroll.js',
+    'bower_components/uikit/src/js/core/scrollspy.js',
+    'bower_components/uikit/src/js/core/toggle.js',
+    'bower_components/uikit/src/js/core/alert.js',
+    'bower_components/uikit/src/js/core/button.js',
+    'bower_components/uikit/src/js/core/dropdown.js',
+    'bower_components/uikit/src/js/core/grid.js',
+    'bower_components/uikit/src/js/core/modal.js',
+    'bower_components/uikit/src/js/core/nav.js',
+    'bower_components/uikit/src/js/core/offcanvas.js',
+    'bower_components/uikit/src/js/core/switcher.js',
+    'bower_components/uikit/src/js/core/tab.js',
+    'bower_components/uikit/src/js/core/cover.js',
+    'bower_components/uikit/src/js/components/autocomplete.js',
+    'bower_components/uikit/src/js/components/form-password.js',
+    'bower_components/uikit/src/js/components/notify.js',
+    'bower_components/uikit/src/js/components/search.js',
+    'bower_components/uikit/src/js/components/upload.js',
+    'pykit.js'];
 
 gulp.task('build-pykit', function() {
-    return gulp.src([
-        'bower_components/uikit/src/js/uikit.js',
-        'bower_components/uikit/src/js/components/autocomplete.js',
-        'bower_components/uikit/src/js/components/form-password.js',
-        'bower_components/uikit/src/js/components/notify.js',
-        'bower_components/uikit/src/js/components/search.js',
-        'bower_components/uikit/src/js/components/upload.js',
-        'pykit.js'])
+    return gulp.src(files)
         .pipe(concat('pykit.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
 gulp.task('build-debug-pykit', function() {
-    return gulp.src([
-        'bower_components/uikit/src/js/uikit.js',
-        'bower_components/uikit/src/js/components/autocomplete.js',
-        'bower_components/uikit/src/js/components/form-password.js',
-        'bower_components/uikit/src/js/components/notify.js',
-        'bower_components/uikit/src/js/components/search.js',
-        'bower_components/uikit/src/js/components/upload.js',
-        'pykit.js'])
+    return gulp.src(files)
         .pipe(concat('pykit.debug.js'))
         .pipe(gulp.dest('.'));
 });
