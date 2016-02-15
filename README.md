@@ -31,17 +31,15 @@ Start by including the file in your main HTML file.
 
 For debugging
 ```html
-<link rel="stylesheet" href="css/uikit.gradient.min.css"></link>
+<link rel="stylesheet" href="css/spring.css"></link>
 <script src="jquery.js" type="text/javascript"></script>
-<script src="uikit/js/uikit.js" type="text/javascript"></script>
 <script src="pykit.js" type="text/javascript"></script>
 ```
 
 For production
 ```html
-<link rel="stylesheet" href="css/uikit.gradient.css"></link>
+<link rel="stylesheet" href="css/spring.css"></link>
 <script src="jquery.min.js" type="text/javascript"></script>
-<script src="uikit/js/uikit.min.js" type="text/javascript"></script>
 <script src="pykit.min.js" type="text/javascript"></script>
 ```
 
@@ -50,6 +48,24 @@ For production
 Initializing new components can be done like so:
 ```javascript
 pykit.UI({view: "button"}, document.body);
+```
+
+More complex example:
+```javascript
+pykit.UI({
+    view: "modal",
+    id: "imageViewer",
+    light: "true",
+    center: false,
+    body: {
+        view: "image"
+    },
+    loadImage: function(url, name) {
+        this.set("caption", name);
+        this.bodyContent.set("src", url);
+        this.open();
+    }
+}, document.body);
 ```
 
 __When initializing UIkit components add `data-uk-observe` to the main `<body>` tag.__
