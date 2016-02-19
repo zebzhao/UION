@@ -6667,37 +6667,49 @@ pykit.UI.list = pykit.defUI({
 	},
 	_attachNodeEvents: function(node, config) {
 		pykit.event(node, "click", function(e) {
-			pykit.html.preventEvent(e);
+			if (config.$preventDefault !== false) {
+				pykit.html.preventEvent(e);
+			}
 			this.dispatch("onItemClick", [config, node, e]);
 		}, this);
 
 		if (this.context && config.context !== false) {
 			pykit.event(node, "contextmenu", function (e) {
-				pykit.html.preventEvent(e);
+				if (config.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemContext", [config, node, e]);
 			}, this);
 		}
 
 		if (this.droppable && config.droppable !== false) {
 			pykit.event(node, "drop", function(e) {
-				pykit.html.preventEvent(e);
+				if (config.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				if (this._droppable(config, this._draggedItem))
 					this.dispatch("onItemDrop", [config, this._draggedItem, node, e]);
 				this._draggedItem = null;
 			}, this);
 
 			pykit.event(node, "dragover", function(e) {
-				pykit.html.preventEvent(e);
+				if (config.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemDragOver", [config, node, e]);
 			}, this);
 
 			pykit.event(node, "dragenter", function(e) {
-				pykit.html.preventEvent(e);
+				if (config.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemDragEnter", [config, node, e]);
 			}, this);
 
 			pykit.event(node, "dragleave", function(e) {
-				pykit.html.preventEvent(e);
+				if (config.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemDragLeave", [config, node, e]);
 			}, this);
 		}
