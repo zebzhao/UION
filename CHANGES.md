@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.6
+-----------
+- fixed uploader config not being set
+
 Version 0.2.3
 -----------
 - added $preventDefault option to all click events

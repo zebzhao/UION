@@ -922,6 +922,7 @@ pykit.UI.element = pykit.defUI({
 				pykit.html.addCSS(this._html, "uk-form-file");
 				this._html.appendChild(this._uploadFileHTML());
 			}
+			return value;
 		}
 	},
 	__init__: function(config){
