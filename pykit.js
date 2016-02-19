@@ -860,7 +860,8 @@ pykit.UI.element = pykit.defUI({
 		margin: "left-sm right-sm top-sm bottom-sm",
 		uploadURL: false,
 		uploadSingle: false,
-		uploadAllow: '*.(jpg|jpeg|gif|png)'
+		uploadAllow: '*.(jpg|jpeg|gif|png)',
+		$preventDefault: true
 	},
 	$setters: {
 		disabled: function(value) {
@@ -915,6 +916,9 @@ pykit.UI.element = pykit.defUI({
 		},
 		uploader: function(value) {
 			if (value) {
+				// Must allow default events to open uploader
+				this._config.$preventDefault = false;
+				// Add css to mock a file input
 				pykit.html.addCSS(this._html, "uk-form-file");
 				this._html.appendChild(this._uploadFileHTML());
 			}
@@ -1286,7 +1290,8 @@ pykit.UI.link = pykit.defUI({
 	$defaults: {
 		label: "",
 		htmlTag: "A",
-		margin: ""
+		margin: "",
+		$preventDefault: false
 	},
 	template:function(config){
 		return config.label;
@@ -1830,7 +1835,7 @@ pykit.UI.list = pykit.defUI({
 		htmlTag: "UL",
 		listStyle: "list",
 		itemStyle: "",
-		dropdownEvent: "onItemClick"
+		dropdownEvent: "onItemClick",
 	},
 	$setters: pykit.extend(
 		pykit.setCSS({
@@ -1933,7 +1938,9 @@ pykit.UI.list = pykit.defUI({
 			var close = pykit.html.createElement("SPAN", {class: "uk-close"});
 
 			pykit.event(close, "click", function(e) {
-				pykit.html.preventEvent(e);
+				if (item.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemClose", [item]);
 
 				if (this.isSelected(item) && this.count() ) {
