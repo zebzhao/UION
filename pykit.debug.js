@@ -5542,7 +5542,8 @@ pykit.UI.element = pykit.defUI({
 		margin: "left-sm right-sm top-sm bottom-sm",
 		uploadURL: false,
 		uploadSingle: false,
-		uploadAllow: '*.(jpg|jpeg|gif|png)'
+		uploadAllow: '*.(jpg|jpeg|gif|png)',
+		$preventDefault: true
 	},
 	$setters: {
 		disabled: function(value) {
@@ -5597,6 +5598,9 @@ pykit.UI.element = pykit.defUI({
 		},
 		uploader: function(value) {
 			if (value) {
+				// Must allow default events to open uploader
+				this._config.$preventDefault = false;
+				// Add css to mock a file input
 				pykit.html.addCSS(this._html, "uk-form-file");
 				this._html.appendChild(this._uploadFileHTML());
 			}
@@ -5610,6 +5614,14 @@ pykit.UI.element = pykit.defUI({
 		this.element = this._html = pykit.html.createElement(config.htmlTag || "DIV", {id: config.id});
 		if (config.tagClass)
 			this.element.setAttribute("class", config.tagClass);
+		if (config.top)
+			this._html.style.top = config.top;
+		if (config.bottom)
+			this._html.style.bottom = config.bottom;
+		if (config.left)
+			this._html.style.left = config.left;
+		if (config.right)
+			this._html.style.right = config.right;
 		if (config.width)
 			this._html.style.width = config.width;
 		if (config.height)
@@ -5803,9 +5815,15 @@ pykit.ClickEvents = {
 		pykit.event(this._html, "contextmenu", this._onContext, this);
 	},
 	_onClick: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
         this.dispatch("onClick", [this, this._html, e]);
 	},
 	_onContext: function(e) {
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
         this.dispatch("onContext", [this, this._html, e]);
 	}
 };
@@ -5924,7 +5942,16 @@ pykit.UI.button = pykit.defUI({
 				{icon: config.icon, label: config.label, iconSize: config.iconSize});
         else
 			return pykit.replaceString("<span>{label}</span>", {label: config.label});
-    }
+    },
+	select: function() {
+		pykit.html.addCSS(this._html, "uk-active");
+	},
+	isSelected: function() {
+		return pykit.html.hasCSS(this._html, "uk-active");
+	},
+	unselect: function() {
+		pykit.html.removeCSS(this._html, "uk-active");
+	}
 }, pykit.ClickEvents, pykit.UI.element);
 
 
@@ -5968,7 +5995,8 @@ pykit.UI.link = pykit.defUI({
 	$defaults: {
 		label: "",
 		htmlTag: "A",
-		margin: ""
+		margin: "",
+		$preventDefault: false
 	},
 	template:function(config){
 		return config.label;
@@ -6510,9 +6538,10 @@ pykit.UI.list = pykit.defUI({
 	__name__:"list",
 	$defaults: {
 		htmlTag: "UL",
+		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
-		dropdownEvent: "onItemClick"
+		dropdownEvent: "onItemClick",
 	},
 	$setters: pykit.extend(
 		pykit.setCSS({
@@ -6615,7 +6644,9 @@ pykit.UI.list = pykit.defUI({
 			var close = pykit.html.createElement("SPAN", {class: "uk-close"});
 
 			pykit.event(close, "click", function(e) {
-				pykit.html.preventEvent(e);
+				if (item.$preventDefault !== false) {
+					pykit.html.preventEvent(e);
+				}
 				this.dispatch("onItemClose", [item]);
 
 				if (this.isSelected(item) && this.count() ) {
@@ -6693,6 +6724,7 @@ pykit.defUI({
 	__name__: "tree",
 	$defaults:{
 		listStyle: "side",
+		selectable: false,
 		indentWidth: 15,
 		dataTransfer: 'id',
 		draggable: true,

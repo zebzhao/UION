@@ -3,6 +3,15 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.3
+-----------
+- added $preventDefault option to all click events
+- links and uploader components will have $preventDefault=false to start
+- added top, left, bottom, right position attributes to all elements
+- added select(), unselect(), isSelected() to buttons
+- removed coloring on links/selections
+- list items are unselectable by default now
+
 Version 0.2.1
 -----------
 - packaged UIkit dependencies together
