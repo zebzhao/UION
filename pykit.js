@@ -1133,9 +1133,15 @@ pykit.ClickEvents = {
 		pykit.event(this._html, "contextmenu", this._onContext, this);
 	},
 	_onClick: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
         this.dispatch("onClick", [this, this._html, e]);
 	},
 	_onContext: function(e) {
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
         this.dispatch("onContext", [this, this._html, e]);
 	}
 };
