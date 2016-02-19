@@ -932,6 +932,14 @@ pykit.UI.element = pykit.defUI({
 		this.element = this._html = pykit.html.createElement(config.htmlTag || "DIV", {id: config.id});
 		if (config.tagClass)
 			this.element.setAttribute("class", config.tagClass);
+		if (config.top)
+			this._html.style.top = config.top;
+		if (config.bottom)
+			this._html.style.bottom = config.bottom;
+		if (config.left)
+			this._html.style.left = config.left;
+		if (config.right)
+			this._html.style.right = config.right;
 		if (config.width)
 			this._html.style.width = config.width;
 		if (config.height)
