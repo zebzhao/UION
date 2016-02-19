@@ -1856,6 +1856,7 @@ pykit.UI.list = pykit.defUI({
 	__name__:"list",
 	$defaults: {
 		htmlTag: "UL",
+		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
 		dropdownEvent: "onItemClick",
@@ -2041,6 +2042,7 @@ pykit.defUI({
 	__name__: "tree",
 	$defaults:{
 		listStyle: "side",
+		selectable: false,
 		indentWidth: 15,
 		dataTransfer: 'id',
 		draggable: true,
