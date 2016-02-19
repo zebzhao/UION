@@ -1254,7 +1254,16 @@ pykit.UI.button = pykit.defUI({
 				{icon: config.icon, label: config.label, iconSize: config.iconSize});
         else
 			return pykit.replaceString("<span>{label}</span>", {label: config.label});
-    }
+    },
+	select: function() {
+		pykit.html.addCSS(this._html, "uk-active");
+	},
+	isSelected: function() {
+		return pykit.html.hasCSS(this._html, "uk-active");
+	},
+	unselect: function() {
+		pykit.html.removeCSS(this._html, "uk-active");
+	}
 }, pykit.ClickEvents, pykit.UI.element);
 
 
