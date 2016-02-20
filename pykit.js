@@ -2137,8 +2137,9 @@ pykit.defUI({
 	},
 	remove: function(obj) {
 		if (obj.$branch) {
-			for (var i=0; i<obj.$children.length; i++)
-				this.remove(obj.$children[i]);
+			while (obj.$children.length > 0) {
+				this.remove(obj.$children[0]);
+			}
 		}
 		pykit.LinkedList.remove.call(this, obj);
 	},
