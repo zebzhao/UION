@@ -302,8 +302,8 @@ describe('tree', function() {
         {id:'root', label: 'Root'},
         {label:'Parent', $parent:'root', id:'parent'},
         {id:'child-a', label:'Child-A', $parent:'parent'},
-        {label:'Child-C', $parent:'parent'},
-        {label:'Child-B', $parent:'parent'},
+        {id:'child-c', label:'Child-C', $parent:'parent'},
+        {id:'child-b', label:'Child-B', $parent:'parent'},
         {label:'Subchild-A-A', $parent:'child-a'}
     ]}, document.body);
 
@@ -323,6 +323,42 @@ describe('tree', function() {
     it('should sort alphabetically', function() {
         expect(elem.each(function(o) {return o.label})).toEqual(
             ['Root', 'Parent', 'Child-A', 'Subchild-A-A', 'Child-B', 'Child-C']);
+    });
+
+    it('should move child-b, child-c to child-a', function() {
+        var parent = elem.getItem('parent');
+        var childA = elem.getItem('child-a');
+        var childB = elem.getItem('child-b');
+        var childC = elem.getItem('child-c');
+        expect(parent.$children.length).toBe(3);
+        expect(childA.$children.length).toBe(1);
+        // Move child-c and child-b to child-a
+        elem.updateItem(childB, {$parent: 'child-a'});
+        elem.updateItem(childC, {$parent: 'child-a'});
+        expect(parent.$children.length).toBe(1);
+        expect(childA.$children.length).toBe(3);
+        // Move them back
+        elem.updateItem(childB, {$parent: 'parent'});
+        elem.updateItem(childC, {$parent: 'parent'});
+        expect(parent.$children.length).toBe(3);
+        expect(childA.$children.length).toBe(1);
+    });
+
+    it('should remove all children under branch', function() {
+        var tree = pykit.UI({
+            id: "t1", view: 'tree', data: [
+                {id: 'root', label: 'Root'},
+                {id: 'parent', label: 'Parent', $parent: 'root'},
+                {id: 'child-a', label: 'Child-A', $parent: 'parent'},
+                {id: 'child-b', label: 'Child-B', $parent: 'parent'}
+            ]
+        }, document.body);
+        var parent = tree.getItem('parent');
+        expect(parent.$children.length).toBe(2);
+        expect(tree.count()).toBe(4);
+        tree.remove(parent);
+        expect(tree.count()).toBe(1);
+        expect(tree.each(function(o) {return o.label})).toEqual(['Root']);
     });
 });
 
