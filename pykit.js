@@ -1860,7 +1860,7 @@ pykit.UI.list = pykit.defUI({
 		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
-		dropdownEvent: "onItemClick",
+		dropdownEvent: "onItemClick"
 	},
 	$setters: pykit.extend(
 		pykit.setCSS({
@@ -2418,7 +2418,7 @@ pykit.UI.fieldset = pykit.defUI({
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
 		this.each(function(item) {
-			if (config[item.name]) {
+			if (pykit.isDefined(config[item.name])) {
 				$$(item.id).setValue(config[item.name]);
 			}
 		});
