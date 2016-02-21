@@ -383,3 +383,28 @@ describe('selectors', function() {
         expect(pykit.selectors.property('a.b.c')(obj)).toEqual(1);
     })
 });
+
+describe('form', function() {
+    var elem = pykit.UI({
+        view: 'form',
+        fieldset: [
+            {
+                formLabel: "Name",
+                view: "input", name: "name"
+            },
+            {
+                formLabel: "Speed",
+                view: "input", type: "number", name: "speed",
+            },
+            {
+                formLabel: "Loop", view: "input", type: "checkbox", name: "loop", checked: true
+            }]
+        }
+    );
+
+    it('should get and set values', function() {
+        expect(elem.getValues()).toEqual({name: "", speed: "", loop: true});
+        elem.setValues({loop: false, speed: 100, name: "Awesome"});
+        expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false});
+    });
+});

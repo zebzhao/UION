@@ -3,6 +3,11 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.7
+-----------
+- fixed bug not able to set checkbox to unchecked in forms
+- fixed setValue for checkbox component
+
 Version 0.2.6
 -----------
 - fixed uploader config not being set
