@@ -1368,7 +1368,7 @@ pykit.UI.input = pykit.defUI({
 			},
 			checked: function(value) {
 				if (value)
-					this._html.setAttribute("checked", "");
+					this._html.checked = value;
 			},
 			placeholder: function (value) {
 				this._html.setAttribute("placeholder", value);
@@ -1390,7 +1390,7 @@ pykit.UI.input = pykit.defUI({
 	},
 	setValue: function(value) {
 		if (this._config.type == "checkbox") {
-			this._html.setAttribute("checked", value);
+			this._html.checked = value;
 		}
 		else this._html.value = value;
 	}
