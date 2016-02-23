@@ -3,6 +3,12 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.8
+-----------
+- fixed autocomplete not working on Chrome, but FF
+- made autocomplete case-insensitive by default (changed by caseSensitive configuration)
+- TODO: fix dropdown not closing on mobile
+
 Version 0.2.7
 -----------
 - fixed bug not able to set checkbox to unchecked in forms

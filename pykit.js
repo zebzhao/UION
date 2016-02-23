@@ -1430,12 +1430,17 @@ pykit.defUI({
 		tagClass: "uk-autocomplete",
 		placeholder: "",
 		minLength: 0,
+		caseSensitive: false,
 		sources: [],
 		autocomplete: function(release) {
 			var searchValue = this.getValue();
+			var config = this._config;
+			if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
+
 			release(pykit.ListMethods.filter.call(this._getSource(),
 				function(item) {
-					return item.value.indexOf(searchValue) != -1;
+					var value = config.caseSensitive ? item.value : item.value.toLowerCase();
+					return value.indexOf(searchValue) != -1;
 				}));
 		}
 	},
