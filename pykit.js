@@ -1435,7 +1435,7 @@ pykit.defUI({
 			var searchValue = this.getValue();
 			release(pykit.ListMethods.filter.call(this._getSource(),
 				function(item) {
-					return item.value.contains(searchValue);
+					return item.value.indexOf(searchValue) != -1;
 				}));
 		}
 	},
