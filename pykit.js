@@ -1569,11 +1569,16 @@ pykit.UI.dropdown = pykit.defUI({
 		this._inner.dispatch("onOpened", [master, node, this]);
 	},
 	close: function(node, master) {
-		this.dispatch("onClose", [master, node, this]);
-		this._inner.dispatch("onClose", [master, node, this]);
-		pykit.html.removeCSS(this._html, 'uk-open');
-		this.dispatch("onClosed", [master, node, this]);
-		this._inner.dispatch("onClosed", [master, node, this]);
+		var $this = this;
+		$this.dispatch("onClose", [master, node, $this]);
+		$this._inner.dispatch("onClose", [master, node, $this]);
+		// Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
+		// Adding a delay helps close dropdowns properly on Chrome (mobile)
+		setTimeout(function() {
+			pykit.html.removeCSS($this._html, 'uk-open');
+			$this.dispatch("onClosed", [master, node, $this]);
+			$this._inner.dispatch("onClosed", [master, node, $this]);
+		}, 10);
 	}
 }, pykit.UI.flexgrid);
 
