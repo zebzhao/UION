@@ -7,7 +7,8 @@ Version 0.2.8
 -----------
 - fixed autocomplete not working on Chrome, but FF
 - made autocomplete case-insensitive by default (changed by caseSensitive configuration)
-- TODO: fix dropdown not closing on mobile
+- fix dropdown not closing on mobile (added 10ms delay)
+- upgraded dependencies (uikit from 2.24.3 to 2.24.5)
 
 Version 0.2.7
 -----------
