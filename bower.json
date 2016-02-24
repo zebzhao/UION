@@ -3,7 +3,7 @@
   "version": "0.2.8",
   "homepage": "https://github.com/zebzhao/Pykit",
   "dependencies": {
-    "uikit": "uikit/uikit#^2.24.3"
+    "uikit": "uikit/uikit#^2.24.5"
   },
   "ignore": [
     "node_modules",
