@@ -1430,12 +1430,17 @@ pykit.defUI({
 		tagClass: "uk-autocomplete",
 		placeholder: "",
 		minLength: 0,
+		caseSensitive: false,
 		sources: [],
 		autocomplete: function(release) {
 			var searchValue = this.getValue();
+			var config = this._config;
+			if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
+
 			release(pykit.ListMethods.filter.call(this._getSource(),
 				function(item) {
-					return item.value.contains(searchValue);
+					var value = config.caseSensitive ? item.value : item.value.toLowerCase();
+					return value.indexOf(searchValue) != -1;
 				}));
 		}
 	},
@@ -1564,11 +1569,16 @@ pykit.UI.dropdown = pykit.defUI({
 		this._inner.dispatch("onOpened", [master, node, this]);
 	},
 	close: function(node, master) {
-		this.dispatch("onClose", [master, node, this]);
-		this._inner.dispatch("onClose", [master, node, this]);
-		pykit.html.removeCSS(this._html, 'uk-open');
-		this.dispatch("onClosed", [master, node, this]);
-		this._inner.dispatch("onClosed", [master, node, this]);
+		var $this = this;
+		$this.dispatch("onClose", [master, node, $this]);
+		$this._inner.dispatch("onClose", [master, node, $this]);
+		// Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
+		// Adding a delay helps close dropdowns properly on Chrome (mobile)
+		setTimeout(function() {
+			pykit.html.removeCSS($this._html, 'uk-open');
+			$this.dispatch("onClosed", [master, node, $this]);
+			$this._inner.dispatch("onClosed", [master, node, $this]);
+		}, 10);
 	}
 }, pykit.UI.flexgrid);
 
