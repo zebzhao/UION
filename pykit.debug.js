@@ -6646,6 +6646,21 @@ pykit.UI.list = pykit.defUI({
 			pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 		}, this);
 	},
+	closeItem: function(item) {
+		this.dispatch("onItemClose", [item]);
+
+		if (this.isSelected(item) && this.count() ) {
+			var nextItem = this.previous(item) || this.next(item);
+			if (nextItem) {
+				this.select(nextItem);
+				this.dispatch("onItemSelectionChanged", [nextItem]);
+			}
+		}
+
+		this.remove(item);
+
+		this.dispatch("onItemClosed", [item]);
+	},
     _itemHTML: function(config) {
         var itemStyle = config.$css || this._config.itemStyle;
 
@@ -6684,19 +6699,7 @@ pykit.UI.list = pykit.defUI({
 				if (item.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemClose", [item]);
-
-				if (this.isSelected(item) && this.count() ) {
-					var nextItem = this.previous(item) || this.next(item);
-					if (nextItem) {
-						this.select(nextItem);
-						this.dispatch("onItemSelectionChanged", [nextItem]);
-					}
-				}
-
-				this.remove(item);
-
-				this.dispatch("onItemClosed", [item]);
+				this.closeItem(item);
 			}, this);
 
 			node.appendChild(close);
