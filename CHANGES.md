@@ -10,6 +10,7 @@ Version 0.2.9
 - added header, footer, body public attributes to modals and tables
 - fixed onClick event arguments
 - fixed set() working on not just setters, but all configs
+- refactored closeItem() to its own function for tabs
 
 Version 0.2.8
 -----------
