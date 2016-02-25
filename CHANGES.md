@@ -9,6 +9,7 @@ Version 0.2.9
 - added JSON support for header, footer of modals
 - added header, footer, body public attributes to modals and tables
 - fixed onClick event arguments
+- fixed set() working on not just setters, but all configs
 
 Version 0.2.8
 -----------

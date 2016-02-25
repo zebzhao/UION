@@ -711,6 +711,9 @@ pykit.PropertySetter = {
             this[name] = this.$setters[name].call(this, value);
 			this._config[name] = value;
 		}
+		else {
+			this._config[name] = value;
+		}
 	}
 };
 
