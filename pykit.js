@@ -1927,7 +1927,7 @@ pykit.UI.list = pykit.defUI({
 		}
 	),
 	_onTabClick: function(item) {
-		if (!this.isSelected(item))
+		if (this.getItemNode(item.id) && !this.isSelected(item))
 			this.dispatch("onItemSelectionChanged", [item]);
 	},
 	setActiveLabel: function(label) {
