@@ -3,6 +3,13 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.9
+-----------
+- added args to open() on modal
+- added JSON support for header, footer of modals
+- added header, footer, body public attributes to modals and tables
+- fixed onClick event arguments
+
 Version 0.2.8
 -----------
 - fixed autocomplete not working on Chrome, but FF
