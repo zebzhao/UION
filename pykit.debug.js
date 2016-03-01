@@ -7053,6 +7053,7 @@ pykit.UI.form = pykit.defUI({
 			fieldset: function(value) {
 				var ui = pykit.UI({
 					view: "fieldset",
+					margin: "",
 					layout: this._config.layout,
 					data: value
 				});

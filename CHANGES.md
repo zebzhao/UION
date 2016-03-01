@@ -11,6 +11,7 @@ Version 0.2.9
 - fixed onClick event arguments
 - fixed set() working on not just setters, but all configs
 - refactored closeItem() to its own function for tabs
+- removed margins for fieldset component
 
 Version 0.2.8
 -----------
