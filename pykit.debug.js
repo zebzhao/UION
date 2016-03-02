@@ -5403,6 +5403,9 @@ pykit.PropertySetter = {
             this[name] = this.$setters[name].call(this, value);
 			this._config[name] = value;
 		}
+		else {
+			this._config[name] = value;
+		}
 	}
 };
 
@@ -5829,13 +5832,13 @@ pykit.ClickEvents = {
 		if (this._config.$preventDefault !== false) {
 			pykit.html.preventEvent(e);
 		}
-        this.dispatch("onClick", [this, this._html, e]);
+        this.dispatch("onClick", [this._config, this._html, e]);
 	},
 	_onContext: function(e) {
 		if (this._config.$preventDefault !== false) {
 			pykit.html.preventEvent(e);
 		}
-        this.dispatch("onContext", [this, this._html, e]);
+        this.dispatch("onContext", [this._config, this._html, e]);
 	}
 };
 
@@ -5853,9 +5856,14 @@ pykit.UI.modal = pykit.defUI({
 		size: "",
 		layout: ""
     },
-	__after__: function() {
+	__after__: function(config) {
+		this.header = this._header = pykit.html.createElement("DIV", {class: "uk-modal-header"});
+		this.footer = this._footer = pykit.html.createElement("DIV", {class: "uk-modal-footer"});
 		this.body = this._body = pykit.html.createElement("DIV", {class: "uk-modal-dialog"});
+
 		this._html.appendChild(this._body);
+		if (config.header) this._body.appendChild(this._header);
+		if (config.footer) this._body.appendChild(this._footer);
 	},
 	$setters: {
         light: function(value) {
@@ -5881,22 +5889,30 @@ pykit.UI.modal = pykit.defUI({
         },
         body: function(value) {
 			value.margin = value.margin || "";
-			value.halign = "center";
+			value.halign = value.halign || "center";
             var innerBody = pykit.UI(value);
-            this._body.appendChild(innerBody._html);
 			this.bodyContent = innerBody;
+
+			if (this._footer.parentNode) {
+				this._body.insertBefore(innerBody._html, this._footer);
+			}
+			else {
+				this._body.appendChild(innerBody._html);
+			}
 			return value;
         },
         header: function(value) {
-            this._header = pykit.html.createElement("DIV", {class: "uk-modal-header"});
-            this._header.innerHTML = value;
-            this._body.appendChild(this._header);
+			value.margin = value.margin || "";
+			var innerHeader = pykit.UI(value);
+			this._header.appendChild(innerHeader._html);
+			this.headerContent = innerHeader;
 			return value;
         },
         footer: function(value) {
-            this._footer = pykit.html.createElement("DIV", {class: "uk-modal-footer"});
-            this._footer.innerHTML = value;
-            this._body.appendChild(this._footer);
+			value.margin = value.margin || "";
+			var innerFooter = pykit.UI(value);
+			this._footer.appendChild(innerFooter._html);
+			this.footerContent = innerFooter;
 			return value;
         },
 		caption: function(value) {
@@ -5907,10 +5923,10 @@ pykit.UI.modal = pykit.defUI({
 			return value;
 		}
 	},
-	open: function() {
-		this.dispatch("onOpen", [this._config, this._html]);
+	open: function(args) {
+		this.dispatch("onOpen", [this._config, this._html, args]);
 		UIkit.modal('#' + this._config.id, {center: this._config.center}).show();
-		this.dispatch("onOpened", [this._config, this._html]);
+		this.dispatch("onOpened", [this._config, this._html, args]);
 	},
 	close: function() {
 		UIkit.modal('#' + this._config.id).hide();
@@ -6603,7 +6619,7 @@ pykit.UI.list = pykit.defUI({
 		}
 	),
 	_onTabClick: function(item) {
-		if (!this.isSelected(item))
+		if (this.getItemNode(item.id) && !this.isSelected(item))
 			this.dispatch("onItemSelectionChanged", [item]);
 	},
 	setActiveLabel: function(label) {
@@ -6629,6 +6645,21 @@ pykit.UI.list = pykit.defUI({
 		this.each(function(item) {
 			pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 		}, this);
+	},
+	closeItem: function(item) {
+		this.dispatch("onItemClose", [item]);
+
+		if (this.isSelected(item) && this.count() ) {
+			var nextItem = this.previous(item) || this.next(item);
+			if (nextItem) {
+				this.select(nextItem);
+				this.dispatch("onItemSelectionChanged", [nextItem]);
+			}
+		}
+
+		this.remove(item);
+
+		this.dispatch("onItemClosed", [item]);
 	},
     _itemHTML: function(config) {
         var itemStyle = config.$css || this._config.itemStyle;
@@ -6668,19 +6699,7 @@ pykit.UI.list = pykit.defUI({
 				if (item.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemClose", [item]);
-
-				if (this.isSelected(item) && this.count() ) {
-					var nextItem = this.previous(item) || this.next(item);
-					if (nextItem) {
-						this.select(nextItem);
-						this.dispatch("onItemSelectionChanged", [nextItem]);
-					}
-				}
-
-				this.remove(item);
-
-				this.dispatch("onItemClosed", [item]);
+				this.closeItem(item);
 			}, this);
 
 			node.appendChild(close);
@@ -6926,9 +6945,9 @@ pykit.UI.table = pykit.defUI({
 		listStyle: ""
 	},
 	__after__: function() {
-		this._header = pykit.html.createElement("THEAD");
-		this._footer = pykit.html.createElement("TFOOT");
-		this._body = pykit.html.createElement("TBODY");
+		this.header = this._header = pykit.html.createElement("THEAD");
+		this.footer = this._footer = pykit.html.createElement("TFOOT");
+		this.body = this._body = pykit.html.createElement("TBODY");
 
 		// Make Chrome wrapping behavior same as firefox
 		this._body.style.wordBreak = "break-word";
@@ -7034,6 +7053,7 @@ pykit.UI.form = pykit.defUI({
 			fieldset: function(value) {
 				var ui = pykit.UI({
 					view: "fieldset",
+					margin: "",
 					layout: this._config.layout,
 					data: value
 				});
