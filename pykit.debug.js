@@ -6345,7 +6345,7 @@ pykit.LinkedList = {
 
 		obj.id = this.id(obj);
 
-		if (node === undefined) {
+		if (!node && this.tailNode) {
 			// Insert as last node
 			return this.insertAfter(obj, this.tailNode);
 		}
@@ -6382,7 +6382,7 @@ pykit.LinkedList = {
 
 		obj.id = this.id(obj);
 
-		if (node === undefined) {
+		if (!node && this.headNode) {
 			// Insert as first node
 			return this.insertBefore(obj, this.headNode);
 		}
