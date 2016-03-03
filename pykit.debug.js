@@ -6314,7 +6314,7 @@ pykit.LinkedList = {
 	},
 	updateItem: function(item, update){
         pykit.assert(update, pykit.replaceString("Invalid update object for Id {id}", {id:item.id}));
-		var refNode = item.$headNode;
+		var refNode = item.$tailNode;
 		this.remove(item);
 		pykit.extend(item, update, true);
 		this.add(item, refNode);
@@ -6337,67 +6337,81 @@ pykit.LinkedList = {
 		return results;
     },
 	add: function(obj, node) {
-		return this.insertAfter(obj, node);
+		return this.insertBefore(obj, node);
 	},
 	insertBefore:function(obj, node){
         pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
         pykit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
 
 		obj.id = this.id(obj);
-		this.dispatch("onAdd", [obj]);
 
-		if (this.headNode == null && this.tailNode == null) {
-			this.headNode = obj;
-			this.tailNode = obj;
-			obj.$headNode = obj.$tailNode = null;
+		if (node === undefined) {
+			// Insert as last node
+			return this.insertAfter(obj, this.tailNode);
 		}
 		else {
-			node = node || this.headNode;
-			if (node.$headNode) {
-				node.$headNode.$tailNode = obj;
-			}
-			obj.$headNode = node.$headNode;
-			obj.$tailNode = node;
-			node.$headNode = obj;
+			this.dispatch("onAdd", [obj]);
 
-			if (node == this.headNode)
+			if (this.headNode == null || this.tailNode == null) {
 				this.headNode = obj;
+				this.tailNode = obj;
+				obj.$headNode = obj.$tailNode = null;
+			}
+			else {
+				if (node.$headNode) {
+					node.$headNode.$tailNode = obj;
+				}
+				obj.$headNode = node.$headNode;
+				obj.$tailNode = node;
+				node.$headNode = obj;
+
+				if (node == this.headNode)
+					this.headNode = obj;
+			}
+
+			this._nodeList.push(obj);
+
+			this.dispatch("onAdded",[obj]);
+
+			return obj.id;
 		}
-		this._nodeList.push(obj);
-
-		this.dispatch("onAdded",[obj]);
-
-		return obj.id;
 	},
 	insertAfter:function(obj, node){
 		pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
 		pykit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
 
 		obj.id = this.id(obj);
-		this.dispatch("onAdd", [obj]);
 
-		if (this.headNode == null && this.tailNode == null) {
-			this.headNode = obj;
-			this.tailNode = obj;
-			obj.$headNode = obj.$tailNode = null;
+		if (node === undefined) {
+			// Insert as first node
+			return this.insertBefore(obj, this.headNode);
 		}
 		else {
-			node = node || this.tailNode;
-			if (node.$tailNode) {
-				node.$tailNode.$headNode = obj;
-			}
-			obj.$tailNode = node.$tailNode;
-			obj.$headNode = node;
-			node.$tailNode = obj;
+			this.dispatch("onAdd", [obj]);
 
-			if (node == this.tailNode)
+			if (this.headNode == null || this.tailNode == null) {
+				this.headNode = obj;
 				this.tailNode = obj;
+				obj.$headNode = obj.$tailNode = null;
+			}
+			else {
+				if (node.$tailNode) {
+					node.$tailNode.$headNode = obj;
+				}
+				obj.$tailNode = node.$tailNode;
+				obj.$headNode = node;
+				node.$tailNode = obj;
+
+				if (node == this.tailNode)
+					this.tailNode = obj;
+			}
+
+			this._nodeList.push(obj);
+
+			this.dispatch("onAdded", [obj]);
+
+			return obj.id;
 		}
-		this._nodeList.push(obj);
-
-		this.dispatch("onAdded",[obj]);
-
-		return obj.id;
 	},
 	remove: function(obj) {
 		pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
@@ -6842,7 +6856,7 @@ pykit.defUI({
 		obj.$children = pykit.list();
 		if (!obj.$parent) {
 			obj.$depth = 0;
-			this.insertAfter(obj, node);
+			this.insertBefore(obj, node);
 		}
 		else {
 			var parent = this.findOne('id', obj.$parent);
