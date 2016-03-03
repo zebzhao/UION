@@ -6314,10 +6314,10 @@ pykit.LinkedList = {
 	},
 	updateItem: function(item, update){
         pykit.assert(update, pykit.replaceString("Invalid update object for Id {id}", {id:item.id}));
-
+		var refNode = item.$headNode;
 		this.remove(item);
 		pykit.extend(item, update, true);
-		this.add(item);
+		this.add(item, refNode);
 	},
 	refresh:function(){
 		this.dispatch("onRefresh");
@@ -6336,8 +6336,8 @@ pykit.LinkedList = {
 		}
 		return results;
     },
-	add: function(obj) {
-		return this.insertAfter(obj);
+	add: function(obj, node) {
+		return this.insertAfter(obj, node);
 	},
 	insertBefore:function(obj, node){
         pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
@@ -6838,11 +6838,11 @@ pykit.defUI({
 			return true;
 		}, this);
 	},
-	add: function(obj) {
+	add: function(obj, node) {
 		obj.$children = pykit.list();
 		if (!obj.$parent) {
 			obj.$depth = 0;
-			this.insertAfter(obj);
+			this.insertAfter(obj, node);
 		}
 		else {
 			var parent = this.findOne('id', obj.$parent);
