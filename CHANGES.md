@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.2.10
+-----------
+- fixed updateItem(), should not swap list order
+
 Version 0.2.9
 -----------
 - added args to open() on modal

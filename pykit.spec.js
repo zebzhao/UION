@@ -366,13 +366,20 @@ describe('list-ui', function() {
     var elem = pykit.UI({id: "l12", view: 'list', data: [
         {id:'lroot', label: 'Root'},
         {label:'Parent', $parent:'lroot', id:'lparent'},
-        {label:'Child', $parent:'lparent'}
+        {label:'Child', $parent:'lparent'},
+        {label:'Test', $parent:'lparent'}
     ]}, document.body);
 
     it('should create html comp properly', function() {
-        expect(elem.element.childElementCount).toBe(3);
+        expect(elem.element.childElementCount).toBe(4);
         expect(elem.element.parentElement).toBe(document.body);
-    })
+    });
+
+    it('should not change order after update', function() {
+        expect(elem.headNode.label).toBe("Root");
+        elem.updateItem(elem.headNode, {label: "Nice"});
+        expect(elem.headNode.label).toBe("Nice");
+    });
 });
 
 describe('selectors', function() {
