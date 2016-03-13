@@ -5673,18 +5673,15 @@ pykit.UI.element = pykit.defUI({
 		return !pykit.html.hasCSS(this._html, "uk-hidden");
 	},
 	show:function(){
-		this._config.hidden = false;
 		pykit.html.removeCSS(this._html, "uk-hidden");
 	},
 	hide:function(){
-		this._config.hidden = true;
 		pykit.html.addCSS(this._html, "uk-hidden");
 	},
 	isEnabled:function(){
 		return !this._html.getAttribute('disabled');
 	},
 	disable:function(){
-		this._config.disabled = true;
 		this._html.setAttribute('disabled', "");
 	},
 	enable:function() {
@@ -6077,6 +6074,7 @@ pykit.UI.input = pykit.defUI({
 			checked: function(value) {
 				if (value)
 					this._html.checked = value;
+				return value;
 			},
 			placeholder: function (value) {
 				this._html.setAttribute("placeholder", value);
@@ -6089,6 +6087,19 @@ pykit.UI.input = pykit.defUI({
 	},
 	_onChange: function() {
 		this.dispatch("onChange");
+	},
+	reset: function() {
+		switch(this._config.type) {
+			case "checkbox":
+				this._html.checked = this._config.checked;
+				break;
+			case "number":
+				this._html.value = 0;
+				break;
+			default:
+				this._html.value = "";
+				break;
+		}
 	},
 	getValue: function() {
 		if (this._config.type == "checkbox") {
@@ -6121,6 +6132,15 @@ pykit.UI.password = pykit.defUI({
 	},
 	template: function() {
 		return "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>";
+	},
+	reset: function() {
+		this._html.firstChild.value = "";
+	},
+	enable: function() {
+		this._html.firstChild.removeAttribute('disabled');
+	},
+	disable: function() {
+		this._html.firstChild.setAttribute('disabled', "");
 	},
 	getValue: function() {
 		return this._html.firstChild.value;
@@ -6199,6 +6219,15 @@ pykit.UI.search = pykit.defUI({
 	template: function(obj) {
 		return pykit.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
 			{placeholder: obj.placeholder})
+	},
+	reset: function() {
+		this._html.firstChild.value = "";
+	},
+	enable: function() {
+		this._html.firstChild.removeAttribute('disabled');
+	},
+	disable: function() {
+		this._html.firstChild.setAttribute('disabled', "");
 	},
 	getValue: function() {
 		return this._html.firstChild.value;
@@ -7084,6 +7113,15 @@ pykit.UI.form = pykit.defUI({
 		this.dispatch("onSubmit", [this.getValues(), this]);
 		return true;
 	},
+	clear: function() {
+		this._fieldset.clear();
+	},
+	enable: function() {
+		this._fieldset.enable();
+	},
+	disable: function() {
+		this._fieldset.disable();
+	},
 	getValues: function() {
 		return this._fieldset.getValues();
 	},
@@ -7141,6 +7179,27 @@ pykit.UI.fieldset = pykit.defUI({
 				controlContainer.appendChild(ui._html);
 			}
 		}
+	},
+	clear: function() {
+		this.each(function(item) {
+			if (item.name) {
+				$$(item.id).reset();
+			}
+		});
+	},
+	enable: function() {
+		this.each(function(item) {
+			if (item.name || item.view == "button") {
+				$$(item.id).enable();
+			}
+		});
+	},
+	disable: function() {
+		this.each(function(item) {
+			if (item.name || item.view == "button") {
+				$$(item.id).disable();
+			}
+		});
 	},
 	getValues: function() {
 		var results = {};

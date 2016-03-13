@@ -3,7 +3,12 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
-Version 0.2.10
+Version 0.3.1
+-----------
+- added `clear()`, `enable()` and `disable()` to forms and fieldsets
+- added `reset()` to input, password, search components
+
+Version 0.3.0
 -----------
 - fixed updateItem(), should not swap list order
 
