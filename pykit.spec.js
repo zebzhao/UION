@@ -405,13 +405,18 @@ describe('form', function() {
             },
             {
                 formLabel: "Loop", view: "input", type: "checkbox", name: "loop", checked: true
-            }]
-        }
-    );
+            },
+            {
+                view: "flexgrid", cells: [
+                    {view: "input", type: "number", name: "nested"}
+                ]
+            }
+        ]
+    });
 
     it('should get and set values', function() {
-        expect(elem.getValues()).toEqual({name: "", speed: "", loop: true});
-        elem.setValues({loop: false, speed: 100, name: "Awesome"});
-        expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false});
+        expect(elem.getValues()).toEqual({name: "", speed: "", loop: true, nested: ""});
+        elem.setValues({loop: false, speed: 100, name: "Awesome", nested: 150});
+        expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false, nested: '150'});
     });
 });

@@ -1038,7 +1038,6 @@ pykit.UI.flexgrid = pykit.defUI({
 		cells: function(value) {
 			pykit.assert(pykit.isArray(value), "The cells property must be an array for shell ui object.", this);
 
-			this._cells = {};
 			for (var config,i=0; i<value.length; i++) {
 				config = value[i];
 				config.margin = config.margin || "";
@@ -1046,7 +1045,7 @@ pykit.UI.flexgrid = pykit.defUI({
 				var ui = pykit.UI(config);
 				if (!this._config.singleView)
 					this._html.appendChild(ui._html);
-				this._cells[config.id] = ui;
+				this._cells.push(ui);
 			}
 
 			if(this._config.singleView && this._config.defaultView)
@@ -1055,31 +1054,48 @@ pykit.UI.flexgrid = pykit.defUI({
 			return value;
 		}
 	},
+	__init__: function() {
+		this._cells = pykit.list();
+	},
 	render: function() {
 		// Do nothing, overwrites render function.
 	},
+	each: function(func, thisArg) {
+		return this._cells.each(func, thisArg);
+	},
 	insertChild: function(index, config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells[config.id] = ui;
+		this._cells.splice(index, 0, ui);
 		return ui;
 	},
 	addChild: function(config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells[config.id] = ui;
+		this._cells.push(ui);
 		return ui;
 	},
 	removeChild: function(id) {
 		if (id.element) {
 			this._html.removeChild(id._html);
-			delete this._cells[id.id];
+			this._cells.remove(id);
+		}
+		else if (pykit.isString(id)) {
+			this._html.removeChild(this.getChild(id)._html);
+			this._cells.removeWhere('id', id);
 		}
 		else {
-			this._html.removeChild(this._cells[id]._html);
-			delete this._cells[id];
+			pykit.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
 		}
 	},
 	getChild: function(id) {
-		return this._cells[id];
+		return this._cells.findOne('id', id);
+	},
+	getChildren: function() {
+		return this._cells;
+	},
+	getItems: function() {
+		return this._cells.each(function(item) {
+			return item.config;
+		});
 	},
 	activeChild: function() {
 		return this._activeChild;
@@ -1099,7 +1115,7 @@ pykit.UI.flexgrid = pykit.defUI({
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
-		pykit.forIn(function(item) {
+		this._cells.each(function(item) {
 			if (value.indexOf(item.config[key]) != -1 || item == value) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
@@ -1108,7 +1124,7 @@ pykit.UI.flexgrid = pykit.defUI({
 			else if (item._html.parentNode) {
 				this._html.removeChild(item._html);
 			}
-		}, this._cells, this);
+		}, this);
 	}
 }, pykit.UI.element);
 
@@ -2511,20 +2527,42 @@ pykit.UI.fieldset = pykit.defUI({
 	},
 	getValues: function() {
 		var results = {};
-		this.each(function(item) {
+
+		var unprocessed = this.each(function(item) {
+			return item;
+		});
+
+		// Extract all children with `name` attributes, including nested flexgrid children.
+		var item;
+		while (unprocessed.length > 0) {
+			item = unprocessed.pop();
 			if (item.name) {
 				results[item.name] = $$(item.id).getValue();
 			}
-		});
+			else if (item.view == "flexgrid") {
+				unprocessed = unprocessed.concat($$(item.id).getItems());
+			}
+		}
+
 		return results;
 	},
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
-		this.each(function(item) {
+
+		var unprocessed = this.each(function(item) {
+			return item;
+		});
+
+		var item;
+		while (unprocessed.length > 0) {
+			item = unprocessed.pop();
 			if (pykit.isDefined(config[item.name])) {
 				$$(item.id).setValue(config[item.name]);
 			}
-		});
+			else if (item.view == "flexgrid") {
+				unprocessed = unprocessed.concat($$(item.id).getItems());
+			}
+		}
 	}
 }, pykit.UI.stack);
 
