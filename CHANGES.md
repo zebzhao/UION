@@ -3,6 +3,11 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.2
+-----------
+- added `each()`, `getChildren()`, `getItems()` to `flexgrid` component
+- fixed `getValues()`, `setValues()` work with nested components in `form`
+
 Version 0.3.1
 -----------
 - added `clear()`, `enable()` and `disable()` to forms and fieldsets

@@ -23,6 +23,7 @@ Table of Contents
 1. [Defining required extensions](#defining-required-extensions)
 1. [Initialization handling](#initialization-handling)
 1. [Standard components](#standard-components)
+1. [Demos]
 
 Usage
 ---
@@ -31,14 +32,14 @@ Start by including the file in your main HTML file.
 
 For debugging
 ```html
-<link rel="stylesheet" href="css/spring.css"></link>
+<link rel="stylesheet" href="css/spring.css">
 <script src="jquery.js" type="text/javascript"></script>
 <script src="pykit.js" type="text/javascript"></script>
 ```
 
 For production
 ```html
-<link rel="stylesheet" href="css/spring.css"></link>
+<link rel="stylesheet" href="css/spring.css">
 <script src="jquery.min.js" type="text/javascript"></script>
 <script src="pykit.min.js" type="text/javascript"></script>
 ```
@@ -70,7 +71,7 @@ pykit.UI({
 
 __When initializing UIkit components add `data-uk-observe` to the main `<body>` tag.__
 
-A list of UIkit components include
+A list of UIkit components include:
 
 * autocomplete
 * dropdown
@@ -291,6 +292,11 @@ A list of standard components can be found below.
 ## Standard attributes
 
 Currently undocumented.
+
+Demos
+---
+
+For a list of demos, see the `layout_tests` folder.
 
 Developers
 ---
