@@ -5889,6 +5889,11 @@ pykit.UI.modal = pykit.defUI({
 			this._body.style.width = value;
 			return value;
 		},
+		bodyHeight: function(value) {
+			value = pykit.isNumber(value) ? value + "px": value;
+			this._body.style.height = value;
+			return value;
+		},
         closeButton: function(value) {
             this._close = pykit.html.createElement("A",
 				{class: "uk-modal-close uk-close"});
