@@ -1384,7 +1384,10 @@ pykit.UI.input = pykit.defUI({
 	__name__: "input",
 	$defaults: {
 		htmlTag: "INPUT",
-		inputWidth: "medium"
+		inputWidth: "medium",
+		autocomplete: true,
+		autocapitalize: true,
+		autocorrect: false
 	},
 	$setters: pykit.extend(pykit.setCSS(
 		{
@@ -1395,6 +1398,18 @@ pykit.UI.input = pykit.defUI({
 			}
 		}),
 		{
+			autocomplete: function(value) {
+				this._html.setAttribute("autocomplete", value);
+				return value;
+			},
+			autocapitalize: function(value) {
+				this._html.setAttribute("autocapitalize", value);
+				return value;
+			},
+			autocorrect: function(value) {
+				this._html.setAttribute("autocorrect", value);
+				return value;
+			},
 			type: function(value) {
 				this._html.setAttribute("type", value);
 				pykit.html.addCSS(this._html, "uk-vertical-align-middle");

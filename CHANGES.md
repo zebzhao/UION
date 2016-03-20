@@ -7,6 +7,7 @@ Version 0.3.2
 -----------
 - added `each()`, `getChildren()`, `getItems()` to `flexgrid` component
 - added `bodyHeight` config to `modal` to control modal height
+- added `autocomplete`, `autocorrect`, `autocapitalize` config to `input`
 - fixed `getValues()`, `setValues()` work with nested components in `form`
 
 Version 0.3.1
