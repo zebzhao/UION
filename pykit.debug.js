@@ -6077,9 +6077,9 @@ pykit.UI.input = pykit.defUI({
 	$defaults: {
 		htmlTag: "INPUT",
 		inputWidth: "medium",
-		autocomplete: true,
-		autocapitalize: true,
-		autocorrect: false
+		autocomplete: "on",
+		autocapitalize: "on",
+		autocorrect: "on"
 	},
 	$setters: pykit.extend(pykit.setCSS(
 		{
