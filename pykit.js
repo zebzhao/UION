@@ -1399,15 +1399,18 @@ pykit.UI.input = pykit.defUI({
 		}),
 		{
 			autocomplete: function(value) {
-				this._html.setAttribute("autocomplete", value);
+				if (value == "off" || !value)
+					this._html.setAttribute("autocomplete", "off");
 				return value;
 			},
 			autocapitalize: function(value) {
-				this._html.setAttribute("autocapitalize", value);
+				if (value == "off" || !value)
+					this._html.setAttribute("autocapitalize", "off");
 				return value;
 			},
 			autocorrect: function(value) {
-				this._html.setAttribute("autocorrect", value);
+				if (value == "off" || !value)
+					this._html.setAttribute("autocorrect", "off");
 				return value;
 			},
 			type: function(value) {
