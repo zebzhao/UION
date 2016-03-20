@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Pykit release.
 Version 0.3.2
 -----------
 - added `each()`, `getChildren()`, `getItems()` to `flexgrid` component
+- added `bodyHeight` config to `modal` to control modal height
 - fixed `getValues()`, `setValues()` work with nested components in `form`
 
 Version 0.3.1
