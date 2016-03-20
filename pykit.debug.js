@@ -5839,6 +5839,8 @@ pykit.ClickEvents = {
             config.on.onItemClick = config.click;
         }
         pykit.event(this._html, "click", this._onClick, this);
+        pykit.event(this._html, "mousedown", this._onMouseDown, this);
+        pykit.event(this._html, "mouseup", this._onMouseUp, this);
 		pykit.event(this._html, "contextmenu", this._onContext, this);
 	},
 	_onClick: function(e){
@@ -5846,6 +5848,18 @@ pykit.ClickEvents = {
 			pykit.html.preventEvent(e);
 		}
         this.dispatch("onClick", [this._config, this._html, e]);
+	},
+	_onMouseDown: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
+		this.dispatch("onMouseDown", [this._config, this._html, e]);
+	},
+	_onMouseUp: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
+		this.dispatch("onMouseUp", [this._config, this._html, e]);
 	},
 	_onContext: function(e) {
 		if (this._config.$preventDefault !== false) {
