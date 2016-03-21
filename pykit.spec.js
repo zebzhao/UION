@@ -242,6 +242,13 @@ describe('linked-list', function() {
         expect(list.tailNode).toBe(n3);
     });
 
+    it('should contain', function() {
+        expect(list.contains(n1)).toBeTruthy();
+        expect(list.contains(n2)).toBeTruthy();
+        expect(list.contains(n3)).toBeTruthy();
+        expect(list.contains({})).toBeFalsy();
+    });
+
     it('should insert before', function() {
         list.remove(n1);
         expect(list.headNode).toBe(n2);
