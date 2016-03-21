@@ -6526,6 +6526,18 @@ pykit.LinkedList = {
 	next: function(node) {
 		return node.$tailNode;
 	},
+	contains: function(node) {
+		var next = this.headNode;
+		while (next) {
+			if (node == next) {
+				return true;
+			}
+			else {
+				next = next.$tailNode;
+			}
+		}
+		return false;
+	},
 	findOne: function(key, value, beginNode) {
 		var node = beginNode || this.headNode;
 		while (node) {
@@ -6707,16 +6719,65 @@ pykit.UI.list = pykit.defUI({
 			},
 			tab: function(value) {
 				if (value) {
-					this._html.setAttribute("data-uk-tab", "");
-					this.addListener("onItemClick", this._onTabClick)
+					var $this = this;
+					$this.addListener("onItemClick", $this._onTabClick);
+
+					if (value == "responsive") {
+						// Create a list of linked data to the actual data
+						// This avoids needing to duplicate the data
+						var linkedData = pykit.list($this.config.data).each(function(item) {
+							return {label: item.label, $link: item, $close: item.$close};
+						});
+
+						$this.set('dropdownEvent', "onTabMenuClick");
+						$this.set('dropdown', {
+							view: "list",
+							data: linkedData,
+							on: {
+								onItemClick: function(item, node, e) {
+									$this._onTabClick(item.$link, node, e);
+								},
+								onItemSelectionChanged: function(item, node, e) {
+									$this._onTabClick(item.$link, node, e);
+								},
+								onItemClosed: function(item) {
+									$this.closeItem(item.$link);
+								}
+							}
+						});
+						$this.dropdownList = $this.dropdownPopup._inner;
+						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true});
+						$this.addListener("onAdded", $this._onTabAdded);
+						$this.addListener("onDeleted", $this._onTabDeleted);
+					}
 				}
 				return value;
 			}
 		}
 	),
-	_onTabClick: function(item) {
-		if (this.getItemNode(item.id) && !this.isSelected(item))
-			this.dispatch("onItemSelectionChanged", [item]);
+	_onTabAdded: function(item, node, e) {
+	},
+	_onTabDeleted: function(item) {
+		if (this.dropdownList) {
+			var linked = this.dropdownList.findOne("$link", item);
+			if (linked) this.dropdownList.remove(linked);
+		}
+	},
+	_onTabClick: function(item, node, e) {
+		if (item.$tabmenu) {
+			this.dispatch("onTabMenuClick", [item, node, e]);
+		}
+		else {
+			// Select both dropdown item and tab item
+			if (this.dropdownList) {
+				this.dropdownList.unselectAll();
+				var linked = this.dropdownList.findOne("$link", item);
+				if (linked) this.dropdownList.select(linked);
+			}
+			this.unselectAll();
+			if (this.contains(item)) this.select(item);
+			this.dispatch("onItemSelectionChanged", [item, node, e]);
+		}
 	},
 	setActiveLabel: function(label) {
 		this.setActive("label", label)
@@ -6739,7 +6800,9 @@ pykit.UI.list = pykit.defUI({
 	},
 	unselectAll: function() {
 		this.each(function(item) {
-			pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
+			var node = this.getItemNode(item.id);
+			pykit.assert(node, "Node with id " + item.id + " does not exist");
+			pykit.html.removeCSS(node, "uk-active");
 		}, this);
 	},
 	closeItem: function(item) {
