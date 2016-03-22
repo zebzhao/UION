@@ -6775,15 +6775,23 @@ pykit.UI.list = pykit.defUI({
 			this.dispatch("onTabMenuClick", [item, node, e]);
 		}
 		else {
+			this.unselectAll();
+			this.each(function(item) {
+				if (item.batch == "$selected") delete item.batch;
+			});
+			if (this.contains(item)) {
+				item.batch = "$selected";
+				this.select(item);
+				this.dispatch("onItemSelectionChanged", [item, node, e]);
+			}
+
 			// Select both dropdown item and tab item
 			if (this.dropdownList) {
 				this.dropdownList.unselectAll();
 				var linked = this.dropdownList.findOne("$link", item);
 				if (linked) this.dropdownList.select(linked);
+				this.updateFit();
 			}
-			this.unselectAll();
-			if (this.contains(item)) this.select(item);
-			this.dispatch("onItemSelectionChanged", [item, node, e]);
 		}
 	},
 	updateFit: function() {
@@ -6792,7 +6800,7 @@ pykit.UI.list = pykit.defUI({
 		for (var id in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(id)) {
 				if (offset && this._itemNodes[id].offsetTop != offset) {
-					this.showBatch("$menu");
+					this.showBatch(["$menu", "$selected"]);
 					break;
 				}
 				offset = this._itemNodes[id].offsetTop;
