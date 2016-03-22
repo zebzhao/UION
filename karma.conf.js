@@ -6,7 +6,8 @@ module.exports = function(config){
         logLevel: config.LOG_DEBUG,
 
         files : [
-            'pykit.js',
+            'bower_components/jquery/dist/jquery.js',
+            'pykit.debug.js',
             'pykit.spec.js'
         ],
 

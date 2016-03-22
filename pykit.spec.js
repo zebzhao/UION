@@ -427,3 +427,34 @@ describe('form', function() {
         expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false, nested: '150'});
     });
 });
+
+
+describe('responsive-tabs', function() {
+    var elem = pykit.UI({
+        id: "t31", view: 'list', tab: "responsive", data: [
+            {label: 'Test 1'},
+            {label: 'Test 2'},
+            {label: 'Test 3'}
+        ]
+    }, document.body);
+
+    it ('should remove 1 tab', function() {
+        expect(elem.count()).toBe(4);
+        var item = elem.findOne("label", "Test 1");
+        expect(elem.contains(item)).toBeTruthy();
+        elem.remove(item);
+        expect(elem.contains(item)).toBeFalsy();
+        expect(elem.count()).toBe(3);
+    });
+
+    it('should setActive and close tabs properly', function() {
+        elem.setActiveLabel("Test 2");
+        elem.each(function(item) {
+            elem.closeItem(item);
+            console.log(item)
+        });
+        // Only responsive tab toggle should remain
+        expect(elem._itemNodes).toBe(1)
+        expect(elem.count()).toBe(1);
+    });
+});

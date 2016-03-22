@@ -6323,7 +6323,7 @@ pykit.UI.dropdown = pykit.defUI({
 		result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
 		return result;
 	},
-	_position: function(node, e) {
+	_position: function(node) {
 		var origin = node.getBoundingClientRect();
 		var dropdown = this._html.firstChild.getBoundingClientRect();
 		var width = dropdown.width,
@@ -6411,10 +6411,12 @@ pykit.LinkedList = {
 	},
     each: function(func, thisArg) {
 		var node = this.headNode;
+		var nextNode;
 		var results = [];
 		while (node) {
+			nextNode = node.$tailNode;
 			results.push(func.call(thisArg || this, node));
-			node = node.$tailNode;
+			node = nextNode;
 		}
 		return results;
     },
@@ -6837,8 +6839,11 @@ pykit.UI.list = pykit.defUI({
 		this.dispatch("onItemClose", [item]);
 
 		if (this.isSelected(item) && this.count() ) {
+			// Select the next tab that's not a tab menu.
 			var nextItem = this.previous(item) || this.next(item);
-			if (nextItem) {
+			nextItem = nextItem.$tabmenu ? this.next(item) : nextItem;
+
+			if (nextItem && !nextItem.$tabmenu) {
 				this.select(nextItem);
 				this.dispatch("onItemSelectionChanged", [nextItem]);
 			}
