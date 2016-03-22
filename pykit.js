@@ -2146,7 +2146,7 @@ pykit.UI.list = pykit.defUI({
 	closeItem: function(item) {
 		this.dispatch("onItemClose", [item]);
 
-		if (this.isSelected(item) && this.count() ) {
+		if (this.isSelected(item)) {
 			// Select the next tab that's not a tab menu.
 			var nextItem = this.previous(item) || this.next(item);
 			nextItem = nextItem.$tabmenu ? this.next(item) : nextItem;
@@ -2157,7 +2157,10 @@ pykit.UI.list = pykit.defUI({
 			}
 		}
 
-		this.remove(item);
+		// Don't remove if is tabmenu
+		if (item && !item.$tabmenu) {
+			this.remove(item);
+		}
 
 		this.dispatch("onItemClosed", [item]);
 	},

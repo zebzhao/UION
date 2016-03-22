@@ -454,7 +454,6 @@ describe('responsive-tabs', function() {
             console.log(item)
         });
         // Only responsive tab toggle should remain
-        expect(elem._itemNodes).toBe(1)
         expect(elem.count()).toBe(1);
     });
 });
