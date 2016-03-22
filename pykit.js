@@ -2054,16 +2054,23 @@ pykit.UI.list = pykit.defUI({
 							}
 						});
 						$this.dropdownList = $this.dropdownPopup._inner;
-						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true});
+						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"});
 						$this.addListener("onAdded", $this._onTabAdded);
 						$this.addListener("onDeleted", $this._onTabDeleted);
+						// TODO: onEnter event probably not possible (when added to parent, need to do updateFit)
+
+						pykit.event(window, "resize", $this.updateFit, $this);
 					}
 				}
 				return value;
 			}
 		}
 	),
-	_onTabAdded: function(item, node, e) {
+	_onTabAdded: function(item) {
+		if (this.dropdownList) {
+			this.dropdownList.add({label: item.label, $link: item, $close: item.$close});
+			this.updateFit();
+		}
 	},
 	_onTabDeleted: function(item) {
 		if (this.dropdownList) {
@@ -2085,6 +2092,19 @@ pykit.UI.list = pykit.defUI({
 			this.unselectAll();
 			if (this.contains(item)) this.select(item);
 			this.dispatch("onItemSelectionChanged", [item, node, e]);
+		}
+	},
+	updateFit: function() {
+		var offset;
+		this.showBatch([undefined]);
+		for (var id in this._itemNodes) {
+			if (this._itemNodes.hasOwnProperty(id)) {
+				if (offset && this._itemNodes[id].offsetTop != offset) {
+					this.showBatch("$menu");
+					break;
+				}
+				offset = this._itemNodes[id].offsetTop;
+			}
 		}
 	},
 	setActiveLabel: function(label) {
