@@ -6642,6 +6642,8 @@ pykit.UI.stack = pykit.defUI({
 			var parentNode = this.getItemNode(parent.id);
 			parentNode.parentNode.replaceChild(this._createItem(parent), parentNode);
 		}
+
+		this.dispatch("onDOMChanged", [obj, "added"]);
 	},
 	_onDeleted: function(obj) {
 		if (obj.$parent) {
@@ -6652,6 +6654,8 @@ pykit.UI.stack = pykit.defUI({
 		}
 		this._containerHTML().removeChild(this.getItemNode(obj.id));
 		delete this._itemNodes[obj.id];
+
+		this.dispatch("onDOMChanged", [obj, "deleted"]);
 	},
 	_onRefresh: function() {
 		this._onClearAll();
@@ -6661,12 +6665,16 @@ pykit.UI.stack = pykit.defUI({
 			if (this._filter(node))
 				this._containerHTML().appendChild(this._itemNodes[node.id]);
 		}, this);
+
+		this.dispatch("onDOMChanged", [null, "refresh"]);
 	},
 	_onClearAll: function() {
 		for (var j in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(j) && this._itemNodes[j].parentNode)
 				this._containerHTML().removeChild(this._itemNodes[j]);
 		}
+
+		this.dispatch("onDOMChanged", [null, "clear"]);
 	},
 	showBatch:function(name) {
 		this.batch = name;
@@ -6749,21 +6757,24 @@ pykit.UI.list = pykit.defUI({
 						});
 						$this.dropdownList = $this.dropdownPopup._inner;
 						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
+						$this.addListener("onDOMChanged", $this._onDOMChanged);
 						$this.addListener("onAdded", $this._onTabAdded);
 						$this.addListener("onDeleted", $this._onTabDeleted);
-						// TODO: onEnter event probably not possible (when added to parent, need to do updateFit)
 
 						pykit.event(window, "resize", $this.updateFit, $this);
+						this.dispatch("onDOMChanged", [null, "refresh"]);
 					}
 				}
 				return value;
 			}
 		}
 	),
+	_onDOMChanged: function() {
+		pykit.delay(this.updateFit, this);
+	} ,
 	_onTabAdded: function(item) {
 		if (this.dropdownList) {
 			this.dropdownList.add({label: item.label, $link: item, $close: item.$close});
-			this.updateFit();
 		}
 	},
 	_onTabDeleted: function(item) {
