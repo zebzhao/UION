@@ -6455,7 +6455,7 @@ pykit.LinkedList = {
 
 			this._nodeList.push(obj);
 
-			this.dispatch("onAdded",[obj]);
+			this.dispatch("onAdded",[obj, node]);
 
 			return obj.id;
 		}
@@ -6772,9 +6772,10 @@ pykit.UI.list = pykit.defUI({
 	_onDOMChanged: function() {
 		pykit.delay(this.updateFit, this);
 	} ,
-	_onTabAdded: function(item) {
+	_onTabAdded: function(item, before) {
 		if (this.dropdownList) {
-			this.dropdownList.add({label: item.label, $link: item, $close: item.$close});
+			this.dropdownList.add({label: item.label, $link: item, $close: item.$close},
+				this.dropdownList.findOne("$link", before));
 		}
 	},
 	_onTabDeleted: function(item) {
@@ -6808,16 +6809,26 @@ pykit.UI.list = pykit.defUI({
 		}
 	},
 	updateFit: function() {
-		var offset;
-		this.showBatch([undefined]);
+		var offset, doResponsive;
+
+		// Show everything for checking y-offset
+		this.showBatch([undefined, "$selected", "$menu"]);
+
 		for (var id in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(id)) {
 				if (offset && this._itemNodes[id].offsetTop != offset) {
-					this.showBatch(["$menu", "$selected"]);
+					doResponsive = true;
 					break;
 				}
 				offset = this._itemNodes[id].offsetTop;
 			}
+		}
+
+		if (doResponsive) {
+			this.showBatch(["$menu", "$selected"]);
+		}
+		else {
+			this.showBatch([undefined, "$selected"]);
 		}
 	},
 	setActiveLabel: function(label) {
