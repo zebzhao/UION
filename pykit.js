@@ -2116,6 +2116,8 @@ pykit.UI.list = pykit.defUI({
 				this.dropdownList.unselectAll();
 				var linked = this.dropdownList.findOne("$link", item);
 				if (linked) this.dropdownList.select(linked);
+				// Show active visible item
+				this.updateFit();
 			}
 		}
 	},
