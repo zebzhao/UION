@@ -2056,7 +2056,7 @@ pykit.UI.list = pykit.defUI({
 							}
 						});
 						$this.dropdownList = $this.dropdownPopup._inner;
-						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"});
+						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
 						$this.addListener("onAdded", $this._onTabAdded);
 						$this.addListener("onDeleted", $this._onTabDeleted);
 						// TODO: onEnter event probably not possible (when added to parent, need to do updateFit)
