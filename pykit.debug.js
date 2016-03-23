@@ -6760,6 +6760,7 @@ pykit.UI.list = pykit.defUI({
 						$this.addListener("onDOMChanged", $this._onDOMChanged);
 						$this.addListener("onAdded", $this._onTabAdded);
 						$this.addListener("onDeleted", $this._onTabDeleted);
+						$this.addListener("onItemSelectionChanged", $this._onItemSelectionChanged);
 
 						pykit.event(window, "resize", $this.updateFit, $this);
 						this.dispatch("onDOMChanged", [null, "refresh"]);
@@ -6791,26 +6792,28 @@ pykit.UI.list = pykit.defUI({
 			this.dispatch("onTabMenuClick", [item, node, e]);
 		}
 		else {
-			this.unselectAll();
-			this.each(function(item) {
-				if (item.batch == "$selected") delete item.batch;
-			});
-
 			// Select tab item
 			if (this.contains(item)) {
-				item.batch = "$selected";
-				this.select(item);
-				this.dispatch("onItemSelectionChanged", [item, node, e]);
+				this.dispatch("onItemSelectionChanged", [item]);
 			}
+		}
+	},
+	_onItemSelectionChanged: function(item) {
+		this.unselectAll();
+		this.each(function(item) {
+			if (item.batch == "$selected") delete item.batch;
+		});
 
-			// Select dropdown item
-			if (this.dropdownList) {
-				this.dropdownList.unselectAll();
-				var linked = this.dropdownList.findOne("$link", item);
-				if (linked) this.dropdownList.select(linked);
-				// Show active visible item
-				this.updateFit();
-			}
+		item.batch = "$selected";
+		this.select(item);
+
+		// Select dropdown item
+		if (this.dropdownList) {
+			this.dropdownList.unselectAll();
+			var linked = this.dropdownList.findOne("$link", item);
+			if (linked) this.dropdownList.select(linked);
+			// Show active visible item
+			this.updateFit();
 		}
 	},
 	updateFit: function() {
