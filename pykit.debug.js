@@ -6774,8 +6774,10 @@ pykit.UI.list = pykit.defUI({
 	} ,
 	_onTabAdded: function(item, before) {
 		if (this.dropdownList) {
-			this.dropdownList.add({label: item.label, $link: item, $close: item.$close},
-				this.dropdownList.findOne("$link", before));
+			var linked = {label: item.label, $link: item, $close: item.$close};
+			this.dropdownList.add(linked, this.dropdownList.findOne("$link", before));
+			// Select dropdown item if item is selected
+			if (this.isSelected(item)) this.dropdownList.select(linked);
 		}
 	},
 	_onTabDeleted: function(item) {
@@ -6793,26 +6795,30 @@ pykit.UI.list = pykit.defUI({
 			this.each(function(item) {
 				if (item.batch == "$selected") delete item.batch;
 			});
+
+			// Select tab item
 			if (this.contains(item)) {
 				item.batch = "$selected";
 				this.select(item);
 				this.dispatch("onItemSelectionChanged", [item, node, e]);
 			}
 
-			// Select both dropdown item and tab item
+			// Select dropdown item
 			if (this.dropdownList) {
 				this.dropdownList.unselectAll();
 				var linked = this.dropdownList.findOne("$link", item);
 				if (linked) this.dropdownList.select(linked);
-				this.updateFit();
 			}
 		}
 	},
 	updateFit: function() {
 		var offset, doResponsive;
 
-		// Show everything for checking y-offset
-		this.showBatch([undefined, "$selected", "$menu"]);
+		// Show everything for checking y-offset (keep invisible to avoid blink)
+		this.each(function(item) {
+			pykit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
+			pykit.html.addCSS(this._itemNodes[item.id], "uk-invisible");
+		}, this);
 
 		for (var id in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(id)) {
@@ -6823,6 +6829,10 @@ pykit.UI.list = pykit.defUI({
 				offset = this._itemNodes[id].offsetTop;
 			}
 		}
+
+		this.each(function(item) {
+			pykit.html.removeCSS(this._itemNodes[item.id], "uk-invisible");
+		}, this);
 
 		if (doResponsive) {
 			this.showBatch(["$menu", "$selected"]);
