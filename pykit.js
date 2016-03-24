@@ -2086,7 +2086,14 @@ pykit.UI.list = pykit.defUI({
 			var linked = {label: item.label, $link: item, $close: item.$close};
 			this.dropdownList.add(linked, this.dropdownList.findOne("$link", before));
 			// Select dropdown item if item is selected
-			if (this.isSelected(item)) this.dropdownList.select(linked);
+			if (item.$selected) {
+				this.dropdownList.unselectAll();
+				this.dropdownList.select(linked);
+			}
+		}
+		if (item.$selected) {
+			this.unselectAll();
+			this.select(item);
 		}
 	},
 	_onTabDeleted: function(item) {
@@ -2108,33 +2115,35 @@ pykit.UI.list = pykit.defUI({
 	},
 	_onItemSelectionChanged: function(item) {
 		this.unselectAll();
-		this.each(function(item) {
-			if (item.batch == "$selected") delete item.batch;
-		});
-
-		item.batch = "$selected";
 		this.select(item);
 
 		// Select dropdown item
 		if (this.dropdownList) {
-			this.dropdownList.unselectAll();
 			var linked = this.dropdownList.findOne("$link", item);
-			if (linked) this.dropdownList.select(linked);
+			if (linked) {
+				this.dropdownList.unselectAll();
+				this.dropdownList.select(linked);
+			}
+
 			// Show active visible item
 			this.updateFit();
 		}
 	},
 	updateFit: function() {
-		var offset, doResponsive;
-
-		// Show everything for checking y-offset (keep invisible to avoid blink)
 		this.each(function(item) {
+			// Show everything for checking y-offset (keep invisible to avoid blink)
 			pykit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
 			pykit.html.addCSS(this._itemNodes[item.id], "uk-invisible");
+			// Update batch according to $selected state
+			if (!item.$tabmenu) {
+				item.batch = item.$selected ? "$selected" : undefined;
+			}
 		}, this);
 
+		var offset, doResponsive;
 		for (var id in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(id)) {
+				console.log(this._itemNodes[id].offsetTop)
 				if (offset && this._itemNodes[id].offsetTop != offset) {
 					doResponsive = true;
 					break;
@@ -2166,16 +2175,18 @@ pykit.UI.list = pykit.defUI({
 	isSelected: function(target) {
 		if (pykit.isString(target))
 			target = this.getItem(target);
-		return pykit.html.hasCSS(this.getItemNode(target.id), "uk-active");
+		return target.$selected;
 	},
 	select: function(target) {
 		if (pykit.isString(target))
 			target = this.getItem(target);
+		target.$selected = true;
 		pykit.html.addCSS(this.getItemNode(target.id), "uk-active");
 	},
 	unselectAll: function() {
 		this.each(function(item) {
 			var node = this.getItemNode(item.id);
+			item.$selected = false;
 			pykit.assert(node, "Node with id " + item.id + " does not exist");
 			pykit.html.removeCSS(node, "uk-active");
 		}, this);
