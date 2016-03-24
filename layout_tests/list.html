@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../css/spring.css">
+    <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script src="../pykit.debug.js"></script>
+</head>
+<body>
+<script>
+    pykit.UI({
+        view: "list",
+        listStyle: "stripped",
+        data: [
+            {label: "Test 1"},
+            {label: "Test 1"},
+            {label: "Test 1"},
+            {label: "Test 1"},
+            {label: "Test 1"}
+        ]
+    }, document.body);
+
+    pykit.UI({
+        view: "list",
+        listStyle: "tab",
+        tab: "responsive",
+        dropdownPos: "right-center",
+        width: '300px',
+        data: [
+            {label: "T2"},
+            {label: "T2"},
+            {label: "T2"}
+        ]
+    }, document.body);
+
+    pykit.UI({
+        view: "list",
+        listStyle: "tab",
+        tab: "responsive",
+        dropdownPos: "bottom-left",
+        width: '150px',
+        data: [
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2", $close: true},
+            {label: "Test 2"}
+        ]
+    }, document.body);
+</script>
+</body>
+</html>

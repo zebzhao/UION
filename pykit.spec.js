@@ -242,6 +242,13 @@ describe('linked-list', function() {
         expect(list.tailNode).toBe(n3);
     });
 
+    it('should contain', function() {
+        expect(list.contains(n1)).toBeTruthy();
+        expect(list.contains(n2)).toBeTruthy();
+        expect(list.contains(n3)).toBeTruthy();
+        expect(list.contains({})).toBeFalsy();
+    });
+
     it('should insert before', function() {
         list.remove(n1);
         expect(list.headNode).toBe(n2);
@@ -405,13 +412,48 @@ describe('form', function() {
             },
             {
                 formLabel: "Loop", view: "input", type: "checkbox", name: "loop", checked: true
-            }]
-        }
-    );
+            },
+            {
+                view: "flexgrid", cells: [
+                    {view: "input", type: "number", name: "nested"}
+                ]
+            }
+        ]
+    });
 
     it('should get and set values', function() {
-        expect(elem.getValues()).toEqual({name: "", speed: "", loop: true});
-        elem.setValues({loop: false, speed: 100, name: "Awesome"});
-        expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false});
+        expect(elem.getValues()).toEqual({name: "", speed: "", loop: true, nested: ""});
+        elem.setValues({loop: false, speed: 100, name: "Awesome", nested: 150});
+        expect(elem.getValues()).toEqual({name: "Awesome", speed: '100', loop: false, nested: '150'});
+    });
+});
+
+
+describe('responsive-tabs', function() {
+    var elem = pykit.UI({
+        id: "t31", view: 'list', tab: "responsive", data: [
+            {label: 'Test 1'},
+            {label: 'Test 2'},
+            {label: 'Test 3'}
+        ]
+    }, document.body);
+
+    it ('should remove 1 tab', function() {
+        expect(elem.count()).toBe(4);
+        var item = elem.findOne("label", "Test 1");
+        expect(elem.contains(item)).toBeTruthy();
+        elem.remove(item);
+        expect(elem.contains(item)).toBeFalsy();
+        expect(elem.count()).toBe(3);
+    });
+
+    it('should setActive and close tabs properly', function() {
+        elem.setActiveLabel("Test 2");
+        elem.each(function(item) {
+            elem.closeItem(item);
+            console.log(item)
+        });
+        // Only responsive tab toggle should remain
+        expect(elem.count()).toBe(1);
     });
 });

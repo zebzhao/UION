@@ -3,6 +3,17 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.2
+-----------
+- added `each()`, `getChildren()`, `getItems()` to `flexgrid` component
+- added `bodyHeight` config to `modal` to control modal height
+- added `autocomplete`, `autocorrect`, `autocapitalize` config to `input`
+- added `onMouseDown`, `onMouseUp` events to `button`, `link`
+- added `onTabMenuClick` event to list with `tab` config set to `responsive`
+- added `contains()` to `list`, `fieldset`, `tree`, `table`
+- fixed `getValues()`, `setValues()` work with nested components in `form`
+- fixed responsiveness when `tab` config is set on `list`
+
 Version 0.3.1
 -----------
 - added `clear()`, `enable()` and `disable()` to forms and fieldsets

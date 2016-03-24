@@ -1038,7 +1038,6 @@ pykit.UI.flexgrid = pykit.defUI({
 		cells: function(value) {
 			pykit.assert(pykit.isArray(value), "The cells property must be an array for shell ui object.", this);
 
-			this._cells = {};
 			for (var config,i=0; i<value.length; i++) {
 				config = value[i];
 				config.margin = config.margin || "";
@@ -1046,7 +1045,7 @@ pykit.UI.flexgrid = pykit.defUI({
 				var ui = pykit.UI(config);
 				if (!this._config.singleView)
 					this._html.appendChild(ui._html);
-				this._cells[config.id] = ui;
+				this._cells.push(ui);
 			}
 
 			if(this._config.singleView && this._config.defaultView)
@@ -1055,31 +1054,48 @@ pykit.UI.flexgrid = pykit.defUI({
 			return value;
 		}
 	},
+	__init__: function() {
+		this._cells = pykit.list();
+	},
 	render: function() {
 		// Do nothing, overwrites render function.
 	},
+	each: function(func, thisArg) {
+		return this._cells.each(func, thisArg);
+	},
 	insertChild: function(index, config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells[config.id] = ui;
+		this._cells.splice(index, 0, ui);
 		return ui;
 	},
 	addChild: function(config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells[config.id] = ui;
+		this._cells.push(ui);
 		return ui;
 	},
 	removeChild: function(id) {
 		if (id.element) {
 			this._html.removeChild(id._html);
-			delete this._cells[id.id];
+			this._cells.remove(id);
+		}
+		else if (pykit.isString(id)) {
+			this._html.removeChild(this.getChild(id)._html);
+			this._cells.removeWhere('id', id);
 		}
 		else {
-			this._html.removeChild(this._cells[id]._html);
-			delete this._cells[id];
+			pykit.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
 		}
 	},
 	getChild: function(id) {
-		return this._cells[id];
+		return this._cells.findOne('id', id);
+	},
+	getChildren: function() {
+		return this._cells;
+	},
+	getItems: function() {
+		return this._cells.each(function(item) {
+			return item.config;
+		});
 	},
 	activeChild: function() {
 		return this._activeChild;
@@ -1099,7 +1115,7 @@ pykit.UI.flexgrid = pykit.defUI({
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
-		pykit.forIn(function(item) {
+		this._cells.each(function(item) {
 			if (value.indexOf(item.config[key]) != -1 || item == value) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
@@ -1108,7 +1124,7 @@ pykit.UI.flexgrid = pykit.defUI({
 			else if (item._html.parentNode) {
 				this._html.removeChild(item._html);
 			}
-		}, this._cells, this);
+		}, this);
 	}
 }, pykit.UI.element);
 
@@ -1131,6 +1147,8 @@ pykit.ClickEvents = {
             config.on.onItemClick = config.click;
         }
         pykit.event(this._html, "click", this._onClick, this);
+        pykit.event(this._html, "mousedown", this._onMouseDown, this);
+        pykit.event(this._html, "mouseup", this._onMouseUp, this);
 		pykit.event(this._html, "contextmenu", this._onContext, this);
 	},
 	_onClick: function(e){
@@ -1138,6 +1156,18 @@ pykit.ClickEvents = {
 			pykit.html.preventEvent(e);
 		}
         this.dispatch("onClick", [this._config, this._html, e]);
+	},
+	_onMouseDown: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
+		this.dispatch("onMouseDown", [this._config, this._html, e]);
+	},
+	_onMouseUp: function(e){
+		if (this._config.$preventDefault !== false) {
+			pykit.html.preventEvent(e);
+		}
+		this.dispatch("onMouseUp", [this._config, this._html, e]);
 	},
 	_onContext: function(e) {
 		if (this._config.$preventDefault !== false) {
@@ -1179,6 +1209,11 @@ pykit.UI.modal = pykit.defUI({
 		bodyWidth: function(value) {
 			value = pykit.isNumber(value) ? value + "px": value;
 			this._body.style.width = value;
+			return value;
+		},
+		bodyHeight: function(value) {
+			value = pykit.isNumber(value) ? value + "px": value;
+			this._body.style.height = value;
 			return value;
 		},
         closeButton: function(value) {
@@ -1363,7 +1398,10 @@ pykit.UI.input = pykit.defUI({
 	__name__: "input",
 	$defaults: {
 		htmlTag: "INPUT",
-		inputWidth: "medium"
+		inputWidth: "medium",
+		autocomplete: "on",
+		autocapitalize: "on",
+		autocorrect: "on"
 	},
 	$setters: pykit.extend(pykit.setCSS(
 		{
@@ -1374,6 +1412,21 @@ pykit.UI.input = pykit.defUI({
 			}
 		}),
 		{
+			autocomplete: function(value) {
+				if (value == "off" || !value)
+					this._html.setAttribute("autocomplete", "off");
+				return value;
+			},
+			autocapitalize: function(value) {
+				if (value == "off" || !value)
+					this._html.setAttribute("autocapitalize", "off");
+				return value;
+			},
+			autocorrect: function(value) {
+				if (value == "off" || !value)
+					this._html.setAttribute("autocorrect", "off");
+				return value;
+			},
 			type: function(value) {
 				this._html.setAttribute("type", value);
 				pykit.html.addCSS(this._html, "uk-vertical-align-middle");
@@ -1578,7 +1631,7 @@ pykit.UI.dropdown = pykit.defUI({
 		result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
 		return result;
 	},
-	_position: function(node, e) {
+	_position: function(node) {
 		var origin = node.getBoundingClientRect();
 		var dropdown = this._html.firstChild.getBoundingClientRect();
 		var width = dropdown.width,
@@ -1666,10 +1719,12 @@ pykit.LinkedList = {
 	},
     each: function(func, thisArg) {
 		var node = this.headNode;
+		var nextNode;
 		var results = [];
 		while (node) {
+			nextNode = node.$tailNode;
 			results.push(func.call(thisArg || this, node));
-			node = node.$tailNode;
+			node = nextNode;
 		}
 		return results;
     },
@@ -1708,7 +1763,7 @@ pykit.LinkedList = {
 
 			this._nodeList.push(obj);
 
-			this.dispatch("onAdded",[obj]);
+			this.dispatch("onAdded",[obj, node]);
 
 			return obj.id;
 		}
@@ -1780,6 +1835,18 @@ pykit.LinkedList = {
 	},
 	next: function(node) {
 		return node.$tailNode;
+	},
+	contains: function(node) {
+		var next = this.headNode;
+		while (next) {
+			if (node == next) {
+				return true;
+			}
+			else {
+				next = next.$tailNode;
+			}
+		}
+		return false;
 	},
 	findOne: function(key, value, beginNode) {
 		var node = beginNode || this.headNode;
@@ -1883,6 +1950,8 @@ pykit.UI.stack = pykit.defUI({
 			var parentNode = this.getItemNode(parent.id);
 			parentNode.parentNode.replaceChild(this._createItem(parent), parentNode);
 		}
+
+		this.dispatch("onDOMChanged", [obj, "added"]);
 	},
 	_onDeleted: function(obj) {
 		if (obj.$parent) {
@@ -1893,6 +1962,8 @@ pykit.UI.stack = pykit.defUI({
 		}
 		this._containerHTML().removeChild(this.getItemNode(obj.id));
 		delete this._itemNodes[obj.id];
+
+		this.dispatch("onDOMChanged", [obj, "deleted"]);
 	},
 	_onRefresh: function() {
 		this._onClearAll();
@@ -1902,12 +1973,16 @@ pykit.UI.stack = pykit.defUI({
 			if (this._filter(node))
 				this._containerHTML().appendChild(this._itemNodes[node.id]);
 		}, this);
+
+		this.dispatch("onDOMChanged", [null, "refresh"]);
 	},
 	_onClearAll: function() {
 		for (var j in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(j) && this._itemNodes[j].parentNode)
 				this._containerHTML().removeChild(this._itemNodes[j]);
 		}
+
+		this.dispatch("onDOMChanged", [null, "clear"]);
 	},
 	showBatch:function(name) {
 		this.batch = name;
@@ -1962,16 +2037,130 @@ pykit.UI.list = pykit.defUI({
 			},
 			tab: function(value) {
 				if (value) {
-					this._html.setAttribute("data-uk-tab", "");
-					this.addListener("onItemClick", this._onTabClick)
+					var $this = this;
+					$this.addListener("onItemClick", $this._onTabClick);
+
+					if (value == "responsive") {
+						// Create a list of linked data to the actual data
+						// This avoids needing to duplicate the data
+						var linkedData = pykit.list($this.config.data).each(function(item) {
+							return {label: item.label, $link: item, $close: item.$close};
+						});
+
+						$this.set('dropdownEvent', "onTabMenuClick");
+						$this.set('dropdown', {
+							view: "list",
+							data: linkedData,
+							on: {
+								onItemClick: function(item, node, e) {
+									$this._onTabClick(item.$link, node, e);
+								},
+								onItemSelectionChanged: function(item, node, e) {
+									$this._onTabClick(item.$link, node, e);
+								},
+								onItemClosed: function(item) {
+									$this.closeItem(item.$link);
+								}
+							}
+						});
+						$this.dropdownList = $this.dropdownPopup._inner;
+						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
+						$this.addListener("onDOMChanged", $this._onDOMChanged);
+						$this.addListener("onAdded", $this._onTabAdded);
+						$this.addListener("onDeleted", $this._onTabDeleted);
+						$this.addListener("onItemSelectionChanged", $this._onItemSelectionChanged);
+
+						pykit.event(window, "resize", $this.updateFit, $this);
+						this.dispatch("onDOMChanged", [null, "refresh"]);
+					}
 				}
 				return value;
 			}
 		}
 	),
-	_onTabClick: function(item) {
-		if (this.getItemNode(item.id) && !this.isSelected(item))
-			this.dispatch("onItemSelectionChanged", [item]);
+	_onDOMChanged: function() {
+		pykit.delay(this.updateFit, this);
+	} ,
+	_onTabAdded: function(item, before) {
+		if (this.dropdownList) {
+			var linked = {label: item.label, $link: item, $close: item.$close};
+			this.dropdownList.add(linked, this.dropdownList.findOne("$link", before));
+			// Select dropdown item if item is selected
+			if (item.$selected) {
+				this.dropdownList.unselectAll();
+				this.dropdownList.select(linked);
+			}
+		}
+		if (item.$selected) {
+			this.unselectAll();
+			this.select(item);
+		}
+	},
+	_onTabDeleted: function(item) {
+		if (this.dropdownList) {
+			var linked = this.dropdownList.findOne("$link", item);
+			if (linked) this.dropdownList.remove(linked);
+		}
+	},
+	_onTabClick: function(item, node, e) {
+		if (item.$tabmenu) {
+			this.dispatch("onTabMenuClick", [item, node, e]);
+		}
+		else {
+			// Select tab item
+			if (this.contains(item)) {
+				this.dispatch("onItemSelectionChanged", [item]);
+			}
+		}
+	},
+	_onItemSelectionChanged: function(item) {
+		this.unselectAll();
+		this.select(item);
+
+		// Select dropdown item
+		if (this.dropdownList) {
+			var linked = this.dropdownList.findOne("$link", item);
+			if (linked) {
+				this.dropdownList.unselectAll();
+				this.dropdownList.select(linked);
+			}
+
+			// Show active visible item
+			this.updateFit();
+		}
+	},
+	updateFit: function() {
+		this.each(function(item) {
+			// Show everything for checking y-offset (keep invisible to avoid blink)
+			pykit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
+			pykit.html.addCSS(this._itemNodes[item.id], "uk-invisible");
+			// Update batch according to $selected state
+			if (!item.$tabmenu) {
+				item.batch = item.$selected ? "$selected" : undefined;
+			}
+		}, this);
+
+		var offset, doResponsive;
+		for (var id in this._itemNodes) {
+			if (this._itemNodes.hasOwnProperty(id)) {
+				if (offset && this._itemNodes[id].offsetTop != offset) {
+					doResponsive = true;
+					break;
+				}
+				offset = this._itemNodes[id].offsetTop;
+			}
+		}
+
+		this.each(function(item) {
+			pykit.html.removeCSS(this._itemNodes[item.id], "uk-invisible");
+		}, this);
+
+		if (doResponsive) {
+			this.showBatch(["$menu", "$selected"]);
+		}
+		else {
+			this.showBatch([undefined, "$selected"]);
+		}
 	},
 	setActiveLabel: function(label) {
 		this.setActive("label", label)
@@ -1985,30 +2174,40 @@ pykit.UI.list = pykit.defUI({
 	isSelected: function(target) {
 		if (pykit.isString(target))
 			target = this.getItem(target);
-		return pykit.html.hasCSS(this.getItemNode(target.id), "uk-active");
+		return target.$selected;
 	},
 	select: function(target) {
 		if (pykit.isString(target))
 			target = this.getItem(target);
+		target.$selected = true;
 		pykit.html.addCSS(this.getItemNode(target.id), "uk-active");
 	},
 	unselectAll: function() {
 		this.each(function(item) {
-			pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
+			var node = this.getItemNode(item.id);
+			item.$selected = false;
+			pykit.assert(node, "Node with id " + item.id + " does not exist");
+			pykit.html.removeCSS(node, "uk-active");
 		}, this);
 	},
 	closeItem: function(item) {
 		this.dispatch("onItemClose", [item]);
 
-		if (this.isSelected(item) && this.count() ) {
+		if (this.isSelected(item)) {
+			// Select the next tab that's not a tab menu.
 			var nextItem = this.previous(item) || this.next(item);
-			if (nextItem) {
+			nextItem = nextItem.$tabmenu ? this.next(item) : nextItem;
+
+			if (nextItem && !nextItem.$tabmenu) {
 				this.select(nextItem);
 				this.dispatch("onItemSelectionChanged", [nextItem]);
 			}
 		}
 
-		this.remove(item);
+		// Don't remove if is tabmenu
+		if (item && !item.$tabmenu) {
+			this.remove(item);
+		}
 
 		this.dispatch("onItemClosed", [item]);
 	},
@@ -2511,20 +2710,42 @@ pykit.UI.fieldset = pykit.defUI({
 	},
 	getValues: function() {
 		var results = {};
-		this.each(function(item) {
+
+		var unprocessed = this.each(function(item) {
+			return item;
+		});
+
+		// Extract all children with `name` attributes, including nested flexgrid children.
+		var item;
+		while (unprocessed.length > 0) {
+			item = unprocessed.pop();
 			if (item.name) {
 				results[item.name] = $$(item.id).getValue();
 			}
-		});
+			else if (item.view == "flexgrid") {
+				unprocessed = unprocessed.concat($$(item.id).getItems());
+			}
+		}
+
 		return results;
 	},
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
-		this.each(function(item) {
+
+		var unprocessed = this.each(function(item) {
+			return item;
+		});
+
+		var item;
+		while (unprocessed.length > 0) {
+			item = unprocessed.pop();
 			if (pykit.isDefined(config[item.name])) {
 				$$(item.id).setValue(config[item.name]);
 			}
-		});
+			else if (item.view == "flexgrid") {
+				unprocessed = unprocessed.concat($$(item.id).getItems());
+			}
+		}
 	}
 }, pykit.UI.stack);
 
