@@ -3,6 +3,7 @@ node_js:
   - "4.1"
 install:
   - npm install
+  - bower install
 script:
   - gulp
   - npm test
