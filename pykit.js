@@ -2143,7 +2143,6 @@ pykit.UI.list = pykit.defUI({
 		var offset, doResponsive;
 		for (var id in this._itemNodes) {
 			if (this._itemNodes.hasOwnProperty(id)) {
-				console.log(this._itemNodes[id].offsetTop)
 				if (offset && this._itemNodes[id].offsetTop != offset) {
 					doResponsive = true;
 					break;
