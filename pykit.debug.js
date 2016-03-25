@@ -6936,7 +6936,7 @@ pykit.UI.list = pykit.defUI({
 		if (this.isSelected(item)) {
 			// Select the next tab that's not a tab menu.
 			var nextItem = this.previous(item) || this.next(item);
-			nextItem = nextItem.$tabmenu ? this.next(item) : nextItem;
+			nextItem = nextItem && nextItem.$tabmenu ? this.next(item) : nextItem;
 
 			if (nextItem && !nextItem.$tabmenu) {
 				this.select(nextItem);
