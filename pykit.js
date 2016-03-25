@@ -558,7 +558,7 @@ pykit.css = {
 		"bottom-left": "uk-position-bottom-left",
 		"cover": "uk-position-cover",
 		"relative": "uk-position-relative",
-		"zindex": "uk-position-zindex"
+		"z-index": "uk-position-z-index"
 	},
 	fill: {
 		height: "uk-height-1-1",
@@ -1379,7 +1379,7 @@ pykit.UI.progress = pykit.defUI({
 		tagClass: "uk-progress",
 		margin: "none",
 		autohide: true,
-		position: "top",
+		position: "top z-index",
 		hideDelay: 800
 	},
 	$setters: pykit.setCSS({
