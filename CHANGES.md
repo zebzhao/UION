@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.3
+-----------
+- added `progress` component
+
 Version 0.3.2
 -----------
 - added `each()`, `getChildren()`, `getItems()` to `flexgrid` component
