@@ -986,6 +986,12 @@ pykit.UI.element = pykit.defUI({
 	hide:function(){
 		pykit.html.addCSS(this._html, "uk-hidden");
 	},
+	conceal: function() {
+		pykit.html.addCSS(this._html, "uk-invisible");
+	},
+	reveal: function() {
+		pykit.html.removeCSS(this._html, "uk-invisible");
+	},
 	isEnabled:function(){
 		return !this._html.getAttribute('disabled');
 	},
@@ -1404,20 +1410,19 @@ pykit.UI.progress = pykit.defUI({
 	getValue: function() {
 		return this._progress;
 	},
-	setValue: function(value) {
+	setValue: function(value, autohide, delay) {
 		pykit.assert(pykit.isNumber(value), "Progress value should be a number.");
+
 		var $this = this;
 		$this._bar.style.width = value + '%';
 		$this._progress = value;
 
-		if ($this._config.autohide) {
+		if (autohide || $this._config.autohide) {
 			clearTimeout($this._timer);
-			pykit.html.removeCSS($this._html, "uk-invisible");
+			this.reveal();
 
-			if (value == 0 || value == 100) {
-				$this._timer = setTimeout(function() {
-					pykit.html.addCSS($this._html, "uk-invisible");
-				}, $this._config.hideDelay);
+			if (value == 100) {
+				$this._timer = pykit.delay($this.conceal, $this, null, delay || $this._config.hideDelay);
 			}
 		}
 	}
