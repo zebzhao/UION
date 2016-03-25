@@ -5250,7 +5250,8 @@ pykit.css = {
 		"bottom-left": "uk-position-bottom-left",
 		"cover": "uk-position-cover",
 		"relative": "uk-position-relative",
-		"zindex": "uk-position-zindex"
+		"z-index": "uk-position-z-index",
+		"": ""
 	},
 	fill: {
 		height: "uk-height-1-1",
@@ -5552,7 +5553,7 @@ pykit.UI.element = pykit.defUI({
 		tooltipPos: 'bottom',
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
-		margin: "left-sm right-sm top-sm bottom-sm",
+		margin: "all-sm",
 		uploadURL: false,
 		uploadSingle: false,
 		uploadAllow: '*.(jpg|jpeg|gif|png)',
@@ -5677,6 +5678,12 @@ pykit.UI.element = pykit.defUI({
 	},
 	hide:function(){
 		pykit.html.addCSS(this._html, "uk-hidden");
+	},
+	conceal: function() {
+		pykit.html.addCSS(this._html, "uk-invisible");
+	},
+	reveal: function() {
+		pykit.html.removeCSS(this._html, "uk-invisible");
 	},
 	isEnabled:function(){
 		return !this._html.getAttribute('disabled');
@@ -6061,6 +6068,47 @@ pykit.UI.link = pykit.defUI({
 		return config.label;
 	}
 }, pykit.ClickEvents, pykit.UI.element);
+
+
+
+pykit.UI.progress = pykit.defUI({
+	__name__:"progress",
+	$defaults: {
+		htmlTag: "DIV",
+		tagClass: "uk-progress",
+		margin: "none",
+		position: "top z-index"
+	},
+	$setters: pykit.setCSS({
+		size: {
+			mini: "uk-progress-mini",
+			small: "uk-progress-small",
+			"": ""
+		},
+		type: {
+			danger: "uk-progress-danger",
+			warning: "uk-progress-warning",
+			success: "uk-progress-success",
+			striped: "uk-progress-striped",
+			"": ""
+		}
+	}),
+	render: function() {},
+	__after__: function() {
+		this._bar = pykit.html.createElement("DIV", {class: "uk-progress-bar"});
+		this._html.appendChild(this._bar);
+	},
+	getValue: function() {
+		return this._progress;
+	},
+	setValue: function(value) {
+		pykit.assert(pykit.isNumber(value), "Progress value should be a number.");
+
+		var $this = this;
+		$this._bar.style.width = value + '%';
+		$this._progress = value;
+	}
+}, pykit.UI.element);
 
 
 
@@ -6888,7 +6936,7 @@ pykit.UI.list = pykit.defUI({
 		if (this.isSelected(item)) {
 			// Select the next tab that's not a tab menu.
 			var nextItem = this.previous(item) || this.next(item);
-			nextItem = nextItem.$tabmenu ? this.next(item) : nextItem;
+			nextItem = nextItem && nextItem.$tabmenu ? this.next(item) : nextItem;
 
 			if (nextItem && !nextItem.$tabmenu) {
 				this.select(nextItem);
@@ -7107,7 +7155,8 @@ pykit.defUI({
 		pykit.LinkedList.remove.call(this, obj);
 	},
 	template: function(config) {
-		return pykit.replaceString('<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
+		return pykit.replaceString(
+			'<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
 			{
 				icon: config.$branch ?
 					(config.$children.length ?

@@ -23,7 +23,7 @@ Table of Contents
 1. [Defining required extensions](#defining-required-extensions)
 1. [Initialization handling](#initialization-handling)
 1. [Standard components](#standard-components)
-1. [Demos]
+1. [Demos](#demos)
 
 Usage
 ---
