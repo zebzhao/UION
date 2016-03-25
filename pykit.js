@@ -860,7 +860,7 @@ pykit.UI.element = pykit.defUI({
 		tooltipPos: 'bottom',
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
-		margin: "left-sm right-sm top-sm bottom-sm",
+		margin: "all-sm",
 		uploadURL: false,
 		uploadSingle: false,
 		uploadAllow: '*.(jpg|jpeg|gif|png)',
@@ -1369,6 +1369,59 @@ pykit.UI.link = pykit.defUI({
 		return config.label;
 	}
 }, pykit.ClickEvents, pykit.UI.element);
+
+
+
+pykit.UI.progress = pykit.defUI({
+	__name__:"progress",
+	$defaults: {
+		htmlTag: "DIV",
+		tagClass: "uk-progress",
+		margin: "none",
+		autohide: true,
+		position: "top",
+		hideDelay: 800
+	},
+	$setters: pykit.setCSS({
+		size: {
+			mini: "uk-progress-mini",
+			small: "uk-progress-small",
+			"": ""
+		},
+		type: {
+			danger: "uk-progress-danger",
+			warning: "uk-progress-warning",
+			success: "uk-progress-success",
+			striped: "uk-progress-striped",
+			"": ""
+		}
+	}),
+	render: function() {},
+	__after__: function() {
+		this._bar = pykit.html.createElement("DIV", {class: "uk-progress-bar"});
+		this._html.appendChild(this._bar);
+	},
+	getValue: function() {
+		return this._progress;
+	},
+	setValue: function(value) {
+		pykit.assert(pykit.isNumber(value), "Progress value should be a number.");
+		var $this = this;
+		$this._bar.style.width = value + '%';
+		$this._progress = value;
+
+		if ($this._config.autohide) {
+			clearTimeout($this._timer);
+			pykit.html.removeCSS($this._html, "uk-invisible");
+
+			if (value == 0 || value == 100) {
+				$this._timer = setTimeout(function() {
+					pykit.html.addCSS($this._html, "uk-invisible");
+				}, $this._config.hideDelay);
+			}
+		}
+	}
+}, pykit.UI.element);
 
 
 
@@ -2415,7 +2468,8 @@ pykit.defUI({
 		pykit.LinkedList.remove.call(this, obj);
 	},
 	template: function(config) {
-		return pykit.replaceString('<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
+		return pykit.replaceString(
+			'<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
 			{
 				icon: config.$branch ?
 					(config.$children.length ?
