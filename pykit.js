@@ -1385,9 +1385,7 @@ pykit.UI.progress = pykit.defUI({
 		htmlTag: "DIV",
 		tagClass: "uk-progress",
 		margin: "none",
-		autohide: true,
-		position: "top z-index",
-		hideDelay: 800
+		position: "top z-index"
 	},
 	$setters: pykit.setCSS({
 		size: {
@@ -1411,21 +1409,12 @@ pykit.UI.progress = pykit.defUI({
 	getValue: function() {
 		return this._progress;
 	},
-	setValue: function(value, autohide, delay) {
+	setValue: function(value) {
 		pykit.assert(pykit.isNumber(value), "Progress value should be a number.");
 
 		var $this = this;
 		$this._bar.style.width = value + '%';
 		$this._progress = value;
-
-		if (autohide || $this._config.autohide) {
-			clearTimeout($this._timer);
-			this.reveal();
-
-			if (value == 100) {
-				$this._timer = pykit.delay($this.conceal, $this, null, delay || $this._config.hideDelay);
-			}
-		}
 	}
 }, pykit.UI.element);
 
