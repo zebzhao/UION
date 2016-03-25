@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Pykit release.
 Version 0.3.3
 -----------
 - added `progress` component
+- fixed bug with tabs
 
 Version 0.3.2
 -----------
