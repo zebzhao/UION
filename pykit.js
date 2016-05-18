@@ -896,7 +896,8 @@ pykit.UI.element = pykit.defUI({
 			return value;
 		},
 		dropdown: function(value) {
-			var config = this._config;
+			var $this = this;
+			var config = $this._config;
 
 			var dropdown = {
 				view: "dropdown",
@@ -909,9 +910,9 @@ pykit.UI.element = pykit.defUI({
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
-				ui.open(node, config, e);
+				ui.open(node, $this, e);
 			});
-			this.dropdownPopup = ui;
+			$this.dropdownPopup = ui;
 			return value;
 		},
 		inline: function(value) {
@@ -1113,12 +1114,12 @@ pykit.UI.flexgrid = pykit.defUI({
 		this.dispatch("onChildChange",[this._activeChild, newChild]);
 		this._activeChild = newChild;
 	},
-	showBatch:function(name, rerender){
+	showBatch:function(name, preserveOrder){
 		/**
 		 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
 		 * However, to preserve the order of elements, will need to rerender.
 		 */
-		this._setVisible('batch', name, rerender);
+		this._setVisible('batch', name, preserveOrder);
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
