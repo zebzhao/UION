@@ -1124,7 +1124,7 @@ pykit.UI.flexgrid = pykit.defUI({
 	},
 	_setVisible: function(key, value, rerender) {
 		this._cells.each(function(item) {
-			if (value.indexOf(item.config[key]) != -1 || item == value) {
+			if (value.indexOf(item.config[key]) != -1 || item.config[key] == value) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
 				}
