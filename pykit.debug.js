@@ -5801,7 +5801,7 @@ pykit.UI.flexgrid = pykit.defUI({
 		return this._activeChild;
 	},
 	setChild: function(id) {
-		this._setVisible('id', id);
+		this._setVisible('id', [id]);
 		var newChild = this.getChild(id);
 		this.dispatch("onChildChange",[this._activeChild, newChild]);
 		this._activeChild = newChild;
@@ -5811,12 +5811,12 @@ pykit.UI.flexgrid = pykit.defUI({
 		 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
 		 * However, to preserve the order of elements, will need to rerender.
 		 */
-		this._setVisible('batch', name, preserveOrder);
+		this._setVisible('batch', pykit.isArray(name) ? name : [name], preserveOrder);
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
 		this._cells.each(function(item) {
-			if (value.indexOf(item.config[key]) != -1 || item.config[key] == value) {
+			if (value.indexOf(item.config[key]) != -1) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
 				}
