@@ -5255,7 +5255,8 @@ pykit.css = {
 	},
 	fill: {
 		height: "uk-height-1-1",
-		width: "uk-width-100"
+		width: "uk-width-100",
+		screen: ["uk-height-1-1", "uk-width-100"]
 	},
 	float: {
 		left: "uk-float-left",
