@@ -1365,8 +1365,15 @@ pykit.UI.label = pykit.defUI({
 			"": ""
 		}
 	}),
-	template:function(config){
+	template: function(config){
 		return config.label;
+	},
+	getValue: function() {
+		return this._config.label;
+	},
+	setValue: function(value) {
+		this._config.label = value;
+		this.render();
 	}
 }, pykit.UI.element);
 
