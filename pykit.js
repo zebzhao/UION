@@ -1359,6 +1359,12 @@ pykit.UI.label = pykit.defUI({
 		label: "",
 		htmlTag: "SPAN"
 	},
+	$setters: pykit.setCSS({
+		type: {
+			form: "uk-form-label",
+			"": ""
+		}
+	}),
 	template:function(config){
 		return config.label;
 	}
