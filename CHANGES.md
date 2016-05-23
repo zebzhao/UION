@@ -3,6 +3,16 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.4
+-----------
+- added: `type: 'form'` config to `label`
+- added: `fill: 'screen'` config to `flexgrid`
+- added: `setValue()` to `label`
+- fixed: substr also matched by `showBatch`
+- fixed: `dropdown.master` refers to UI object instead of config
+- fixed: flexbox min-width bug with firefox
+- changed: css changed to almost-flat theme
+
 Version 0.3.3
 -----------
 - added `progress` component

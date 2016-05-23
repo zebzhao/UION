@@ -5255,7 +5255,8 @@ pykit.css = {
 	},
 	fill: {
 		height: "uk-height-1-1",
-		width: "uk-width-100"
+		width: "uk-width-100",
+		screen: ["uk-height-1-1", "uk-width-100"]
 	},
 	float: {
 		left: "uk-float-left",
@@ -5588,7 +5589,8 @@ pykit.UI.element = pykit.defUI({
 			return value;
 		},
 		dropdown: function(value) {
-			var config = this._config;
+			var $this = this;
+			var config = $this._config;
 
 			var dropdown = {
 				view: "dropdown",
@@ -5601,9 +5603,9 @@ pykit.UI.element = pykit.defUI({
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
-				ui.open(node, config, e);
+				ui.open(node, $this, e);
 			});
-			this.dropdownPopup = ui;
+			$this.dropdownPopup = ui;
 			return value;
 		},
 		inline: function(value) {
@@ -5800,22 +5802,22 @@ pykit.UI.flexgrid = pykit.defUI({
 		return this._activeChild;
 	},
 	setChild: function(id) {
-		this._setVisible('id', id);
+		this._setVisible('id', [id]);
 		var newChild = this.getChild(id);
 		this.dispatch("onChildChange",[this._activeChild, newChild]);
 		this._activeChild = newChild;
 	},
-	showBatch:function(name, rerender){
+	showBatch:function(name, preserveOrder){
 		/**
 		 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
 		 * However, to preserve the order of elements, will need to rerender.
 		 */
-		this._setVisible('batch', name, rerender);
+		this._setVisible('batch', pykit.isArray(name) ? name : [name], preserveOrder);
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
 		this._cells.each(function(item) {
-			if (value.indexOf(item.config[key]) != -1 || item == value) {
+			if (value.indexOf(item.config[key]) != -1) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
 				}
@@ -6049,8 +6051,21 @@ pykit.UI.label = pykit.defUI({
 		label: "",
 		htmlTag: "SPAN"
 	},
-	template:function(config){
+	$setters: pykit.setCSS({
+		type: {
+			form: "uk-form-label",
+			"": ""
+		}
+	}),
+	template: function(config){
 		return config.label;
+	},
+	getValue: function() {
+		return this._config.label;
+	},
+	setValue: function(value) {
+		this._config.label = value;
+		this.render();
 	}
 }, pykit.UI.element);
 
