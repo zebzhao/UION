@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.5
+-----------
+- fixed: path to font-awesome was not correct
+
 Version 0.3.4
 -----------
 - added: `type: 'form'` config to `label`
