@@ -5,6 +5,8 @@ Here you can see the full list of changes between each Pykit release.
 
 Version 0.3.5
 -----------
+- added: new select component
+- added: justify and mode configs based on UIkit dropdown options
 - fixed: path to font-awesome was not correct
 
 Version 0.3.4
