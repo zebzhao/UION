@@ -911,7 +911,7 @@ pykit.UI.element = pykit.defUI({
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
-				ui.open(node, $this, e);
+				ui.open(config, node, $this, e);
 			});
 			$this.dropdownPopup = ui;
 			return value;
@@ -1719,17 +1719,19 @@ pykit.UI.dropdown = pykit.defUI({
 		this._html.style.left = (origin.left + variants[this._config.pos].left) + "px";
 		this._html.style.position = "absolute";
 	},
-	open: function(node, master, e) {
-		this.dispatch("onOpen", [master, node, this]);
-		this._inner.dispatch("onOpen", [master, node, this]);
+	open: function(config, node, parent, e) {
+		this.dispatch("onOpen", [config, node, this]);
+		this._inner.dispatch("onOpen", [config, node, this]);
 
-		this._inner.master = master;
+		this._inner.master = node;
+		this._inner.masterConfig = config;
 		this._inner.parent = this;
+		this._inner.grandparent = parent;
 		this._dropdown.show();
 		this._position(node, e);
 
-		this.dispatch("onOpened", [master, node, this]);
-		this._inner.dispatch("onOpened", [master, node, this]);
+		this.dispatch("onOpened", [config, node, this]);
+		this._inner.dispatch("onOpened", [config, node, this]);
 	},
 	close: function(node, master) {
 		var $this = this;
