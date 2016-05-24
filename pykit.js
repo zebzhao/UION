@@ -1670,6 +1670,7 @@ pykit.UI.dropdown = pykit.defUI({
 		pos: "bottom-center",
 		margin: "none",
 		padding: "none",
+		justify: false,
 		dropdownCSS: "uk-dropdown-small uk-dropdown-close",
 		dropdownStyle: "close",
 		blank: false
@@ -1686,12 +1687,13 @@ pykit.UI.dropdown = pykit.defUI({
 		}
 	},
 	__after__: function(config) {
-		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos});
+		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos, justify: config.justify, mode: config.mode});
 	},
 	_dropdownCSS: function() {
 		var config = this._config;
 		var result = config.dropdownCSS;
 		result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
+		result += config.scrollable ? "uk-dropdown-scrollable" : "";
 		return result;
 	},
 	_position: function(node) {
@@ -2644,6 +2646,30 @@ pykit.UI.table = pykit.defUI({
 	},
 	_containerHTML: function() {
 		return this._body;
+	}
+}, pykit.UI.list);
+
+
+
+pykit.UI.select = pykit.defUI({
+	__name__: "select",
+	$defaults: {
+		tagClass: "uk-form-select",
+		htmlTag: "SELECT",
+		flex: false,
+		margin : "",
+		size: "",
+		layout: "",
+		listStyle: ""
+	},
+	template: function(itemConfig) {
+		return itemConfig.label;
+	},
+	_innerHTML: function(parentNode, config) {
+		parentNode.innerHTML = this.template(config);
+	},
+	_itemHTML: function(config) {
+		return pykit.html.createElement("OPTION", {value: config.value});
 	}
 }, pykit.UI.list);
 
