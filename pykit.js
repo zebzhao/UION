@@ -2674,14 +2674,13 @@ pykit.UI.select = pykit.defUI({
 		if (pykit.isString(target))
 			target = this.getItem(target);
 		target.$selected = true;
-		this.selectedItem = target;
 		this._html.selectedIndex = this.indexOf(target);
 	},
 	unselectAll: function() {
 		// Do nothing
 	},
 	getValue: function() {
-		return this.selectedItem ? this.selectedItem.value : null;
+		return this._html.value;
 	},
 	setValue: function(value) {
 		return this.setActive('value', value);
