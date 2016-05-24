@@ -7356,6 +7356,12 @@ pykit.UI.select = pykit.defUI({
 		layout: "",
 		listStyle: ""
 	},
+	__after__: function() {
+		pykit.event(this._html, "change", this._onChange, this);
+	},
+	_onChange: function() {
+		this.dispatch("onChange");
+	},
 	select: function(target) {
 		if (pykit.isString(target))
 			target = this.getItem(target);
