@@ -7384,8 +7384,11 @@ pykit.UI.select = pykit.defUI({
 		parentNode.innerHTML = this.template(config);
 	},
 	_itemHTML: function(config) {
-		return pykit.html.createElement("OPTION", {
-			value: config.value, selected: config.selected});
+		var attrs = {value: config.value};
+		if (config.selected) {
+			attrs.selected = config.selected;
+		}
+		return pykit.html.createElement("OPTION", attrs);
 	}
 }, pykit.UI.list);
 
