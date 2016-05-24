@@ -4158,76 +4158,6 @@
     }
 
     if (typeof define == "function" && define.amd) {
-        define("uikit-form-select", ["uikit"], function(){
-            return component || addon(UIkit);
-        });
-    }
-
-})(function(UI){
-
-    "use strict";
-
-    UI.component('formSelect', {
-
-        defaults: {
-            'target': '>span:first',
-            'activeClass': 'uk-active'
-        },
-
-        boot: function() {
-            // init code
-            UI.ready(function(context) {
-
-                UI.$("[data-uk-form-select]", context).each(function(){
-
-                    var ele = UI.$(this);
-
-                    if (!ele.data("formSelect")) {
-                        UI.formSelect(ele, UI.Utils.options(ele.attr("data-uk-form-select")));
-                    }
-                });
-            });
-        },
-
-        init: function() {
-            var $this = this;
-
-            this.target  = this.find(this.options.target);
-            this.select  = this.find('select');
-
-            // init + on change event
-            this.select.on("change", (function(){
-
-                var select = $this.select[0], fn = function(){
-
-                    try {
-                        $this.target.text(select.options[select.selectedIndex].text);
-                    } catch(e) {}
-
-                    $this.element[$this.select.val() ? 'addClass':'removeClass']($this.options.activeClass);
-
-                    return fn;
-                };
-
-                return fn();
-            })());
-
-            this.element.data("formSelect", this);
-        }
-    });
-
-    return UI.formSelect;
-});
-
-(function(addon) {
-
-    var component;
-
-    if (window.UIkit) {
-        component = addon(UIkit);
-    }
-
-    if (typeof define == "function" && define.amd) {
         define("uikit-notify", ["uikit"], function(){
             return component || addon(UIkit);
         });
@@ -6664,16 +6594,18 @@ pykit.LinkedList = {
 		return node.$tailNode;
 	},
 	contains: function(node) {
-		var next = this.headNode;
-		while (next) {
-			if (node == next) {
-				return true;
-			}
-			else {
-				next = next.$tailNode;
-			}
+		return this._nodeList.indexOf(node) != -1;
+	},
+	indexOf: function(matchNode, beginNode) {
+		var i = 0;
+		var node = beginNode || this.headNode;
+		while (node) {
+			// Apparently 1 == "1" in JS
+			if (node === matchNode)
+				return i;
+			node = node.$tailNode;
+			i++;
 		}
-		return false;
 	},
 	findOne: function(key, value, beginNode) {
 		var node = beginNode || this.headNode;
@@ -6990,7 +6922,7 @@ pykit.UI.list = pykit.defUI({
 		}
 	},
 	setActiveLabel: function(label) {
-		this.setActive("label", label)
+		this.setActive("label", label);
 	},
 	setActive: function(key, value) {
 		this.unselectAll();
@@ -7416,13 +7348,22 @@ pykit.UI.table = pykit.defUI({
 pykit.UI.select = pykit.defUI({
 	__name__: "select",
 	$defaults: {
-		tagClass: "uk-form-select",
+		tagClass: "",
 		htmlTag: "SELECT",
 		flex: false,
 		margin : "",
 		size: "",
 		layout: "",
 		listStyle: ""
+	},
+	select: function(target) {
+		if (pykit.isString(target))
+			target = this.getItem(target);
+		target.$selected = true;
+		this._html.selectedIndex = this.indexOf(target);
+	},
+	unselectAll: function() {
+		// Do nothing
 	},
 	template: function(itemConfig) {
 		return itemConfig.label;
@@ -7431,7 +7372,8 @@ pykit.UI.select = pykit.defUI({
 		parentNode.innerHTML = this.template(config);
 	},
 	_itemHTML: function(config) {
-		return pykit.html.createElement("OPTION", {value: config.value});
+		return pykit.html.createElement("OPTION", {
+			value: config.value, selected: config.selected});
 	}
 }, pykit.UI.list);
 

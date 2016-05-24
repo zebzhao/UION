@@ -7,6 +7,7 @@ Version 0.3.5
 -----------
 - added: new select component
 - added: justify and mode configs based on UIkit dropdown options
+- added: `indexOf()` to `list, select, table, tree`
 - fixed: path to font-awesome was not correct
 
 Version 0.3.4

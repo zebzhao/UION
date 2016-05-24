@@ -24,7 +24,6 @@ var files = [
     'bower_components/uikit/src/js/core/cover.js',
     'bower_components/uikit/src/js/components/autocomplete.js',
     'bower_components/uikit/src/js/components/form-password.js',
-    'bower_components/uikit/src/js/components/form-select.js',
     'bower_components/uikit/src/js/components/notify.js',
     'bower_components/uikit/src/js/components/search.js',
     'bower_components/uikit/src/js/components/upload.js',
