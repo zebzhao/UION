@@ -1508,6 +1508,9 @@ pykit.UI.input = pykit.defUI({
 	),
 	__after__: function() {
 		pykit.event(this._html, "change", this._onChange, this);
+		pykit.event(this._html, "keyup", function (e) {
+			this.dispatch("onKeyUp", [e, this._html, this]);
+		}, this);
 	},
 	_onChange: function() {
 		this.dispatch("onChange");
