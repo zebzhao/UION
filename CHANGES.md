@@ -9,6 +9,7 @@ Version 0.3.5
 - added: justify and mode configs based on UIkit dropdown options
 - added: `indexOf()` to `list, select, table, tree`
 - added: `onKeyUp` event to `input`
+- added: new dark theme
 - fixed: path to font-awesome was not correct
 - fixed: dropdown master now refers to actual clicked ui
 - fixed: moved old master to `grandparent` field
