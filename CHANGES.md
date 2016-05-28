@@ -3,7 +3,7 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
-Version 0.3.5
+Version 0.3.6
 -----------
 - added: new select component
 - added: justify and mode configs based on UIkit dropdown options
