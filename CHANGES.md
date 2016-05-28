@@ -3,6 +3,17 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.5
+-----------
+- added: new select component
+- added: justify and mode configs based on UIkit dropdown options
+- added: `indexOf()` to `list, select, table, tree`
+- added: `onKeyUp` event to `input`
+- added: new dark theme
+- fixed: path to font-awesome was not correct
+- fixed: dropdown master now refers to actual clicked ui
+- fixed: moved old master to `grandparent` field
+
 Version 0.3.4
 -----------
 - added: `type: 'form'` config to `label`

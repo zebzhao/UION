@@ -8,7 +8,8 @@
 // ========================================================================
 
 @block-default-background:                      @global-background;
-@block-default-muted:                           #efeff4;
+@block-muted-background:                        lighten(@block-default-background, 3%);
+@block-primary-background:                      #05a2c2;
 
 
 // Component
@@ -38,9 +39,9 @@
      * Adjust padding between equal colored blocks
      */
 
-    .uk-block-default + .uk-block-default,
-    .uk-block-muted + .uk-block-muted,
-    .uk-block-primary + .uk-block-primary,
-    .uk-block-secondary + .uk-block-secondary { padding-top: 0; }
+    //.uk-block-default + .uk-block-default,
+    //.uk-block-muted + .uk-block-muted,
+    //.uk-block-primary + .uk-block-primary,
+    //.uk-block-secondary + .uk-block-secondary { padding-top: 0; }
 
 }

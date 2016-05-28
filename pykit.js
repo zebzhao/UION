@@ -911,7 +911,7 @@ pykit.UI.element = pykit.defUI({
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
-				ui.open(node, $this, e);
+				ui.open(config, node, $this, e);
 			});
 			$this.dropdownPopup = ui;
 			return value;
@@ -1508,6 +1508,9 @@ pykit.UI.input = pykit.defUI({
 	),
 	__after__: function() {
 		pykit.event(this._html, "change", this._onChange, this);
+		pykit.event(this._html, "keyup", function (e) {
+			this.dispatch("onKeyUp", [e, this._html, this]);
+		}, this);
 	},
 	_onChange: function() {
 		this.dispatch("onChange");
@@ -1670,6 +1673,7 @@ pykit.UI.dropdown = pykit.defUI({
 		pos: "bottom-center",
 		margin: "none",
 		padding: "none",
+		justify: false,
 		dropdownCSS: "uk-dropdown-small uk-dropdown-close",
 		dropdownStyle: "close",
 		blank: false
@@ -1686,12 +1690,13 @@ pykit.UI.dropdown = pykit.defUI({
 		}
 	},
 	__after__: function(config) {
-		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos});
+		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos, justify: config.justify, mode: config.mode});
 	},
 	_dropdownCSS: function() {
 		var config = this._config;
 		var result = config.dropdownCSS;
 		result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
+		result += config.scrollable ? "uk-dropdown-scrollable" : "";
 		return result;
 	},
 	_position: function(node) {
@@ -1717,17 +1722,19 @@ pykit.UI.dropdown = pykit.defUI({
 		this._html.style.left = (origin.left + variants[this._config.pos].left) + "px";
 		this._html.style.position = "absolute";
 	},
-	open: function(node, master, e) {
-		this.dispatch("onOpen", [master, node, this]);
-		this._inner.dispatch("onOpen", [master, node, this]);
+	open: function(config, node, parent, e) {
+		this.dispatch("onOpen", [config, node, this]);
+		this._inner.dispatch("onOpen", [config, node, this]);
 
-		this._inner.master = master;
+		this._inner.master = node;
+		this._inner.masterConfig = config;
 		this._inner.parent = this;
+		this._inner.grandparent = parent;
 		this._dropdown.show();
 		this._position(node, e);
 
-		this.dispatch("onOpened", [master, node, this]);
-		this._inner.dispatch("onOpened", [master, node, this]);
+		this.dispatch("onOpened", [config, node, this]);
+		this._inner.dispatch("onOpened", [config, node, this]);
 	},
 	close: function(node, master) {
 		var $this = this;
@@ -1900,16 +1907,18 @@ pykit.LinkedList = {
 		return node.$tailNode;
 	},
 	contains: function(node) {
-		var next = this.headNode;
-		while (next) {
-			if (node == next) {
-				return true;
-			}
-			else {
-				next = next.$tailNode;
-			}
+		return this._nodeList.indexOf(node) != -1;
+	},
+	indexOf: function(matchNode, beginNode) {
+		var i = 0;
+		var node = beginNode || this.headNode;
+		while (node) {
+			// Apparently 1 == "1" in JS
+			if (node === matchNode)
+				return i;
+			node = node.$tailNode;
+			i++;
 		}
-		return false;
 	},
 	findOne: function(key, value, beginNode) {
 		var node = beginNode || this.headNode;
@@ -2226,7 +2235,7 @@ pykit.UI.list = pykit.defUI({
 		}
 	},
 	setActiveLabel: function(label) {
-		this.setActive("label", label)
+		this.setActive("label", label);
 	},
 	setActive: function(key, value) {
 		this.unselectAll();
@@ -2644,6 +2653,55 @@ pykit.UI.table = pykit.defUI({
 	},
 	_containerHTML: function() {
 		return this._body;
+	}
+}, pykit.UI.list);
+
+
+
+pykit.UI.select = pykit.defUI({
+	__name__: "select",
+	$defaults: {
+		tagClass: "",
+		htmlTag: "SELECT",
+		flex: false,
+		margin : "",
+		size: "",
+		layout: "",
+		listStyle: ""
+	},
+	__after__: function() {
+		pykit.event(this._html, "change", this._onChange, this);
+	},
+	_onChange: function() {
+		this.dispatch("onChange");
+	},
+	select: function(target) {
+		if (pykit.isString(target))
+			target = this.getItem(target);
+		target.$selected = true;
+		this._html.selectedIndex = this.indexOf(target);
+	},
+	unselectAll: function() {
+		// Do nothing
+	},
+	getValue: function() {
+		return this._html.value;
+	},
+	setValue: function(value) {
+		return this.setActive('value', value);
+	},
+	template: function(itemConfig) {
+		return itemConfig.label;
+	},
+	_innerHTML: function(parentNode, config) {
+		parentNode.innerHTML = this.template(config);
+	},
+	_itemHTML: function(config) {
+		var attrs = {value: config.value};
+		if (config.selected) {
+			attrs.selected = config.selected;
+		}
+		return pykit.html.createElement("OPTION", attrs);
 	}
 }, pykit.UI.list);
 
