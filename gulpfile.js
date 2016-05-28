@@ -43,7 +43,7 @@ gulp.task('build-debug-pykit', function() {
 });
 
 gulp.task('build-less', function () {
-    return gulp.src(['less/**/uikit.less', '!less/uikit/*'])
+    return gulp.src(['less/**/uikit.less', '!less/uikit/uikit.less'])
         .pipe(less())
         .pipe(minifyCSS({"source-map": 1}))
         .pipe(gulp.dest('css'));
