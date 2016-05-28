@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.7
+-----------
+- tweaks: dark theme colors
+
 Version 0.3.6
 -----------
 - added: new select component
