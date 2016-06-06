@@ -2470,9 +2470,10 @@ pykit.UI.tree = pykit.defUI({
 	add: function(obj) {
 		var parent = null;
 		obj.$children = pykit.list();
+		obj.$branch = !!obj.$branch; // Convert to boolean
+
 		if (!obj.$parent) {
 			obj.$depth = 0;
-			obj.$branch = !!obj.$branch; // Convert to boolean
 		}
 		else {
 			parent = this.findOne('id', obj.$parent);
