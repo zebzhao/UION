@@ -9,20 +9,24 @@
 </head>
 <body>
 <script>
-    pykit.UI({
+    var tree = pykit.UI({
         view: "tree",
         width: '150px',
-        data: [
-            {label: "Folder A", $branch: true},
-            {label: "Folder B", $branch: true},
-            {label: "Folder C", $branch: true},
-            {label: "File A"},
-            {label: "File B"},
-            {label: "File C"},
-            {label: "File D"},
-            {label: "File E"}
-        ]
+        data: []
     }, document.body);
+    var nodes = [
+        {label: "Folder C", $branch: true},
+        {label: "File D"},
+        {label: "File B"},
+        {label: "Folder B", $branch: true},
+        {label: "File C"},
+        {label: "File A"},
+        {label: "Folder A", $branch: true},
+        {label: "File E"}
+    ];
+    for (var n=0; n < nodes.length; n++ ) {
+        tree.add(nodes[n]);
+    }
 </script>
 </body>
 </html>
