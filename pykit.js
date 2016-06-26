@@ -2394,7 +2394,7 @@ pykit.UI.list = pykit.defUI({
 
 
 
-pykit.defUI({
+pykit.UI.tree = pykit.defUI({
 	__name__: "tree",
 	$defaults:{
 		listStyle: "side",
@@ -2402,6 +2402,13 @@ pykit.defUI({
 		indentWidth: 15,
 		dataTransfer: 'id',
 		draggable: true,
+		orderAfter: function(other) {
+			var isParent = this.$parent == other.id;
+			var isNestedDeeper = this.$depth < other.$depth;
+			var sameParent = this.$parent == other.$parent;
+			return (isParent || isNestedDeeper || (sameParent && (
+				this.label > other.label && this.$branch == other.$branch || this.$branch < other.$branch)));
+		},
 		droppable: function(item) {
 			return item.$branch;
 		}
@@ -2460,23 +2467,22 @@ pykit.defUI({
 			return true;
 		}, this);
 	},
-	add: function(obj, node) {
+	add: function(obj) {
+		var parent = null;
 		obj.$children = pykit.list();
+		obj.$branch = !!obj.$branch; // Convert to boolean
+
 		if (!obj.$parent) {
 			obj.$depth = 0;
-			this.insertBefore(obj, node);
 		}
 		else {
-			var parent = this.findOne('id', obj.$parent);
+			parent = this.findOne('id', obj.$parent);
 			obj.$depth = parent.$depth + 1;
 			parent.$branch = true;
 			parent.$children.push(obj);
-			var refChild = this.findLast(function(other) {
-				return other.id == obj.$parent || obj.$depth < other.$depth  ||
-					(obj.$parent == other.$parent && (obj.label > other.label || other.$branch > obj.$branch));
-			}, parent, this);
-			this.insertAfter(obj, refChild);
 		}
+		var refChild = this.findLast(this.config.orderAfter, parent, obj);
+		this.insertAfter(obj, refChild);
 	},
 	remove: function(obj) {
 		if (obj.$branch) {
