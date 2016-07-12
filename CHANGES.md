@@ -5,7 +5,7 @@ Here you can see the full list of changes between each Pykit release.
 
 Version 0.3.8
 -----------
-- changed: defaults for `uploadSingle`, `uploadAllow` changed to `true` and `*.*`
+- changed: uploader settings moved to `uploadSettings` config
 
 Version 0.3.7
 -----------

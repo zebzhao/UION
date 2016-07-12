@@ -5555,9 +5555,7 @@ pykit.UI.element = pykit.defUI({
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
 		margin: "all-sm",
-		uploadURL: false,
-		uploadSingle: false,
-		uploadAllow: '*.(jpg|jpeg|gif|png)',
+		uploadSettings: {},
 		$preventDefault: true
 	},
 	$setters: {
@@ -5700,24 +5698,13 @@ pykit.UI.element = pykit.defUI({
 		var config = this._config;
 		var self = this;
 		
-		var settings = {
-			single: config.uploadSingle,
-			allow : config.uploadAllow,
+		var settings = pykit.extend({
 			before: function(settings, files) {
 				self.dispatch("onFilesAdded", [settings, files]);
-
-				if (pykit.isString(config.uploadURL)) {
-					settings.action = config.uploadURL;
-				}
-				else if (pykit.isFunction(config.uploadURL)) {
-					settings.action = config.uploadURL.call(this, settings, files);
-				}
-				else {
-					return false;
-				}
-				return true;
+				return false;
 			}
-		};
+		}, config.uploadSettings);
+
 		var input = pykit.html.createElement("INPUT", {type: "file"});
 		UIkit.uploadSelect(input, settings);
 
