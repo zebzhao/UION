@@ -5555,7 +5555,7 @@ pykit.UI.element = pykit.defUI({
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
 		margin: "all-sm",
-		uploadSettings: {},
+		uploadOptions: {},
 		$preventDefault: true
 	},
 	$setters: {
@@ -5629,34 +5629,13 @@ pykit.UI.element = pykit.defUI({
 		this.element = this._html = pykit.html.createElement(config.htmlTag || "DIV", {id: config.id});
 		if (config.tagClass)
 			this.element.setAttribute("class", config.tagClass);
-		if (config.top)
-			this._html.style.top = config.top;
-		if (config.bottom)
-			this._html.style.bottom = config.bottom;
-		if (config.left)
-			this._html.style.left = config.left;
-		if (config.right)
-			this._html.style.right = config.right;
-		if (config.width)
-			this._html.style.width = config.width;
-		if (config.height)
-			this._html.style.height = config.height;
-		if (config.minHeight)
-			this._html.style.minHeight = config.minHeight;
-		if (config.minWidth)
-			this._html.style.minWidth = config.minWidth;
-		if (config.maxWidth)
-			this._html.style.maxWidth = config.maxWidth;
-		if (config.maxHeight)
-			this._html.style.maxHeight = config.maxHeight;
-		if (config.marginBottom)
-			this._html.style.marginBottom = config.marginBottom;
-		if (config.marginTop)
-			this._html.style.marginBottom = config.marginTop;
-		if (config.marginLeft)
-			this._html.style.marginLeft = config.marginLeft;
-		if (config.marginRight)
-			this._html.style.marginRight = config.marginRight;
+
+		pykit.extend(this._html.style, {
+			top: config.top, bottom: config.bottom, left: config.left, right: config.right,
+			width: config.width, height: config.height, minHeight: config.minHeight, maxHeight: config.maxHeight,
+			minWidth: config.minWidth, maxWidth: config.maxWidth,
+			marginBottom: config.marginBottom, marginTop: config.marginTop,
+			marginLeft: config.marginLeft, marginRight: config.marginRight});
 	},
     __after__: function() {
         this.render();
@@ -5703,7 +5682,7 @@ pykit.UI.element = pykit.defUI({
 				self.dispatch("onFilesAdded", [settings, files]);
 				return false;
 			}
-		}, config.uploadSettings);
+		}, config.uploadOptions);
 
 		var input = pykit.html.createElement("INPUT", {type: "file"});
 		UIkit.uploadSelect(input, settings);
