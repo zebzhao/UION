@@ -863,7 +863,7 @@ pykit.UI.element = pykit.defUI({
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
 		margin: "all-sm",
-		uploadSettings: {},
+		uploadOptions: {},
 		$preventDefault: true
 	},
 	$setters: {
@@ -990,7 +990,7 @@ pykit.UI.element = pykit.defUI({
 				self.dispatch("onFilesAdded", [settings, files]);
 				return false;
 			}
-		}, config.uploadSettings);
+		}, config.uploadOptions);
 
 		var input = pykit.html.createElement("INPUT", {type: "file"});
 		UIkit.uploadSelect(input, settings);
