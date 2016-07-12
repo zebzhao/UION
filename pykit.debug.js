@@ -5678,6 +5678,7 @@ pykit.UI.element = pykit.defUI({
 		var self = this;
 		
 		var settings = pykit.extend({
+			type: 'json',
 			before: function(settings, files) {
 				self.dispatch("onFilesAdded", [settings, files]);
 				return false;
