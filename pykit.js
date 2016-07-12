@@ -864,8 +864,8 @@ pykit.UI.element = pykit.defUI({
 		dropdownPos: 'bottom-center',
 		margin: "all-sm",
 		uploadURL: false,
-		uploadSingle: false,
-		uploadAllow: '*.(jpg|jpeg|gif|png)',
+		uploadSingle: true,
+		uploadAllow: '*.*',
 		$preventDefault: true
 	},
 	$setters: {

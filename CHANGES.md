@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.8
+-----------
+- changed: defaults for `uploadSingle`, `uploadAllow` changed to `true` and `*.*`
+
 Version 0.3.7
 -----------
 - added: `orderAfter` function for custom `tree` sort
