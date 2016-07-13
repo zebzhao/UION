@@ -5685,7 +5685,8 @@ pykit.UI.element = pykit.defUI({
 			}
 		}, config.uploadOptions);
 
-		var input = pykit.html.createElement("INPUT", {type: "file"});
+		var attrs = settings.filelimit > 1 ? {type: "file", multiple: "multiple"} : {type: "file"};
+		var input = pykit.html.createElement("INPUT", attrs);
 		UIkit.uploadSelect(input, settings);
 
 		return input;
