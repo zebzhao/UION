@@ -5250,6 +5250,7 @@ pykit.css = {
 		"bottom-left": "uk-position-bottom-left",
 		"cover": "uk-position-cover",
 		"relative": "uk-position-relative",
+		"absolute": "uk-position-absolute",
 		"z-index": "uk-position-z-index",
 		"": ""
 	},
