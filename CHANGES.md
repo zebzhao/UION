@@ -3,6 +3,11 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.8
+-----------
+- added: select multiple files with html5
+- changed: uploader settings moved to `uploadOptions` config
+
 Version 0.3.7
 -----------
 - added: `orderAfter` function for custom `tree` sort
