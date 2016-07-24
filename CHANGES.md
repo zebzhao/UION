@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.9
+-----------
+- Margin removed from `list` and `dropdown` by default
+
 Version 0.3.8
 -----------
 - added: select multiple files with html5

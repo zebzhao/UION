@@ -1640,7 +1640,7 @@ pykit.UI.dropdown = pykit.defUI({
 	$defaults: {
 		mode: "click",
 		pos: "bottom-center",
-		margin: "none",
+		margin: "",
 		padding: "none",
 		justify: false,
 		dropdownCSS: "uk-dropdown-small uk-dropdown-close",
@@ -2045,6 +2045,7 @@ pykit.UI.list = pykit.defUI({
 		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
+		margin: "",
 		dropdownEvent: "onItemClick"
 	},
 	$setters: pykit.extend(
