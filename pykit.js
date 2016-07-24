@@ -743,7 +743,7 @@ pykit.ComplexDataSetter = {
 pykit.AbsolutePositionMethods = {
 	positionNextTo: function(node, position, marginX, marginY) {
 		var origin = node.getBoundingClientRect();
-		var rect = this._html.firstChild.getBoundingClientRect();
+		var rect = this._html.getBoundingClientRect();
 		var width = rect.width,
 			height = rect.height;
 
@@ -769,12 +769,12 @@ pykit.AbsolutePositionMethods = {
 		this._html.style.left = (origin.left + variants[position].left) + "px";
 		this._html.style.position = "absolute";
 	},
-	position: function(x, y) {
-		this._html.style.top = (x || 0) + "px";
-		this._html.style.left = (y || 0) + "px";
+	position: function(pos) {
+		this._html.style.top = (pos.top || 0) + "px";
+		this._html.style.left = (pos.left || 0) + "px";
 		this._html.style.position = "absolute";
 	},
-	moveWithinBoundary: function(padding, pivot, boundary, offset) {
+	moveWithinBoundary: function(boundary, pivot, padding, offset) {
 		padding = padding || {};
 		pivot = pivot || {};
 		boundary = boundary || {};
@@ -796,6 +796,9 @@ pykit.AbsolutePositionMethods = {
 		var pivotBottom = pivot.bottom || boundaryBottom;
 
 		var rect = this._html.getBoundingClientRect();
+		rect.left = this._html.style.left || rect.left;
+		rect.top = this._html.style.top || rect.top;
+
 		var hiddenLeft = rect.left < boundaryLeft;
 		var hiddenRight = rect.left + rect.width > boundaryRight;
 		var hiddenTop = rect.top < paddingTop;
@@ -994,8 +997,8 @@ pykit.UI.element = pykit.defUI({
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
 				ui.open(config, node, $this, e);
-				this.positionNextTo(node, config.pos, 5, 5);
-				this.moveWithinBoundary();
+				ui.positionNextTo(node, dropdown.pos, 5, 5);
+				ui.moveWithinBoundary();
 			});
 			$this.dropdownPopup = ui;
 			return value;
