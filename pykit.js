@@ -743,7 +743,7 @@ pykit.ComplexDataSetter = {
 pykit.AbsolutePositionMethods = {
 	positionNextTo: function(node, position, marginX, marginY) {
 		var origin = node.getBoundingClientRect();
-		var rect = this._html.getBoundingClientRect();
+		var rect = this.getBoundingClientRect();
 		var width = rect.width,
 			height = rect.height;
 
@@ -768,6 +768,9 @@ pykit.AbsolutePositionMethods = {
 		this._html.style.top = (origin.top + variants[position].top) + "px";
 		this._html.style.left = (origin.left + variants[position].left) + "px";
 		this._html.style.position = "absolute";
+	},
+	getBoundingClientRect: function() {
+		return this._html.getBoundingClientRect();
 	},
 	position: function(pos) {
 		this._html.style.top = (pos.top || 0) + "px";
@@ -795,7 +798,7 @@ pykit.AbsolutePositionMethods = {
 		var pivotTop = pivot.top || boundaryTop;
 		var pivotBottom = pivot.bottom || boundaryBottom;
 
-		var rect = this._html.getBoundingClientRect();
+		var rect = this.getBoundingClientRect();
 		rect.left = this._html.style.left || rect.left;
 		rect.top = this._html.style.top || rect.top;
 
@@ -1760,6 +1763,9 @@ pykit.UI.dropdown = pykit.defUI({
 		result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
 		result += config.scrollable ? "uk-dropdown-scrollable" : "";
 		return result;
+	},
+	getBoundingClientRect: function() {
+		return this._html.firstChild.getBoundingClientRect();
 	},
 	open: function(config, node, parent, e) {
 		this.dispatch("onOpen", [config, node, this]);
