@@ -5,7 +5,10 @@ Here you can see the full list of changes between each Pykit release.
 
 Version 0.3.9
 -----------
-- Margin removed from `list` and `dropdown` by default
+- added: generic positioning methods to `dropdown`
+- added: mixin `AbsolutePositionMethods` with methods `moveWithinBoundary`, `position`, `positionNextTo`
+- changed: margin removed from `list` and `dropdown` by default
+- changed: `dropdown` method `_position` renamed to `position`
 
 Version 0.3.8
 -----------
