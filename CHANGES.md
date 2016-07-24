@@ -8,6 +8,7 @@ Version 0.3.9
 - added: generic positioning methods to `dropdown`
 - added: mixin `AbsolutePositionMethods` with methods `moveWithinBoundary`, `position`, `positionNextTo`
 - added: can override bounding rect calculation of `AbsolutePositionMethods`
+- changed: removed `pykit.keys()` for `Object.keys`
 - changed: margin removed from `list` and `dropdown` by default
 - changed: `dropdown` method `_position` renamed to `position`
 

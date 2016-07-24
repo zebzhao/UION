@@ -4749,10 +4749,6 @@ pykit.replaceString = function(str, obj) {
 	return str;
 };
 
-pykit.returnString = function(str) {
-	return function() {return str;}
-};
-
 pykit.extend = function(target, src) {
 	for (var i in src) {
 		if (src.hasOwnProperty(i) && pykit.isDefined(src[i])) {
@@ -4778,15 +4774,6 @@ pykit.pluck = function(array, property) {
     }
     return result;
 };
-
-pykit.keys = function(object) {
-	var results = [];
-	for (var i in object) {
-		if (object.hasOwnProperty(i)) results.push(i);
-	}
-	return results;
-};
-
 
 pykit.defUI = function(config) {
 	var bases = Array.prototype.slice.call(arguments, 1);
@@ -5392,7 +5379,7 @@ pykit.PropertySetter = {
     },
     __after__: function(config) {
         if (this.$setters) {
-			var names = pykit.keys(config);
+			var names = Object.keys(config);
             for (var name,i=0; i < names.length; i++) {
 				name = names[i];
 				this.set(name, config[name]);
