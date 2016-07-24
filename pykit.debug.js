@@ -5432,6 +5432,90 @@ pykit.ComplexDataSetter = {
 
 
 
+pykit.AbsolutePositionMethods = {
+	positionNextTo: function(node, position, marginX, marginY) {
+		var origin = node.getBoundingClientRect();
+		var rect = this._html.firstChild.getBoundingClientRect();
+		var width = rect.width,
+			height = rect.height;
+
+		marginX = marginX || 0;
+		marginY = marginY || 0;
+
+		var variants =  {
+			"bottom-left"   : {top: origin.height + marginY, left: marginX},
+			"bottom-right"  : {top: origin.height + marginY, left: origin.width - width + marginX},
+			"bottom-center" : {top: origin.height + marginY, left: origin.width / 2 - width / 2 + marginX},
+			"top-left"      : {top: -marginY - height, left: 0},
+			"top-right"     : {top: -marginY - height, left: origin.width - width},
+			"top-center"    : {top: -marginY - height, left: origin.width / 2 - width / 2},
+			"left-top"      : {top: marginY, left: -marginX - width},
+			"left-bottom"   : {top: origin.height - height, left: - marginX - width},
+			"left-center"   : {top: origin.height / 2 - height / 2, left: - marginX - width},
+			"right-top"     : {top: marginY, left: origin.width + marginX},
+			"right-bottom"  : {top: origin.height - height, left: origin.width + marginX},
+			"right-center"  : {top: origin.height / 2 - height / 2, left: origin.width + marginX}
+		};
+
+		this._html.style.top = (origin.top + variants[position].top) + "px";
+		this._html.style.left = (origin.left + variants[position].left) + "px";
+		this._html.style.position = "absolute";
+	},
+	position: function(x, y) {
+		this._html.style.top = (x || 0) + "px";
+		this._html.style.left = (y || 0) + "px";
+		this._html.style.position = "absolute";
+	},
+	moveWithinBoundary: function(padding, pivot, boundary, offset) {
+		padding = padding || {};
+		pivot = pivot || {};
+		boundary = boundary || {};
+		offset = offset || {};
+
+		var paddingTop = padding.top || 0;
+		var paddingRight = padding.right || 0;
+		var paddingBottom = padding.bottom || 0;
+		var paddingLeft = padding.left || 0;
+
+		var boundaryTop = boundary.top || paddingTop;
+		var boundaryBottom = boundary.bottom|| (window.innerHeight - paddingBottom);
+		var boundaryLeft = boundary.left || paddingLeft;
+		var boundaryRight = boundary.right || (window.innerWidth - paddingRight);
+
+		var pivotLeft = pivot.left || boundaryLeft;
+		var pivotRight = pivot.right || boundaryRight;
+		var pivotTop = pivot.top || boundaryTop;
+		var pivotBottom = pivot.bottom || boundaryBottom;
+
+		var rect = this._html.getBoundingClientRect();
+		var hiddenLeft = rect.left < boundaryLeft;
+		var hiddenRight = rect.left + rect.width > boundaryRight;
+		var hiddenTop = rect.top < paddingTop;
+		var hiddenBottom = rect.top + rect.height > boundaryBottom;
+
+		var offsetTop = offset.top || 0;
+		var offsetBottom = offset.bottom || 0;
+		var offsetLeft = offset.left || 0;
+		var offsetRight = offset.right || 0;
+
+		if (hiddenLeft) {
+			this._html.style.left = (pivotLeft + offsetLeft) + "px";
+		}
+		else if (hiddenRight) {
+			this._html.style.left = (pivotRight - rect.width + offsetRight) + "px";
+		}
+
+		if (hiddenTop) {
+			this._html.style.top = (pivotTop + offsetTop) + "px";
+		}
+		else if (hiddenBottom) {
+			this._html.style.top = (pivotBottom - rect.height + offsetBottom) + "px";
+		}
+	}
+};
+
+
+
 pykit.UI = function (config, parent) {
     var node = makeView(config);
 	pykit.assert(node, pykit.replaceString("Unknown node view {view}.", {view: config.view}), config);
@@ -5596,13 +5680,14 @@ pykit.UI.element = pykit.defUI({
 				pos: config.dropdownPos,
 				dropdown: value
 			};
-			value.listStyle = "dropdown";
-			value.margin = "";
+
 			var ui = pykit.UI(dropdown, document.body);
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
 				ui.open(config, node, $this, e);
+				this.positionNextTo(node, config.pos, 5, 5);
+				this.moveWithinBoundary();
 			});
 			$this.dropdownPopup = ui;
 			return value;
@@ -6332,7 +6417,7 @@ pykit.UI.dropdown = pykit.defUI({
 	$defaults: {
 		mode: "click",
 		pos: "bottom-center",
-		margin: "none",
+		margin: "",
 		padding: "none",
 		justify: false,
 		dropdownCSS: "uk-dropdown-small uk-dropdown-close",
@@ -6343,6 +6428,11 @@ pykit.UI.dropdown = pykit.defUI({
 		dropdown: function (value) {
 			var dropdown = pykit.html.createElement("DIV",
 				{class: this._dropdownCSS()});
+
+			if (!value.listStyle) {
+				value.listStyle = "dropdown";
+			}
+
 			var ui = pykit.UI(value);
 			dropdown.appendChild(ui._html);
 			this._html.appendChild(dropdown);
@@ -6360,29 +6450,6 @@ pykit.UI.dropdown = pykit.defUI({
 		result += config.scrollable ? "uk-dropdown-scrollable" : "";
 		return result;
 	},
-	_position: function(node) {
-		var origin = node.getBoundingClientRect();
-		var dropdown = this._html.firstChild.getBoundingClientRect();
-		var width = dropdown.width,
-			height = dropdown.height;
-		var variants =  {
-			"bottom-left"   : {top: origin.height + 5, left: 0},
-			"bottom-right"  : {top: origin.height + 5, left: origin.width - width},
-			"bottom-center" : {top: origin.height + 5, left: origin.width / 2 - width / 2},
-			"top-left"      : {top: -5 - height, left: 0},
-			"top-right"     : {top: -5 - height, left: origin.width - width},
-			"top-center"    : {top: -5 - height, left: origin.width / 2 - width / 2},
-			"left-top"      : {top: 0, left: -5 - width},
-			"left-bottom"   : {top: origin.height - height, left: -5 - width},
-			"left-center"   : {top: origin.height / 2 - height / 2, left: -5 - width},
-			"right-top"     : {top: 0, left: origin.width + 5},
-			"right-bottom"  : {top: origin.height - height, left: origin.width + 5},
-			"right-center"  : {top: origin.height / 2 - height / 2, left: origin.width + 5}
-		};
-		this._html.style.top = (origin.top + variants[this._config.pos].top) + "px";
-		this._html.style.left = (origin.left + variants[this._config.pos].left) + "px";
-		this._html.style.position = "absolute";
-	},
 	open: function(config, node, parent, e) {
 		this.dispatch("onOpen", [config, node, this]);
 		this._inner.dispatch("onOpen", [config, node, this]);
@@ -6392,7 +6459,6 @@ pykit.UI.dropdown = pykit.defUI({
 		this._inner.parent = this;
 		this._inner.grandparent = parent;
 		this._dropdown.show();
-		this._position(node, e);
 
 		this.dispatch("onOpened", [config, node, this]);
 		this._inner.dispatch("onOpened", [config, node, this]);
@@ -6409,7 +6475,7 @@ pykit.UI.dropdown = pykit.defUI({
 			$this._inner.dispatch("onClosed", [master, node, $this]);
 		}, 10);
 	}
-}, pykit.UI.flexgrid);
+}, pykit.UI.flexgrid, pykit.AbsolutePositionMethods);
 
 
 
@@ -6737,6 +6803,7 @@ pykit.UI.list = pykit.defUI({
 		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
+		margin: "",
 		dropdownEvent: "onItemClick"
 	},
 	$setters: pykit.extend(
