@@ -5467,24 +5467,24 @@ pykit.AbsolutePositionMethods = {
 		var paddingBottom = padding.bottom || 0;
 		var paddingLeft = padding.left || 0;
 
-		var boundaryTop = boundary.top || paddingTop;
-		var boundaryBottom = boundary.bottom|| (window.innerHeight - paddingBottom);
-		var boundaryLeft = boundary.left || paddingLeft;
-		var boundaryRight = boundary.right || (window.innerWidth - paddingRight);
+		var boundaryTop = boundary.top || 0;
+		var boundaryBottom = boundary.bottom || window.innerHeight;
+		var boundaryLeft = boundary.left || 0;
+		var boundaryRight = boundary.right || window.innerWidth;
 
-		var pivotLeft = pivot.left || boundaryLeft;
-		var pivotRight = pivot.right || boundaryRight;
-		var pivotTop = pivot.top || boundaryTop;
-		var pivotBottom = pivot.bottom || boundaryBottom;
+		var pivotLeft = pivot.left || boundaryLeft + paddingLeft;
+		var pivotRight = pivot.right || boundaryRight - paddingRight;
+		var pivotTop = pivot.top || boundaryTop + paddingTop;
+		var pivotBottom = pivot.bottom || boundaryBottom - paddingBottom;
 
 		var rect = this.getBoundingClientRect();
 		rect.left = this._html.style.left || rect.left;
 		rect.top = this._html.style.top || rect.top;
 
-		var hiddenLeft = rect.left < boundaryLeft;
-		var hiddenRight = rect.left + rect.width > boundaryRight;
-		var hiddenTop = rect.top < paddingTop;
-		var hiddenBottom = rect.top + rect.height > boundaryBottom;
+		var hiddenLeft = rect.left < boundaryLeft + paddingLeft;
+		var hiddenRight = rect.left + rect.width > boundaryRight - paddingRight;
+		var hiddenTop = rect.top < boundaryTop + paddingTop;
+		var hiddenBottom = rect.top + rect.height > boundaryBottom - paddingBottom;
 
 		var offsetTop = offset.top || 0;
 		var offsetBottom = offset.bottom || 0;
