@@ -4749,10 +4749,6 @@ pykit.replaceString = function(str, obj) {
 	return str;
 };
 
-pykit.returnString = function(str) {
-	return function() {return str;}
-};
-
 pykit.extend = function(target, src) {
 	for (var i in src) {
 		if (src.hasOwnProperty(i) && pykit.isDefined(src[i])) {
@@ -4778,15 +4774,6 @@ pykit.pluck = function(array, property) {
     }
     return result;
 };
-
-pykit.keys = function(object) {
-	var results = [];
-	for (var i in object) {
-		if (object.hasOwnProperty(i)) results.push(i);
-	}
-	return results;
-};
-
 
 pykit.defUI = function(config) {
 	var bases = Array.prototype.slice.call(arguments, 1);
@@ -5250,6 +5237,7 @@ pykit.css = {
 		"bottom-left": "uk-position-bottom-left",
 		"cover": "uk-position-cover",
 		"relative": "uk-position-relative",
+		"absolute": "uk-position-absolute",
 		"z-index": "uk-position-z-index",
 		"": ""
 	},
@@ -5391,7 +5379,7 @@ pykit.PropertySetter = {
     },
     __after__: function(config) {
         if (this.$setters) {
-			var names = pykit.keys(config);
+			var names = Object.keys(config);
             for (var name,i=0; i < names.length; i++) {
 				name = names[i];
 				this.set(name, config[name]);
@@ -5427,6 +5415,96 @@ pykit.ComplexDataSetter = {
 			this.add(value[i]);
 		}
     }
+};
+
+
+
+pykit.AbsolutePositionMethods = {
+	positionNextTo: function(node, position, marginX, marginY) {
+		var origin = node.getBoundingClientRect();
+		var rect = this.getBoundingClientRect();
+		var width = rect.width,
+			height = rect.height;
+
+		marginX = marginX || 0;
+		marginY = marginY || 0;
+
+		var variants =  {
+			"bottom-left"   : {top: origin.height + marginY, left: marginX},
+			"bottom-right"  : {top: origin.height + marginY, left: origin.width - width + marginX},
+			"bottom-center" : {top: origin.height + marginY, left: origin.width / 2 - width / 2 + marginX},
+			"top-left"      : {top: -marginY - height, left: 0},
+			"top-right"     : {top: -marginY - height, left: origin.width - width},
+			"top-center"    : {top: -marginY - height, left: origin.width / 2 - width / 2},
+			"left-top"      : {top: marginY, left: -marginX - width},
+			"left-bottom"   : {top: origin.height - height, left: - marginX - width},
+			"left-center"   : {top: origin.height / 2 - height / 2, left: - marginX - width},
+			"right-top"     : {top: marginY, left: origin.width + marginX},
+			"right-bottom"  : {top: origin.height - height, left: origin.width + marginX},
+			"right-center"  : {top: origin.height / 2 - height / 2, left: origin.width + marginX}
+		};
+
+		this._html.style.top = (origin.top + variants[position].top) + "px";
+		this._html.style.left = (origin.left + variants[position].left) + "px";
+		this._html.style.position = "absolute";
+	},
+	getBoundingClientRect: function() {
+		return this._html.getBoundingClientRect();
+	},
+	position: function(pos) {
+		this._html.style.top = (pos.top || 0) + "px";
+		this._html.style.left = (pos.left || 0) + "px";
+		this._html.style.position = "absolute";
+	},
+	moveWithinBoundary: function(boundary, pivot, padding, offset) {
+		padding = padding || {};
+		pivot = pivot || {};
+		boundary = boundary || {};
+		offset = offset || {};
+
+		var paddingTop = padding.top || 0;
+		var paddingRight = padding.right || 0;
+		var paddingBottom = padding.bottom || 0;
+		var paddingLeft = padding.left || 0;
+
+		var boundaryTop = boundary.top || 0;
+		var boundaryBottom = boundary.bottom || window.innerHeight;
+		var boundaryLeft = boundary.left || 0;
+		var boundaryRight = boundary.right || window.innerWidth;
+
+		var pivotLeft = pivot.left || boundaryLeft + paddingLeft;
+		var pivotRight = pivot.right || boundaryRight - paddingRight;
+		var pivotTop = pivot.top || boundaryTop + paddingTop;
+		var pivotBottom = pivot.bottom || boundaryBottom - paddingBottom;
+
+		var rect = this.getBoundingClientRect();
+		rect.left = this._html.style.left || rect.left;
+		rect.top = this._html.style.top || rect.top;
+
+		var hiddenLeft = rect.left < boundaryLeft + paddingLeft;
+		var hiddenRight = rect.left + rect.width > boundaryRight - paddingRight;
+		var hiddenTop = rect.top < boundaryTop + paddingTop;
+		var hiddenBottom = rect.top + rect.height > boundaryBottom - paddingBottom;
+
+		var offsetTop = offset.top || 0;
+		var offsetBottom = offset.bottom || 0;
+		var offsetLeft = offset.left || 0;
+		var offsetRight = offset.right || 0;
+
+		if (hiddenLeft) {
+			this._html.style.left = (pivotLeft + offsetLeft) + "px";
+		}
+		else if (hiddenRight) {
+			this._html.style.left = (pivotRight - rect.width + offsetRight) + "px";
+		}
+
+		if (hiddenTop) {
+			this._html.style.top = (pivotTop + offsetTop) + "px";
+		}
+		else if (hiddenBottom) {
+			this._html.style.top = (pivotBottom - rect.height + offsetBottom) + "px";
+		}
+	}
 };
 
 
@@ -5595,13 +5673,14 @@ pykit.UI.element = pykit.defUI({
 				pos: config.dropdownPos,
 				dropdown: value
 			};
-			value.listStyle = "dropdown";
-			value.margin = "";
+
 			var ui = pykit.UI(dropdown, document.body);
 
 			this._config.on = config.on || {};
 			this.addListener(config.dropdownEvent, function(config, node, e) {
 				ui.open(config, node, $this, e);
+				ui.positionNextTo(node, dropdown.pos, 5, 5);
+				ui.moveWithinBoundary();
 			});
 			$this.dropdownPopup = ui;
 			return value;
@@ -6331,7 +6410,7 @@ pykit.UI.dropdown = pykit.defUI({
 	$defaults: {
 		mode: "click",
 		pos: "bottom-center",
-		margin: "none",
+		margin: "",
 		padding: "none",
 		justify: false,
 		dropdownCSS: "uk-dropdown-small uk-dropdown-close",
@@ -6342,6 +6421,11 @@ pykit.UI.dropdown = pykit.defUI({
 		dropdown: function (value) {
 			var dropdown = pykit.html.createElement("DIV",
 				{class: this._dropdownCSS()});
+
+			if (!value.listStyle) {
+				value.listStyle = "dropdown";
+			}
+
 			var ui = pykit.UI(value);
 			dropdown.appendChild(ui._html);
 			this._html.appendChild(dropdown);
@@ -6359,28 +6443,8 @@ pykit.UI.dropdown = pykit.defUI({
 		result += config.scrollable ? "uk-dropdown-scrollable" : "";
 		return result;
 	},
-	_position: function(node) {
-		var origin = node.getBoundingClientRect();
-		var dropdown = this._html.firstChild.getBoundingClientRect();
-		var width = dropdown.width,
-			height = dropdown.height;
-		var variants =  {
-			"bottom-left"   : {top: origin.height + 5, left: 0},
-			"bottom-right"  : {top: origin.height + 5, left: origin.width - width},
-			"bottom-center" : {top: origin.height + 5, left: origin.width / 2 - width / 2},
-			"top-left"      : {top: -5 - height, left: 0},
-			"top-right"     : {top: -5 - height, left: origin.width - width},
-			"top-center"    : {top: -5 - height, left: origin.width / 2 - width / 2},
-			"left-top"      : {top: 0, left: -5 - width},
-			"left-bottom"   : {top: origin.height - height, left: -5 - width},
-			"left-center"   : {top: origin.height / 2 - height / 2, left: -5 - width},
-			"right-top"     : {top: 0, left: origin.width + 5},
-			"right-bottom"  : {top: origin.height - height, left: origin.width + 5},
-			"right-center"  : {top: origin.height / 2 - height / 2, left: origin.width + 5}
-		};
-		this._html.style.top = (origin.top + variants[this._config.pos].top) + "px";
-		this._html.style.left = (origin.left + variants[this._config.pos].left) + "px";
-		this._html.style.position = "absolute";
+	getBoundingClientRect: function() {
+		return this._html.firstChild.getBoundingClientRect();
 	},
 	open: function(config, node, parent, e) {
 		this.dispatch("onOpen", [config, node, this]);
@@ -6391,7 +6455,6 @@ pykit.UI.dropdown = pykit.defUI({
 		this._inner.parent = this;
 		this._inner.grandparent = parent;
 		this._dropdown.show();
-		this._position(node, e);
 
 		this.dispatch("onOpened", [config, node, this]);
 		this._inner.dispatch("onOpened", [config, node, this]);
@@ -6408,7 +6471,7 @@ pykit.UI.dropdown = pykit.defUI({
 			$this._inner.dispatch("onClosed", [master, node, $this]);
 		}, 10);
 	}
-}, pykit.UI.flexgrid);
+}, pykit.UI.flexgrid, pykit.AbsolutePositionMethods);
 
 
 
@@ -6736,6 +6799,7 @@ pykit.UI.list = pykit.defUI({
 		selectable: false,
 		listStyle: "list",
 		itemStyle: "",
+		margin: "",
 		dropdownEvent: "onItemClick"
 	},
 	$setters: pykit.extend(

@@ -3,9 +3,19 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.9
+-----------
+- added: generic positioning methods to `dropdown`
+- added: mixin `AbsolutePositionMethods` with methods `moveWithinBoundary`, `position`, `positionNextTo`
+- added: can override bounding rect calculation of `AbsolutePositionMethods`
+- changed: removed `pykit.keys()` for `Object.keys`
+- changed: margin removed from `list` and `dropdown` by default
+- changed: `dropdown` method `_position` renamed to `position`
+
 Version 0.3.8
 -----------
 - added: select multiple files with html5
+- added: `position` config now supports `absolute`
 - changed: uploader settings moved to `uploadOptions` config
 
 Version 0.3.7
