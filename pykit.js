@@ -560,7 +560,7 @@ pykit.css = {
 		clearfix: "uk-clearfix"
 	},
 	scroll: {
-		x: "uk-overflow-container",
+		xy: "uk-overflow-container",
 		y: "uk-scrollable-text"
 	},
 	hidden: {

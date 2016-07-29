@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.10
+-----------
+- changed: config `scroll` option `x` changed to `xy`
+
 Version 0.3.9
 -----------
 - added: generic positioning methods to `dropdown`
