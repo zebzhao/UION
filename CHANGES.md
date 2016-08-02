@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Pykit release.
 Version 0.3.10
 -----------
 - changed: config `scroll` option `x` changed to `xy`
+- upgrade uikit version to 2.26.x
 
 Version 0.3.9
 -----------
