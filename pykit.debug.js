@@ -6319,7 +6319,7 @@ pykit.UI.input = pykit.defUI({
 					this.help.innerHTML = value;
 					this._html.parentNode.appendChild(this.help);
 				}
-				return value;
+				return this.help;
 			}
 		}
 	),
@@ -7634,6 +7634,7 @@ pykit.UI.fieldset = pykit.defUI({
 			if (config.formLabel) {
 				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
 				ui.label.innerHTML = config.formLabel;
+				if (config.inline) pykit.html.addCSS(ui.label, "uk-display-inline");
 				controlContainer.appendChild(ui.label);
 			}
 
