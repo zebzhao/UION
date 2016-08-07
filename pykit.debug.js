@@ -6307,6 +6307,9 @@ pykit.UI.input = pykit.defUI({
 			},
 			help: function(value) {
 				if (value) {
+					if (this.help && this.help.parentNode) {
+						this.help.parentNode.removeChild(this.help);
+					}
 					if (this._config.inline) {
 						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
 					}
