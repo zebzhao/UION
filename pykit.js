@@ -533,7 +533,7 @@ pykit.css = {
 	},
 	valign: {
 		middle: "uk-vertical-align-middle",
-		top: "uk-vertical-align",
+		parent: "uk-vertical-align",
 		bottom: "uk-vertical-align-bottom"
 	},
 	position: {
@@ -1511,7 +1511,8 @@ pykit.UI.input = pykit.defUI({
 		inputWidth: "medium",
 		autocomplete: "on",
 		autocapitalize: "on",
-		autocorrect: "on"
+		autocorrect: "on",
+		inline: false
 	},
 	$setters: pykit.extend(pykit.setCSS(
 		{
@@ -1547,8 +1548,21 @@ pykit.UI.input = pykit.defUI({
 					this._html.checked = value;
 				return value;
 			},
-			placeholder: function (value) {
+			placeholder: function(value) {
 				this._html.setAttribute("placeholder", value);
+				return value;
+			},
+			help: function(value) {
+				if (value) {
+					if (this._config.inline) {
+						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
+					}
+					else {
+						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
+					}
+					this.help.innerHTML = value;
+					this._html.parentNode.appendChild(this.help);
+				}
 				return value;
 			}
 		}
@@ -1586,6 +1600,36 @@ pykit.UI.input = pykit.defUI({
 			this._html.checked = value;
 		}
 		else this._html.value = value;
+	},
+	setClass: function(value) {
+		switch(value) {
+			case "success":
+				pykit.html.removeCSS(this._html, "uk-form-danger");
+				pykit.html.addCSS(this._html, "uk-form-success");
+				break;
+			case "danger":
+				pykit.html.addCSS(this._html, "uk-form-danger");
+				pykit.html.removeCSS(this._html, "uk-form-success");
+				break;
+			default:
+				pykit.html.removeCSS(this._html, "uk-form-danger");
+				pykit.html.removeCSS(this._html, "uk-form-success");
+		}
+		if (this.help) {
+			switch(value) {
+				case "success":
+					pykit.html.removeCSS(this.help, "uk-text-danger");
+					pykit.html.addCSS(this.help, "uk-text-success");
+					break;
+				case "danger":
+					pykit.html.addCSS(this.help, "uk-text-danger");
+					pykit.html.removeCSS(this.help, "uk-text-success");
+					break;
+				default:
+					pykit.html.removeCSS(this.help, "uk-text-danger");
+					pykit.html.removeCSS(this.help, "uk-text-success");
+			}
+		}
 	}
 }, pykit.UI.element);
 
@@ -2825,26 +2869,19 @@ pykit.UI.fieldset = pykit.defUI({
 		else if (config.view) {
 			config.margin = config.margin || "";
 			var ui = pykit.UI(config);
+			var controlContainer = parentNode;
+			if (!config.inline) {
+				controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
+				parentNode.appendChild(controlContainer);
+			}
 
 			if (config.formLabel) {
-				var label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
-				label.innerHTML = config.formLabel;
-
-				if (config.inline)
-					pykit.html.addCSS(label, "uk-display-inline");
-
-				parentNode.appendChild(label);
+				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
+				ui.label.innerHTML = config.formLabel;
+				controlContainer.appendChild(ui.label);
 			}
 
-			if (config.inline) {
-				parentNode.appendChild(ui._html);
-				pykit.html.addCSS(ui._html, "uk-display-inline");
-			}
-			else {
-				var controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
-				parentNode.appendChild(controlContainer);
-				controlContainer.appendChild(ui._html);
-			}
+			controlContainer.appendChild(ui._html);
 		}
 	},
 	clear: function() {
