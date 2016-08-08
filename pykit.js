@@ -1532,33 +1532,38 @@ pykit.FormControl = {
 			}
 		}
 	),
+	getFormControl: function() {
+		return this._html;
+	},
 	setClass: function(value) {
+		var formControl = this.getFormControl();
 		switch(value) {
 			case "success":
-				pykit.html.removeCSS(this._html, "uk-form-danger");
-				pykit.html.addCSS(this._html, "uk-form-success");
+				pykit.html.removeCSS(formControl, "uk-form-danger");
+				pykit.html.addCSS(formControl, "uk-form-success");
 				break;
 			case "danger":
-				pykit.html.addCSS(this._html, "uk-form-danger");
-				pykit.html.removeCSS(this._html, "uk-form-success");
+				pykit.html.addCSS(formControl, "uk-form-danger");
+				pykit.html.removeCSS(formControl, "uk-form-success");
 				break;
 			default:
-				pykit.html.removeCSS(this._html, "uk-form-danger");
-				pykit.html.removeCSS(this._html, "uk-form-success");
+				pykit.html.removeCSS(formControl, "uk-form-danger");
+				pykit.html.removeCSS(formControl, "uk-form-success");
 		}
-		if (this.help) {
+		var helpControl = this.help;
+		if (helpControl) {
 			switch(value) {
 				case "success":
-					pykit.html.removeCSS(this.help, "uk-text-danger");
-					pykit.html.addCSS(this.help, "uk-text-success");
+					pykit.html.removeCSS(helpControl, "uk-text-danger");
+					pykit.html.addCSS(helpControl, "uk-text-success");
 					break;
 				case "danger":
-					pykit.html.addCSS(this.help, "uk-text-danger");
-					pykit.html.removeCSS(this.help, "uk-text-success");
+					pykit.html.addCSS(helpControl, "uk-text-danger");
+					pykit.html.removeCSS(helpControl, "uk-text-success");
 					break;
 				default:
-					pykit.html.removeCSS(this.help, "uk-text-danger");
-					pykit.html.removeCSS(this.help, "uk-text-success");
+					pykit.html.removeCSS(helpControl, "uk-text-danger");
+					pykit.html.removeCSS(helpControl, "uk-text-success");
 			}
 		}
 	}
@@ -1666,6 +1671,9 @@ pykit.UI.password = pykit.defUI({
 	},
 	_onChange: function() {
 		this.dispatch("onChange", [this.getValue()]);
+	},
+	getFormControl: function() {
+		return this._html.firstChild;
 	},
 	template: function() {
 		return "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>";
