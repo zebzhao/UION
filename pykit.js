@@ -1504,6 +1504,68 @@ pykit.UI.image = pykit.defUI({
 
 
 
+pykit.FormControl = {
+	$setters: pykit.extend(pykit.setCSS(
+		{
+			class: {
+				success: "uk-form-success",
+				danger: "uk-form-danger",
+				"": ""
+			}
+		}),
+		{
+			help: function(value) {
+				if (value) {
+					if (this.help && this.help.parentNode) {
+						this.help.parentNode.removeChild(this.help);
+					}
+					if (this._config.inline) {
+						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
+					}
+					else {
+						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
+					}
+					this.help.innerHTML = value;
+					this._html.parentNode.appendChild(this.help);
+				}
+				return this.help;
+			}
+		}
+	),
+	setClass: function(value) {
+		switch(value) {
+			case "success":
+				pykit.html.removeCSS(this._html, "uk-form-danger");
+				pykit.html.addCSS(this._html, "uk-form-success");
+				break;
+			case "danger":
+				pykit.html.addCSS(this._html, "uk-form-danger");
+				pykit.html.removeCSS(this._html, "uk-form-success");
+				break;
+			default:
+				pykit.html.removeCSS(this._html, "uk-form-danger");
+				pykit.html.removeCSS(this._html, "uk-form-success");
+		}
+		if (this.help) {
+			switch(value) {
+				case "success":
+					pykit.html.removeCSS(this.help, "uk-text-danger");
+					pykit.html.addCSS(this.help, "uk-text-success");
+					break;
+				case "danger":
+					pykit.html.addCSS(this.help, "uk-text-danger");
+					pykit.html.removeCSS(this.help, "uk-text-success");
+					break;
+				default:
+					pykit.html.removeCSS(this.help, "uk-text-danger");
+					pykit.html.removeCSS(this.help, "uk-text-success");
+			}
+		}
+	}
+};
+
+
+
 pykit.UI.input = pykit.defUI({
 	__name__: "input",
 	$defaults: {
@@ -1551,22 +1613,6 @@ pykit.UI.input = pykit.defUI({
 			placeholder: function(value) {
 				this._html.setAttribute("placeholder", value);
 				return value;
-			},
-			help: function(value) {
-				if (value) {
-					if (this.help && this.help.parentNode) {
-						this.help.parentNode.removeChild(this.help);
-					}
-					if (this._config.inline) {
-						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
-					}
-					else {
-						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
-					}
-					this.help.innerHTML = value;
-					this._html.parentNode.appendChild(this.help);
-				}
-				return this.help;
 			}
 		}
 	),
@@ -1603,38 +1649,8 @@ pykit.UI.input = pykit.defUI({
 			this._html.checked = value;
 		}
 		else this._html.value = value;
-	},
-	setClass: function(value) {
-		switch(value) {
-			case "success":
-				pykit.html.removeCSS(this._html, "uk-form-danger");
-				pykit.html.addCSS(this._html, "uk-form-success");
-				break;
-			case "danger":
-				pykit.html.addCSS(this._html, "uk-form-danger");
-				pykit.html.removeCSS(this._html, "uk-form-success");
-				break;
-			default:
-				pykit.html.removeCSS(this._html, "uk-form-danger");
-				pykit.html.removeCSS(this._html, "uk-form-success");
-		}
-		if (this.help) {
-			switch(value) {
-				case "success":
-					pykit.html.removeCSS(this.help, "uk-text-danger");
-					pykit.html.addCSS(this.help, "uk-text-success");
-					break;
-				case "danger":
-					pykit.html.addCSS(this.help, "uk-text-danger");
-					pykit.html.removeCSS(this.help, "uk-text-success");
-					break;
-				default:
-					pykit.html.removeCSS(this.help, "uk-text-danger");
-					pykit.html.removeCSS(this.help, "uk-text-success");
-			}
-		}
 	}
-}, pykit.UI.element);
+}, pykit.FormControl, pykit.UI.element);
 
 
 
@@ -1669,7 +1685,7 @@ pykit.UI.password = pykit.defUI({
 	setValue: function(value) {
 		this._html.firstChild.value = value;
 	}
-}, pykit.UI.element);
+}, pykit.FormControl, pykit.UI.element);
 
 
 
@@ -2872,17 +2888,18 @@ pykit.UI.fieldset = pykit.defUI({
 		else if (config.view) {
 			config.margin = config.margin || "";
 			var ui = pykit.UI(config);
-			var controlContainer = parentNode;
-			if (!config.inline) {
-				controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
-				parentNode.appendChild(controlContainer);
-			}
 
 			if (config.formLabel) {
 				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
 				ui.label.innerHTML = config.formLabel;
 				if (config.inline) pykit.html.addCSS(ui.label, "uk-display-inline");
-				controlContainer.appendChild(ui.label);
+				parentNode.appendChild(ui.label);
+			}
+
+			var controlContainer = parentNode;
+			if (!config.inline) {
+				controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
+				parentNode.appendChild(controlContainer);
 			}
 
 			controlContainer.appendChild(ui._html);
