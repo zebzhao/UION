@@ -4,7 +4,7 @@
   "homepage": "https://github.com/zebzhao/Pykit",
   "dependencies": {
     "uikit": "uikit/uikit#^2.26.x",
-    "jquery": "^2.2.x"
+    "jquery": "^2.x.x"
   },
   "ignore": [
     "node_modules",
