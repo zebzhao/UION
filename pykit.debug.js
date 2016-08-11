@@ -43,7 +43,7 @@
 
     var UI = {}, _UI = global.UIkit ? Object.create(global.UIkit) : undefined;
 
-    UI.version = '2.25.0';
+    UI.version = '2.26.4';
 
     UI.noConflict = function() {
         // restore UIkit version
@@ -180,6 +180,19 @@
         };
     };
 
+    UI.Utils.throttle = function (func, limit) {
+        var wait = false;
+        return function () {
+            if (!wait) {
+                func.call();
+                wait = true;
+                setTimeout(function () {
+                    wait = false;
+                }, limit);
+            }
+        }
+    };
+
     UI.Utils.removeCssRules = function(selectorRegEx) {
         var idx, idxs, stylesheet, _i, _j, _k, _len, _len1, _len2, _ref;
 
@@ -246,7 +259,7 @@
 
                 var ele  = UI.$(this),
                     cls  = ele.attr('class'),
-                    anim = cls.match(/uk\-animation\-(.+)/);
+                    anim = cls.match(/uk-animation-(.+)/);
 
                 ele.removeClass(anim[0]).width();
 
@@ -593,7 +606,7 @@
                 var observer = new UI.support.mutationobserver(UI.Utils.debounce(function(mutations) {
                     fn.apply(element, []);
                     $element.trigger('changed.uk.dom');
-                }, 50));
+                }, 50), {childList: true, subtree: true});
 
                 // pass in the target node, as well as the observer options
                 observer.observe(element, { childList: true, subtree: true });
@@ -626,21 +639,12 @@
 
             UI.$body = UI.$('body');
 
-            UI.ready(function(context){
-                UI.domObserve('[data-uk-observe]');
-            });
-
-            UI.on('changed.uk.dom', function(e) {
-                UI.init(e.target);
-                UI.Utils.checkDisplay(e.target);
-            });
-
             UI.trigger('beforeready.uk.dom');
 
             UI.component.bootComponents();
 
             // custom scroll observer
-            requestAnimationFrame((function(){
+            var rafToken = requestAnimationFrame((function(){
 
                 var memory = {dir: {x:0, y:0}, x: window.pageXOffset, y:window.pageYOffset};
 
@@ -667,7 +671,8 @@
                         }]);
                     }
 
-                    requestAnimationFrame(fn);
+                    cancelAnimationFrame(rafToken);
+                    rafToken = requestAnimationFrame(fn);
                 };
 
                 if (UI.support.touch) {
@@ -708,6 +713,37 @@
 
             // mark that domready is left behind
             UI.domready = true;
+
+            // auto init js components
+            if (UI.support.mutationobserver) {
+
+                var initFn = UI.Utils.debounce(function(){
+                    requestAnimationFrame(function(){ UI.init(document.body);});
+                }, 10);
+
+                (new UI.support.mutationobserver(function(mutations) {
+
+                    var init = false;
+
+                    mutations.every(function(mutation){
+
+                        if (mutation.type != 'childList') return true;
+
+                        for (var i = 0, node; i < mutation.addedNodes.length; ++i) {
+
+                            node = mutation.addedNodes[i];
+
+                            if (node.outerHTML && node.outerHTML.indexOf('data-uk-') !== -1) {
+                                return (init = true) && false;
+                            }
+                        }
+                        return true;
+                    });
+
+                    if (init) initFn();
+
+                })).observe(document.body, {childList: true, subtree: true});
+            }
         };
 
         if (document.readyState == 'complete' || document.readyState == 'interactive') {
@@ -933,7 +969,8 @@
 
         defaults: {
             cls: 'uk-margin-small-top',
-            rowfirst: false
+            rowfirst: false,
+            observe: false
         },
 
         boot: function() {
@@ -970,13 +1007,16 @@
                 return UI.Utils.debounce(fn, 20);
             })());
 
-            UI.$html.on("changed.uk.dom", function(e) {
-                $this.process();
-            });
-
             this.on("display.uk.check", function(e) {
                 if (this.element.is(":visible")) this.process();
             }.bind(this));
+
+            if (this.options.observe) {
+
+                UI.domObserve(this.element, function(e) {
+                    if ($this.element.is(":visible")) $this.process();
+                });
+            }
 
             stacks.push(this);
         },
@@ -987,18 +1027,25 @@
 
             UI.Utils.stackMargin(columns, this.options);
 
-            if (!this.options.rowfirst) {
+            if (!this.options.rowfirst || !columns.length) {
                 return this;
             }
 
             // Mark first column elements
-            var pos_cache = columns.removeClass(this.options.rowfirst).filter(':visible').first().position();
+            var group = {}, minleft = false;
 
-            if (pos_cache) {
-                columns.each(function() {
-                    UI.$(this)[UI.$(this).position().left == pos_cache.left ? 'addClass':'removeClass']($this.options.rowfirst);
-                });
-            }
+            columns.removeClass(this.options.rowfirst).each(function(offset, $ele){
+
+                $ele = UI.$(this);
+
+                if (this.style.display != 'none') {
+                    offset = $ele.offset().left;
+                    ((group[offset] = group[offset] || []) && group[offset]).push(this);
+                    minleft = minleft === false ? offset : Math.min(minleft, offset);
+                }
+            });
+
+            UI.$(group[minleft]).addClass(this.options.rowfirst);
 
             return this;
         }
@@ -1084,30 +1131,41 @@
             'cls': 'uk-margin-small-top'
         }, options);
 
-        options.cls = options.cls;
-
         elements = UI.$(elements).removeClass(options.cls);
 
-        var skip         = false,
-            firstvisible = elements.filter(":visible:first"),
-            offset       = firstvisible.length ? (firstvisible.position().top + firstvisible.outerHeight()) - 1 : false; // (-1): weird firefox bug when parent container is display:flex
+        var min = false;
 
-        if (offset === false || elements.length == 1) return;
+        elements.each(function(offset, height, pos, $ele){
 
-        elements.each(function() {
+            $ele   = UI.$(this);
 
-            var column = UI.$(this);
+            if ($ele.css('display') != 'none') {
 
-            if (column.is(":visible")) {
+                offset = $ele.offset();
+                height = $ele.outerHeight();
+                pos    = offset.top + height;
 
-                if (skip) {
-                    column.addClass(options.cls);
-                } else {
+                $ele.data({
+                    'ukMarginPos': pos,
+                    'ukMarginTop': offset.top
+                });
 
-                    if (column.position().top >= offset) {
-                        skip = column.addClass(options.cls);
-                    }
+                if (min === false || (offset.top < min.top) ) {
+
+                    min = {
+                        top  : offset.top,
+                        left : offset.left,
+                        pos  : pos
+                    };
                 }
+            }
+
+        }).each(function($ele) {
+
+            $ele   = UI.$(this);
+
+            if ($ele.css('display') != 'none' && $ele.data('ukMarginTop') > min.top && $ele.data('ukMarginPos') > min.pos) {
+                $ele.addClass(options.cls);
             }
         });
     };
@@ -1454,7 +1512,7 @@
                         scrollTop = $win.scrollTop(),
                         target = (function(){
                             for(var i=0; i< inviews.length;i++){
-                                if(inviews[i].offset().top >= scrollTop){
+                                if (inviews[i].offset().top - $this.options.topoffset >= scrollTop){
                                     return inviews[i];
                                 }
                             }
@@ -2370,7 +2428,8 @@
         defaults: {
             "target"        : false,
             "row"           : true,
-            "ignorestacked" : false
+            "ignorestacked" : false,
+            "observe"       : false
         },
 
         boot: function() {
@@ -2400,7 +2459,7 @@
             UI.$win.on('load resize orientationchange', (function() {
 
                 var fn = function() {
-                    $this.match();
+                    if ($this.element.is(":visible")) $this.match();
                 };
 
                 UI.$(function() { fn(); });
@@ -2408,11 +2467,12 @@
                 return UI.Utils.debounce(fn, 50);
             })());
 
-            UI.$html.on("changed.uk.dom", function(e) {
-                $this.columns  = $this.element.children();
-                $this.elements = $this.options.target ? $this.find($this.options.target) : $this.columns;
-                $this.match();
-            });
+            if (this.options.observe) {
+
+                UI.domObserve(this.element, function(e) {
+                    if ($this.element.is(":visible")) $this.match();
+                });
+            }
 
             this.on("display.uk.check", function(e) {
                 if(this.element.is(":visible")) this.match();
@@ -2480,6 +2540,12 @@
 
     var active = false, activeCount = 0, $html = UI.$html, body;
 
+    UI.$win.on("resize orientationchange", UI.Utils.debounce(function(){
+        UI.$('.uk-modal.uk-open').each(function(){
+            UI.$(this).data('modal').resize();
+        });
+    }, 150));
+
     UI.component('modal', {
 
         defaults: {
@@ -2521,6 +2587,8 @@
                     $this.hide();
                 }
             });
+
+            UI.domObserve(this.element, function(e) { $this.resize(); });
         },
 
         toggle: function() {
@@ -2540,7 +2608,7 @@
             }
 
             this.element.removeClass("uk-open").show();
-            this.resize();
+            this.resize(true);
 
             if (this.options.modal) {
                 active = this;
@@ -2589,7 +2657,9 @@
             return this;
         },
 
-        resize: function() {
+        resize: function(force) {
+
+            if (!this.isActive() && !force) return;
 
             var bodywidth  = body.width();
 
@@ -2653,13 +2723,13 @@
                 body.css(this.paddingdir, "");
             }
 
-            if(active===this) active = false;
+            if (active===this) active = false;
 
             this.trigger('hide.uk.modal');
         },
 
         isActive: function() {
-            return this.active;
+            return this.element.hasClass('uk-open');
         }
 
     });
@@ -2692,10 +2762,6 @@
                     active.hide();
                 }
             });
-
-            UI.$win.on("resize orientationchange", UI.Utils.debounce(function(){
-                if (active) active.resize();
-            }, 150));
         },
 
         init: function() {
@@ -3224,7 +3290,7 @@
 
                 this.connect = UI.$(this.options.connect);
 
-                this.connect.find(".uk-active").removeClass(".uk-active");
+                this.connect.children().removeClass("uk-active");
 
                 // delegate switch commands within container content
                 if (this.connect.length) {
@@ -3277,10 +3343,6 @@
                 // Init ARIA for toggles
                 toggles.not(active).attr('aria-expanded', 'false');
                 active.attr('aria-expanded', 'true');
-
-                this.on('changed.uk.dom', function() {
-                    $this.connect = UI.$($this.options.connect);
-                });
             }
 
         },
@@ -3455,7 +3517,9 @@
 
             next.addClass(clsIn).one(UI.support.animation.end, function() {
 
-                next.removeClass(''+clsIn+'').css({opacity:'', display:''});
+                setTimeout(function () {
+                    next.removeClass(''+clsIn+'').css({opacity:'', display:''});
+                }, 0);
 
                 d.resolve();
 
@@ -4475,15 +4539,15 @@
 
             this.on("drop", function(e){
 
-                if (e.dataTransfer && e.dataTransfer.files) {
+                if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files) {
 
                     e.stopPropagation();
                     e.preventDefault();
 
                     $this.element.removeClass($this.options.dragoverClass);
-                    $this.element.trigger('dropped.uk.upload', [e.dataTransfer.files]);
+                    $this.element.trigger('dropped.uk.upload', [e.originalEvent.dataTransfer.files]);
 
-                    xhrupload(e.dataTransfer.files, $this.options);
+                    xhrupload(e.originalEvent.dataTransfer.files, $this.options);
                 }
 
             }).on("dragenter", function(e){
@@ -4524,9 +4588,6 @@
         return supportFileAPI() && supportAjaxUploadProgressEvents() && supportFormData();
     })();
 
-    if (UI.support.ajaxupload){
-        UI.$.event.props.push("dataTransfer");
-    }
 
     function xhrupload(files, settings) {
 
@@ -5225,7 +5286,7 @@ pykit.css = {
 	},
 	valign: {
 		middle: "uk-vertical-align-middle",
-		top: "uk-vertical-align",
+		parent: "uk-vertical-align",
 		bottom: "uk-vertical-align-bottom"
 	},
 	position: {
@@ -5252,7 +5313,7 @@ pykit.css = {
 		clearfix: "uk-clearfix"
 	},
 	scroll: {
-		x: "uk-overflow-container",
+		xy: "uk-overflow-container",
 		y: "uk-scrollable-text"
 	},
 	hidden: {
@@ -6196,6 +6257,73 @@ pykit.UI.image = pykit.defUI({
 
 
 
+pykit.FormControl = {
+	$setters: pykit.extend(pykit.setCSS(
+		{
+			class: {
+				success: "uk-form-success",
+				danger: "uk-form-danger",
+				"": ""
+			}
+		}),
+		{
+			help: function(value) {
+				if (value) {
+					if (this.help && this.help.parentNode) {
+						this.help.parentNode.removeChild(this.help);
+					}
+					if (this._config.inline) {
+						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
+					}
+					else {
+						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
+					}
+					this.help.innerHTML = value;
+					this._html.parentNode.appendChild(this.help);
+				}
+				return this.help;
+			}
+		}
+	),
+	getFormControl: function() {
+		return this._html;
+	},
+	setClass: function(value) {
+		var formControl = this.getFormControl();
+		switch(value) {
+			case "success":
+				pykit.html.removeCSS(formControl, "uk-form-danger");
+				pykit.html.addCSS(formControl, "uk-form-success");
+				break;
+			case "danger":
+				pykit.html.addCSS(formControl, "uk-form-danger");
+				pykit.html.removeCSS(formControl, "uk-form-success");
+				break;
+			default:
+				pykit.html.removeCSS(formControl, "uk-form-danger");
+				pykit.html.removeCSS(formControl, "uk-form-success");
+		}
+		var helpControl = this.help;
+		if (helpControl) {
+			switch(value) {
+				case "success":
+					pykit.html.removeCSS(helpControl, "uk-text-danger");
+					pykit.html.addCSS(helpControl, "uk-text-success");
+					break;
+				case "danger":
+					pykit.html.addCSS(helpControl, "uk-text-danger");
+					pykit.html.removeCSS(helpControl, "uk-text-success");
+					break;
+				default:
+					pykit.html.removeCSS(helpControl, "uk-text-danger");
+					pykit.html.removeCSS(helpControl, "uk-text-success");
+			}
+		}
+	}
+};
+
+
+
 pykit.UI.input = pykit.defUI({
 	__name__: "input",
 	$defaults: {
@@ -6203,7 +6331,8 @@ pykit.UI.input = pykit.defUI({
 		inputWidth: "medium",
 		autocomplete: "on",
 		autocapitalize: "on",
-		autocorrect: "on"
+		autocorrect: "on",
+		inline: false
 	},
 	$setters: pykit.extend(pykit.setCSS(
 		{
@@ -6239,7 +6368,7 @@ pykit.UI.input = pykit.defUI({
 					this._html.checked = value;
 				return value;
 			},
-			placeholder: function (value) {
+			placeholder: function(value) {
 				this._html.setAttribute("placeholder", value);
 				return value;
 			}
@@ -6279,7 +6408,7 @@ pykit.UI.input = pykit.defUI({
 		}
 		else this._html.value = value;
 	}
-}, pykit.UI.element);
+}, pykit.FormControl, pykit.UI.element);
 
 
 
@@ -6295,6 +6424,9 @@ pykit.UI.password = pykit.defUI({
 	},
 	_onChange: function() {
 		this.dispatch("onChange", [this.getValue()]);
+	},
+	getFormControl: function() {
+		return this._html.firstChild;
 	},
 	template: function() {
 		return "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>";
@@ -6314,7 +6446,7 @@ pykit.UI.password = pykit.defUI({
 	setValue: function(value) {
 		this._html.firstChild.value = value;
 	}
-}, pykit.UI.element);
+}, pykit.FormControl, pykit.UI.element);
 
 
 
@@ -7519,24 +7651,19 @@ pykit.UI.fieldset = pykit.defUI({
 			var ui = pykit.UI(config);
 
 			if (config.formLabel) {
-				var label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
-				label.innerHTML = config.formLabel;
-
-				if (config.inline)
-					pykit.html.addCSS(label, "uk-display-inline");
-
-				parentNode.appendChild(label);
+				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
+				ui.label.innerHTML = config.formLabel;
+				if (config.inline) pykit.html.addCSS(ui.label, "uk-display-inline");
+				parentNode.appendChild(ui.label);
 			}
 
-			if (config.inline) {
-				parentNode.appendChild(ui._html);
-				pykit.html.addCSS(ui._html, "uk-display-inline");
-			}
-			else {
-				var controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
+			var controlContainer = parentNode;
+			if (!config.inline) {
+				controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
 				parentNode.appendChild(controlContainer);
-				controlContainer.appendChild(ui._html);
 			}
+
+			controlContainer.appendChild(ui._html);
 		}
 	},
 	clear: function() {

@@ -1,10 +1,10 @@
 {
   "name": "pykit",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "homepage": "https://github.com/zebzhao/Pykit",
   "dependencies": {
-    "uikit": "uikit/uikit#^2.24.5",
-    "jquery": "^2.2.0"
+    "uikit": "uikit/uikit#^2.26.x",
+    "jquery": "^2.x.x"
   },
   "ignore": [
     "node_modules",
