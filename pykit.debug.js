@@ -5674,7 +5674,7 @@ pykit.CommonEvents = {
 			}
 			if (config.on.onDebounceResize) {
 				pykit.event(window, "resize", UIkit.Utils.debounce(function(e) {
-					this.dispatch("onDebounceResize", [e]);
+					$this.dispatch("onDebounceResize", [e]);
 				}, 1000));
 			}
 			if (config.on.onFocus) {
