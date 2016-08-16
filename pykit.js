@@ -912,21 +912,27 @@ pykit.CommonCSS = {
 pykit.CommonEvents = {
 	__name__: "CommonEvents",
 	__after__: function(config) {
+		var $this = this;
 		if (config.on) {
 			if (config.on.onResize) {
 				pykit.event(window, "resize", function(e) {
 					this.dispatch("onResize", [e]);
-				}, this);
+				}, $this);
+			}
+			if (config.on.onDebounceResize) {
+				pykit.event(window, "resize", UIkit.Utils.debounce(function(e) {
+					$this.dispatch("onDebounceResize", [e]);
+				}, 1000));
 			}
 			if (config.on.onFocus) {
 				pykit.event(this._html, "focus", function(e) {
 					this.dispatch("onFocus", [e]);
-				}, this);
+				}, $this);
 			}
 			if (config.on.onBlur) {
 				pykit.event(this._html, "blur", function(e) {
 					this.dispatch("onBlur", [e]);
-				}, this);
+				}, $this);
 			}
 		}
 	}

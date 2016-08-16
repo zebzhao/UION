@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.11
+-----------
+- added: new `onDebounceResize` event for all `element` based components
+
 Version 0.3.10
 -----------
 - changed: config `scroll` option `x` changed to `xy`
