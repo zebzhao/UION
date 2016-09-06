@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.3.12
+-----------
+- changed: dark theme color tweaks
+
 Version 0.3.11
 -----------
 - added: new `onDebounceResize` event for all `element` based components
