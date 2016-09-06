@@ -1,6 +1,6 @@
 {
   "name": "Pykit",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "A JSON user interface builder based on the UIkit library.",
   "main": "",
   "private": false,
