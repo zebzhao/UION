@@ -2731,8 +2731,15 @@ pykit.UI.table = pykit.defUI({
 						var column = pykit.ListMethods.findOne.call(this._config.columns, "name", value.name, true);
 						column.header = value.header;
 					}
-					var headers = pykit.pluck(this._config.columns, "header");
-					this._header.innerHTML = "<tr><th>" + headers.join("</th><th>") + "</th></tr>";
+					var columns = this._config.columns;
+					var headersHTML = "";
+					for (var c,i=0; i < columns.length; i++) {
+						c = columns[i];
+						headersHTML += c.align ?
+							pykit.replaceString("<th style='text-align: {align}'>{text}</th>", {align:c.align, text: c.header})
+							: "<th>" + c.header + "</th>";
+					}
+					this._header.innerHTML = "<tr>" + headersHTML + "</tr>";
 				}
 				return value;
 			},
