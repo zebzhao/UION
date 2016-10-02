@@ -7006,9 +7006,6 @@ pykit.UI.list = pykit.defUI({
 						$this.dropdownList = $this.dropdownPopup._inner;
 						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
 						$this.addListener("onDOMChanged", $this._onDOMChanged);
-						$this.addListener("onAdded", $this._onTabAdded);
-						$this.addListener("onDeleted", $this._onTabDeleted);
-						$this.addListener("onItemSelectionChanged", $this._onItemSelectionChanged);
 
 						pykit.event(window, "resize", $this.updateFit, $this);
 						this.dispatch("onDOMChanged", [null, "refresh"]);
@@ -7018,6 +7015,13 @@ pykit.UI.list = pykit.defUI({
 			}
 		}
 	),
+	__after__: function(config) {
+		if (config.tab) {
+			this.addListener("onAdded", this._onTabAdded);
+			this.addListener("onDeleted", this._onTabDeleted);
+			this.addListener("onItemSelectionChanged", this._onItemSelectionChanged);
+		}
+	},
 	_onDOMChanged: function() {
 		pykit.delay(this.updateFit, this);
 	} ,
