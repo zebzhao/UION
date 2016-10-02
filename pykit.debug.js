@@ -7519,7 +7519,7 @@ pykit.UI.table = pykit.defUI({
 		var td, column;
 		for (var i=0; i<this._config.columns.length; i++) {
 			column = this._config.columns[i];
-			td = pykit.html.createElement("TD");
+			td = pykit.html.createElement("TD", {class: column.$css ? column.$css : ""});
 
 			if (column.align)
 				td.style.textAlign = column.align;
