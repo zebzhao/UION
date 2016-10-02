@@ -141,12 +141,14 @@ pykit.class = function(config, bases) {
 
 	// Override special properties that are carried through the inheritance structure.
 	compiled.__init__ = function() {
-		for (var k=0; k < init.length; k++) {
+		// Initialize ancestor bases first.
+		for (var k=init.length-1; k >= 0; k--) {
 			init[k].apply(this, arguments);
 		}
 	};
     compiled.__after__ = function() {
-        for (var h=0; h < after.length; h++)
+		// Initialize ancestor bases first.
+        for (var h=after.length-1; h >= 0; h--)
             after[h].apply(this, arguments);
     };
     compiled.__name__ = config.__name__;
@@ -1029,10 +1031,9 @@ pykit.UI.element = pykit.defUI({
 			minWidth: config.minWidth, maxWidth: config.maxWidth,
 			marginBottom: config.marginBottom, marginTop: config.marginTop,
 			marginLeft: config.marginLeft, marginRight: config.marginRight});
+
+		this.render();
 	},
-    __after__: function() {
-        this.render();
-    },
     render: function() {
         this._html.innerHTML = this.template(this._config, this);
     },
@@ -1253,11 +1254,10 @@ pykit.UI.modal = pykit.defUI({
 		size: "",
 		layout: ""
     },
-	__after__: function(config) {
+	__init__: function(config) {
 		this.header = this._header = pykit.html.createElement("DIV", {class: "uk-modal-header"});
 		this.footer = this._footer = pykit.html.createElement("DIV", {class: "uk-modal-footer"});
 		this.body = this._body = pykit.html.createElement("DIV", {class: "uk-modal-dialog"});
-
 		this._html.appendChild(this._body);
 		if (config.header) this._body.appendChild(this._header);
 		if (config.footer) this._body.appendChild(this._footer);
@@ -1470,7 +1470,7 @@ pykit.UI.progress = pykit.defUI({
 		}
 	}),
 	render: function() {},
-	__after__: function() {
+	__init__: function() {
 		this._bar = pykit.html.createElement("DIV", {class: "uk-progress-bar"});
 		this._html.appendChild(this._bar);
 	},
@@ -1669,7 +1669,13 @@ pykit.UI.password = pykit.defUI({
 	__name__: "password",
 	$defaults: {
 		tagClass: "uk-form-password",
-		inputWidth: "medium"
+		inputWidth: "medium",
+		$setters: {
+			placeholder: function(value) {
+				this._html.setAttribute("placeholder", value);
+				return value;
+			}
+		}
 	},
 	__after__: function() {
 		pykit.html.addCSS(this._html, "uk-form");
@@ -1818,7 +1824,7 @@ pykit.UI.dropdown = pykit.defUI({
 			return value;
 		}
 	},
-	__after__: function(config) {
+	__init__: function(config) {
 		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos, justify: config.justify, mode: config.mode});
 	},
 	_dropdownCSS: function() {
@@ -2682,7 +2688,7 @@ pykit.UI.table = pykit.defUI({
 		layout: "",
 		listStyle: ""
 	},
-	__after__: function() {
+	__init__: function() {
 		this.header = this._header = pykit.html.createElement("THEAD");
 		this.footer = this._footer = pykit.html.createElement("TFOOT");
 		this.body = this._body = pykit.html.createElement("TBODY");
