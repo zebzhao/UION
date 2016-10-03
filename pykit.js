@@ -2251,11 +2251,6 @@ pykit.UI.list = pykit.defUI({
 							}
 						});
 						$this.dropdownList = $this.dropdownPopup._inner;
-						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
-						$this.addListener("onDOMChanged", $this._onDOMChanged);
-
-						pykit.event(window, "resize", $this.updateFit, $this);
-						this.dispatch("onDOMChanged", [null, "refresh"]);
 					}
 				}
 				return value;
@@ -2267,13 +2262,19 @@ pykit.UI.list = pykit.defUI({
 			this.addListener("onAdded", this._onTabAdded);
 			this.addListener("onDeleted", this._onTabDeleted);
 			this.addListener("onItemSelectionChanged", this._onItemSelectionChanged);
+			if (config.tab == 'responsive') {
+				this.addListener("onDOMChanged", this._onDOMChanged);
+				this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
+				pykit.event(window, "resize", this.updateFit, this);
+				this.dispatch("onDOMChanged", [null, "refresh"]);
+			}
 		}
 	},
 	_onDOMChanged: function() {
 		pykit.delay(this.updateFit, this);
 	} ,
 	_onTabAdded: function(item, before) {
-		if (this.dropdownList) {
+		if (this.dropdownList && !item.$tabmenu) {
 			var linked = {label: item.label, $link: item, $close: item.$close};
 			this.dropdownList.add(linked, this.dropdownList.findOne("$link", before));
 			// Select dropdown item if item is selected
