@@ -7156,16 +7156,16 @@ pykit.UI.list = pykit.defUI({
 
 		this.dispatch("onItemClosed", [item]);
 	},
-    _itemHTML: function(config) {
-        var itemStyle = config.$css || this._config.itemStyle;
+    _itemHTML: function(itemConfig) {
+        var itemStyle = itemConfig.$css || this._config.itemStyle;
 
         var li = pykit.html.createElement("LI",
             {class: itemStyle
-            + (config.header ? "uk-nav-header" : "")
-            + (config.divider ? "uk-nav-divider" : "")});
+            + (itemConfig.header ? "uk-nav-header" : "")
+            + (itemConfig.divider ? "uk-nav-divider" : "")});
 
-        if (!config.header && !config.divider) {
-            this._attachNodeEvents(li, config);
+        if (!itemConfig.header && !itemConfig.divider) {
+            this._attachNodeEvents(li, itemConfig);
         }
         return li;
     },
@@ -7200,66 +7200,66 @@ pykit.UI.list = pykit.defUI({
 			node.appendChild(close);
 		}
 	},
-	_attachNodeEvents: function(node, config) {
+	_attachNodeEvents: function(node, itemConfig) {
 		pykit.event(node, "click", function(e) {
-			if (config.$preventDefault !== false) {
+			if (itemConfig.$preventDefault !== false && this._config.$preventDefault !== false) {
 				pykit.html.preventEvent(e);
 			}
-			this.dispatch("onItemClick", [config, node, e]);
+			this.dispatch("onItemClick", [itemConfig, node, e]);
 		}, this);
 
-		if (this.context && config.context !== false) {
+		if (this.context && itemConfig.context !== false) {
 			pykit.event(node, "contextmenu", function (e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemContext", [config, node, e]);
+				this.dispatch("onItemContext", [itemConfig, node, e]);
 			}, this);
 		}
 
-		if (this.droppable && config.droppable !== false) {
+		if (this.droppable && itemConfig.droppable !== false) {
 			pykit.event(node, "drop", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				if (this._droppable(config, this._draggedItem))
-					this.dispatch("onItemDrop", [config, this._draggedItem, node, e]);
+				if (this._droppable(itemConfig, this._draggedItem))
+					this.dispatch("onItemDrop", [itemConfig, this._draggedItem, node, e]);
 				this._draggedItem = null;
 			}, this);
 
 			pykit.event(node, "dragover", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragOver", [config, node, e]);
+				this.dispatch("onItemDragOver", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragenter", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragEnter", [config, node, e]);
+				this.dispatch("onItemDragEnter", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragleave", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragLeave", [config, node, e]);
+				this.dispatch("onItemDragLeave", [itemConfig, node, e]);
 			}, this);
 		}
 
-		if (this.draggable && config.draggable !== false) {
+		if (this.draggable && itemConfig.draggable !== false) {
 			node.setAttribute("draggable", "true");
 
 			pykit.event(node, "dragstart", function(e) {
-				this._draggedItem = config;
-				this.dispatch("onItemDragStart", [config, node, e]);
+				this._draggedItem = itemConfig;
+				this.dispatch("onItemDragStart", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragend", function(e) {
 				this._draggedItem = null;
-				this.dispatch("onItemDragEnd", [config, document, e]);
+				this.dispatch("onItemDragEnd", [itemConfig, document, e]);
 			}, this);
 		}
 	}
@@ -7582,10 +7582,10 @@ pykit.UI.select = pykit.defUI({
 	_innerHTML: function(parentNode, config) {
 		parentNode.innerHTML = this.template(config);
 	},
-	_itemHTML: function(config) {
-		var attrs = {value: config.value};
-		if (config.selected) {
-			attrs.selected = config.selected;
+	_itemHTML: function(itemConfig) {
+		var attrs = {value: itemConfig.value};
+		if (itemConfig.selected) {
+			attrs.selected = itemConfig.selected;
 		}
 		return pykit.html.createElement("OPTION", attrs);
 	}
@@ -7658,12 +7658,12 @@ pykit.UI.fieldset = pykit.defUI({
 			horizontal: "uk-form-horizontal"
 		}
 	}),
-	_itemHTML: function(config) {
-		if (config.title) {
-			return pykit.html.createElement("LEGEND", {class: config.$itemCSS ? config.$itemCSS : ""});
+	_itemHTML: function(itemConfig) {
+		if (itemConfig.title) {
+			return pykit.html.createElement("LEGEND", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : ""});
 		}
 		else {
-			return pykit.html.createElement("DIV", {class: config.$itemCSS ? config.$itemCSS : "uk-form-row"});
+			return pykit.html.createElement("DIV", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : "uk-form-row"});
 		}
 	},
 	_innerHTML: function(parentNode, config) {
