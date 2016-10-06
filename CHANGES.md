@@ -7,6 +7,7 @@ Version 0.5.0
 -----------
 - fixed: initializing table with schema with data resulted in error
 - fixed: table `align` now is also applied to header
+- fixed: `closeButton` not working on modal
 - changed: `__after__` and `__init__` call order reversed, ancestor -> child
 
 Version 0.3.12

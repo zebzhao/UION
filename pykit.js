@@ -1279,13 +1279,15 @@ pykit.UI.modal = pykit.defUI({
 			return value;
 		},
         closeButton: function(value) {
-            this._close = pykit.html.createElement("A",
-				{class: "uk-modal-close uk-close"});
-			if (this._body.firstChild) {
-				this._body.insertBefore(this._close, this._body.firstChild);
-			}
-			else {
-				this._body.appendChild(this._close);
+			if (value) {
+				this._close = pykit.html.createElement("A",
+					{class: "uk-modal-close uk-close"});
+				if (this._body.firstChild) {
+					this._body.insertBefore(this._close, this._body.firstChild);
+				}
+				else {
+					this._body.appendChild(this._close);
+				}
 			}
 			return value;
         },
