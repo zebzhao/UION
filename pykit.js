@@ -141,12 +141,14 @@ pykit.class = function(config, bases) {
 
 	// Override special properties that are carried through the inheritance structure.
 	compiled.__init__ = function() {
-		for (var k=0; k < init.length; k++) {
+		// Initialize ancestor bases first.
+		for (var k=init.length-1; k >= 0; k--) {
 			init[k].apply(this, arguments);
 		}
 	};
     compiled.__after__ = function() {
-        for (var h=0; h < after.length; h++)
+		// Initialize ancestor bases first.
+        for (var h=after.length-1; h >= 0; h--)
             after[h].apply(this, arguments);
     };
     compiled.__name__ = config.__name__;
@@ -1029,10 +1031,9 @@ pykit.UI.element = pykit.defUI({
 			minWidth: config.minWidth, maxWidth: config.maxWidth,
 			marginBottom: config.marginBottom, marginTop: config.marginTop,
 			marginLeft: config.marginLeft, marginRight: config.marginRight});
+
+		this.render();
 	},
-    __after__: function() {
-        this.render();
-    },
     render: function() {
         this._html.innerHTML = this.template(this._config, this);
     },
@@ -1253,11 +1254,10 @@ pykit.UI.modal = pykit.defUI({
 		size: "",
 		layout: ""
     },
-	__after__: function(config) {
+	__init__: function(config) {
 		this.header = this._header = pykit.html.createElement("DIV", {class: "uk-modal-header"});
 		this.footer = this._footer = pykit.html.createElement("DIV", {class: "uk-modal-footer"});
 		this.body = this._body = pykit.html.createElement("DIV", {class: "uk-modal-dialog"});
-
 		this._html.appendChild(this._body);
 		if (config.header) this._body.appendChild(this._header);
 		if (config.footer) this._body.appendChild(this._footer);
@@ -1279,13 +1279,15 @@ pykit.UI.modal = pykit.defUI({
 			return value;
 		},
         closeButton: function(value) {
-            this._close = pykit.html.createElement("A",
-				{class: "uk-modal-close uk-close"});
-			if (this._body.firstChild) {
-				this._body.insertBefore(this._close, this._body.firstChild);
-			}
-			else {
-				this._body.appendChild(this._close);
+			if (value) {
+				this._close = pykit.html.createElement("A",
+					{class: "uk-modal-close uk-close"});
+				if (this._body.firstChild) {
+					this._body.insertBefore(this._close, this._body.firstChild);
+				}
+				else {
+					this._body.appendChild(this._close);
+				}
 			}
 			return value;
         },
@@ -1470,7 +1472,7 @@ pykit.UI.progress = pykit.defUI({
 		}
 	}),
 	render: function() {},
-	__after__: function() {
+	__init__: function() {
 		this._bar = pykit.html.createElement("DIV", {class: "uk-progress-bar"});
 		this._html.appendChild(this._bar);
 	},
@@ -1669,7 +1671,13 @@ pykit.UI.password = pykit.defUI({
 	__name__: "password",
 	$defaults: {
 		tagClass: "uk-form-password",
-		inputWidth: "medium"
+		inputWidth: "medium",
+		$setters: {
+			placeholder: function(value) {
+				this._html.setAttribute("placeholder", value);
+				return value;
+			}
+		}
 	},
 	__after__: function() {
 		pykit.html.addCSS(this._html, "uk-form");
@@ -1818,7 +1826,7 @@ pykit.UI.dropdown = pykit.defUI({
 			return value;
 		}
 	},
-	__after__: function(config) {
+	__init__: function(config) {
 		this._dropdown = UIkit.dropdown(this._html, {pos: config.pos, justify: config.justify, mode: config.mode});
 	},
 	_dropdownCSS: function() {
@@ -2245,25 +2253,30 @@ pykit.UI.list = pykit.defUI({
 							}
 						});
 						$this.dropdownList = $this.dropdownPopup._inner;
-						$this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
-						$this.addListener("onDOMChanged", $this._onDOMChanged);
-						$this.addListener("onAdded", $this._onTabAdded);
-						$this.addListener("onDeleted", $this._onTabDeleted);
-						$this.addListener("onItemSelectionChanged", $this._onItemSelectionChanged);
-
-						pykit.event(window, "resize", $this.updateFit, $this);
-						this.dispatch("onDOMChanged", [null, "refresh"]);
 					}
 				}
 				return value;
 			}
 		}
 	),
+	__after__: function(config) {
+		if (config.tab) {
+			this.addListener("onAdded", this._onTabAdded);
+			this.addListener("onDeleted", this._onTabDeleted);
+			this.addListener("onItemSelectionChanged", this._onItemSelectionChanged);
+			if (config.tab == 'responsive') {
+				this.addListener("onDOMChanged", this._onDOMChanged);
+				this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
+				pykit.event(window, "resize", this.updateFit, this);
+				this.dispatch("onDOMChanged", [null, "refresh"]);
+			}
+		}
+	},
 	_onDOMChanged: function() {
 		pykit.delay(this.updateFit, this);
 	} ,
 	_onTabAdded: function(item, before) {
-		if (this.dropdownList) {
+		if (this.dropdownList && !item.$tabmenu) {
 			var linked = {label: item.label, $link: item, $close: item.$close};
 			this.dropdownList.add(linked, this.dropdownList.findOne("$link", before));
 			// Select dropdown item if item is selected
@@ -2392,16 +2405,16 @@ pykit.UI.list = pykit.defUI({
 
 		this.dispatch("onItemClosed", [item]);
 	},
-    _itemHTML: function(config) {
-        var itemStyle = config.$css || this._config.itemStyle;
+    _itemHTML: function(itemConfig) {
+        var itemStyle = itemConfig.$css || this._config.itemStyle;
 
         var li = pykit.html.createElement("LI",
             {class: itemStyle
-            + (config.header ? "uk-nav-header" : "")
-            + (config.divider ? "uk-nav-divider" : "")});
+            + (itemConfig.header ? "uk-nav-header" : "")
+            + (itemConfig.divider ? "uk-nav-divider" : "")});
 
-        if (!config.header && !config.divider) {
-            this._attachNodeEvents(li, config);
+        if (!itemConfig.header && !itemConfig.divider) {
+            this._attachNodeEvents(li, itemConfig);
         }
         return li;
     },
@@ -2436,66 +2449,66 @@ pykit.UI.list = pykit.defUI({
 			node.appendChild(close);
 		}
 	},
-	_attachNodeEvents: function(node, config) {
+	_attachNodeEvents: function(node, itemConfig) {
 		pykit.event(node, "click", function(e) {
-			if (config.$preventDefault !== false) {
+			if (itemConfig.$preventDefault !== false && this._config.$preventDefault !== false) {
 				pykit.html.preventEvent(e);
 			}
-			this.dispatch("onItemClick", [config, node, e]);
+			this.dispatch("onItemClick", [itemConfig, node, e]);
 		}, this);
 
-		if (this.context && config.context !== false) {
+		if (this.context && itemConfig.context !== false) {
 			pykit.event(node, "contextmenu", function (e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemContext", [config, node, e]);
+				this.dispatch("onItemContext", [itemConfig, node, e]);
 			}, this);
 		}
 
-		if (this.droppable && config.droppable !== false) {
+		if (this.droppable && itemConfig.droppable !== false) {
 			pykit.event(node, "drop", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				if (this._droppable(config, this._draggedItem))
-					this.dispatch("onItemDrop", [config, this._draggedItem, node, e]);
+				if (this._droppable(itemConfig, this._draggedItem))
+					this.dispatch("onItemDrop", [itemConfig, this._draggedItem, node, e]);
 				this._draggedItem = null;
 			}, this);
 
 			pykit.event(node, "dragover", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragOver", [config, node, e]);
+				this.dispatch("onItemDragOver", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragenter", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragEnter", [config, node, e]);
+				this.dispatch("onItemDragEnter", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragleave", function(e) {
-				if (config.$preventDefault !== false) {
+				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragLeave", [config, node, e]);
+				this.dispatch("onItemDragLeave", [itemConfig, node, e]);
 			}, this);
 		}
 
-		if (this.draggable && config.draggable !== false) {
+		if (this.draggable && itemConfig.draggable !== false) {
 			node.setAttribute("draggable", "true");
 
 			pykit.event(node, "dragstart", function(e) {
-				this._draggedItem = config;
-				this.dispatch("onItemDragStart", [config, node, e]);
+				this._draggedItem = itemConfig;
+				this.dispatch("onItemDragStart", [itemConfig, node, e]);
 			}, this);
 
 			pykit.event(node, "dragend", function(e) {
 				this._draggedItem = null;
-				this.dispatch("onItemDragEnd", [config, document, e]);
+				this.dispatch("onItemDragEnd", [itemConfig, document, e]);
 			}, this);
 		}
 	}
@@ -2682,7 +2695,7 @@ pykit.UI.table = pykit.defUI({
 		layout: "",
 		listStyle: ""
 	},
-	__after__: function() {
+	__init__: function() {
 		this.header = this._header = pykit.html.createElement("THEAD");
 		this.footer = this._footer = pykit.html.createElement("TFOOT");
 		this.body = this._body = pykit.html.createElement("TBODY");
@@ -2725,8 +2738,15 @@ pykit.UI.table = pykit.defUI({
 						var column = pykit.ListMethods.findOne.call(this._config.columns, "name", value.name, true);
 						column.header = value.header;
 					}
-					var headers = pykit.pluck(this._config.columns, "header");
-					this._header.innerHTML = "<tr><th>" + headers.join("</th><th>") + "</th></tr>";
+					var columns = this._config.columns;
+					var headersHTML = "";
+					for (var c,i=0; i < columns.length; i++) {
+						c = columns[i];
+						headersHTML += c.align ?
+							pykit.replaceString("<th style='text-align: {align}'>{text}</th>", {align:c.align, text: c.header})
+							: "<th>" + c.header + "</th>";
+					}
+					this._header.innerHTML = "<tr>" + headersHTML + "</tr>";
 				}
 				return value;
 			},
@@ -2753,7 +2773,7 @@ pykit.UI.table = pykit.defUI({
 		var td, column;
 		for (var i=0; i<this._config.columns.length; i++) {
 			column = this._config.columns[i];
-			td = pykit.html.createElement("TD");
+			td = pykit.html.createElement("TD", {class: column.$css ? column.$css : ""});
 
 			if (column.align)
 				td.style.textAlign = column.align;
@@ -2811,10 +2831,10 @@ pykit.UI.select = pykit.defUI({
 	_innerHTML: function(parentNode, config) {
 		parentNode.innerHTML = this.template(config);
 	},
-	_itemHTML: function(config) {
-		var attrs = {value: config.value};
-		if (config.selected) {
-			attrs.selected = config.selected;
+	_itemHTML: function(itemConfig) {
+		var attrs = {value: itemConfig.value};
+		if (itemConfig.selected) {
+			attrs.selected = itemConfig.selected;
 		}
 		return pykit.html.createElement("OPTION", attrs);
 	}
@@ -2887,12 +2907,12 @@ pykit.UI.fieldset = pykit.defUI({
 			horizontal: "uk-form-horizontal"
 		}
 	}),
-	_itemHTML: function(config) {
-		if (config.title) {
-			return pykit.html.createElement("LEGEND", {class: config.$itemCSS ? config.$itemCSS : ""});
+	_itemHTML: function(itemConfig) {
+		if (itemConfig.title) {
+			return pykit.html.createElement("LEGEND", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : ""});
 		}
 		else {
-			return pykit.html.createElement("DIV", {class: config.$itemCSS ? config.$itemCSS : "uk-form-row"});
+			return pykit.html.createElement("DIV", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : "uk-form-row"});
 		}
 	},
 	_innerHTML: function(parentNode, config) {
