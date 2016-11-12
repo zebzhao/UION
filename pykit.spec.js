@@ -1,6 +1,3 @@
-/**
- * Created by zeb on 08/12/15.
- */
 describe('helper basis', function() {
     it('should detect types', function() {
         expect(pykit.isObject({})).toBeTruthy();
@@ -41,6 +38,12 @@ describe('helper basis', function() {
     it('should get unique id', function() {
         expect(pykit.UI.uid()).not.toEqual(pykit.UI.uid());
         expect(pykit.uid()).not.toEqual(pykit.uid());
+    });
+
+    it('should replace string with params', function() {
+        var templateString = '{test.awesome}, {test.ride.ride}, {cool}';
+        expect(pykit.replaceString(templateString,
+            {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty'})).toEqual('cool, know, sixty');
     });
 });
 

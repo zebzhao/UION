@@ -137,9 +137,15 @@
 
 /*
  * Address inconsistent `text-transform` inheritance which is only inherit in Firefox
+ * Address inconsistent styling between firefox and chrome
  */
 
-.uk-form select { text-transform: none; }
+.uk-form select {
+    text-transform: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
 
 /*
  * 1. Correct `font` properties not being inherited.
@@ -531,7 +537,7 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
  ========================================================================== */
 
 /* Tablet portrait and smaller */
-@media (max-width: @breakpoint-medium-max) {
+@media (max-width: @breakpoint-small-max) {
 
     /* Behave like `uk-form-stacked` */
     .uk-form-horizontal .uk-form-label {
@@ -544,7 +550,7 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
 }
 
 /* Desktop and bigger */
-@media (min-width: @breakpoint-large) {
+@media (min-width: @breakpoint-medium) {
 
     .uk-form-horizontal .uk-form-label {
         width: @form-horizontal-label-width;
