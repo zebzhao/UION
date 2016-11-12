@@ -40,7 +40,9 @@
 // Variables
 // ========================================================================
 
-@panel-title-margin-bottom:                     15px;
+@panel-title-margin-bottom:                     12px;
+@panel-title-padding-top:                       6px;
+@panel-title-min-height:                        42px;
 @panel-title-text-transform:                    none;
 
 @panel-teaser-margin-bottom:                    @panel-title-margin-bottom;
@@ -134,6 +136,8 @@
 
 .uk-panel-title {
     margin-top: 0;
+    padding-top: @panel-title-padding-top;
+    min-height: @panel-title-min-height;
     margin-bottom: @panel-title-margin-bottom;
     text-transform: @panel-title-text-transform;
     border-bottom: solid 1px;
