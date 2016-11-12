@@ -4801,13 +4801,10 @@ pykit.fail = function(message){
 };
 
 pykit.replaceString = function(str, obj) {
-	for (var name in obj) {
-		if (obj.hasOwnProperty(name)) {
-			var regex = new RegExp("{" + name + "}", "gi");
-			str = str.replace(regex, obj[name]);
-		}
-	}
-	return str;
+	var regex = /\{[^}]*}/gi;
+	return str.replace(regex, function(match) {
+		return pykit.selectors.property(match.substring(1, match.length-1))(obj);
+	});
 };
 
 pykit.extend = function(target, src) {
@@ -4841,6 +4838,27 @@ pykit.defUI = function(config) {
 	var cls = pykit.class(config, bases);
 	pykit.UI[config.__name__] = cls;
 	return cls;
+};
+
+pykit.stringTemplate = function(string, scope) {
+	return pykit.replaceString(string, scope);
+};
+
+pykit.template = function(template, config, thisArg) {
+	if (pykit.isFunction(template)) {
+		return template.call(thisArg, config);
+	}
+	else if (pykit.isString(template)) {
+		return pykit.stringTemplate(template, config);
+	}
+	else if (pykit.isObject(template)) {
+		var ui = pykit.UI(template);
+		template.$ui = ui;
+		return ui._html.outerHTML;
+	}
+	else {
+		pykit.assert(false, 'Unrecognized template!', config);
+	}
 };
 
 pykit.class = function(config, bases) {
@@ -5788,7 +5806,7 @@ pykit.UI.element = pykit.defUI({
 		this.render();
 	},
     render: function() {
-        this._html.innerHTML = this.template(this._config, this);
+        this._html.innerHTML = pykit.template(this.template, this._config, this);
     },
     template: function() {
         return ""
@@ -5964,7 +5982,9 @@ pykit.ClickEvents = {
         }
         pykit.event(this._html, "click", this._onClick, this);
         pykit.event(this._html, "mousedown", this._onMouseDown, this);
+        pykit.event(this._html, "touchstart", this._onMouseDown, this);
         pykit.event(this._html, "mouseup", this._onMouseUp, this);
+		pykit.event(this._html, "touchend", this._onMouseDown, this);
 		pykit.event(this._html, "contextmenu", this._onContext, this);
 	},
 	_onClick: function(e){
@@ -6347,6 +6367,11 @@ pykit.UI.input = pykit.defUI({
 			class: {
 				success: "uk-form-success",
 				danger: "uk-form-danger",
+				"": ""
+			},
+			size: {
+				large: "uk-form-large",
+				small: "uk-form-small",
 				"": ""
 			}
 		}),
@@ -7115,7 +7140,8 @@ pykit.UI.list = pykit.defUI({
 	setActive: function(key, value) {
 		this.unselectAll();
 		var item = this.findOne(key, value);
-		pykit.assert(item, pykit.replaceString("Could not find {key} {value} in {id}.", {key: key, value: value, id: this.id}));
+		pykit.assert(item, pykit.replaceString("Could not find {key} {value} in {id}.",
+			{key: key, value: value, id: this._config.id}));
 		this.select(item);
 	},
 	isSelected: function(target) {
@@ -7472,15 +7498,8 @@ pykit.UI.table = pykit.defUI({
 				pykit.assert(pykit.isArray(value), "Table 'columns' expected Array, got: " + value);
 				value = pykit.list(value);
 				value.each(function(item) {
-					if (pykit.isString(item.schema)) {
-						item.schema = pykit.selectors.property(item.schema);
-					}
-					else if (pykit.isUndefined(item.schema) && item.name) {
-						item.schema = pykit.selectors.property(item.name);
-					}
-					else if (!pykit.isFunction(item.schema)) {
-						pykit.fail("Invalid 'schema' provided to table. Schema must be a String or Function, got: "
-							+ item.schema);
+					if (pykit.isUndefined(item.template) && item.name) {
+						item.template = pykit.selectors.property(item.name);
 					}
 				});
 				return value;
@@ -7531,7 +7550,7 @@ pykit.UI.table = pykit.defUI({
 			if (column.align)
 				td.style.textAlign = column.align;
 
-			td.innerHTML = column.schema(obj);
+			td.innerHTML = pykit.template(column.template, obj, this);
 			node.appendChild(td);
 		}
 		this._attachNodeEvents(node, obj);
