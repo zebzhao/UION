@@ -1598,6 +1598,44 @@ pykit.FormControl = {
 };
 
 
+pykit.UI.toggle = pykit.defUI({
+	__name__: "toggle",
+	$defaults: {
+		htmlTag: "LABEL",
+		tagClass: "uk-toggle"
+	},
+	__after__: function() {
+		pykit.event(this._html, "change", this._onChange, this);
+	},
+	_onChange: function () {
+		this.dispatch("onChange");
+	},
+	template: function(config) {
+		return pykit.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
+			{checked: config.checked ? " checked" : ""});
+	},
+	checked: function(value) {
+		if (value)
+			this._html.firstChild.checked = value;
+		return value;
+	},
+	reset: function() {
+		this._html.firstChild.checked = false;
+	},
+	enable: function() {
+		this._html.firstChild.removeAttribute('disabled');
+	},
+	disable: function() {
+		this._html.firstChild.setAttribute('disabled', "");
+	},
+	getValue: function() {
+		return this._html.firstChild.checked;
+	},
+	setValue: function(value) {
+		this._html.firstChild.checked = value;
+	}
+}, pykit.UI.element);
+
 
 pykit.UI.input = pykit.defUI({
 	__name__: "input",
