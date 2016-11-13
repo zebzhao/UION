@@ -1223,16 +1223,17 @@ pykit.ClickEvents = {
 		}
 	},
 	__after__: function(config){
-		if (config.click) {
-            config.on = config.on || {};
-            config.on.onItemClick = config.click;
-        }
-        pykit.event(this._html, "click", this._onClick, this);
-        pykit.event(this._html, "mousedown", this._onMouseDown, this);
-        pykit.event(this._html, "touchstart", this._onMouseDown, this);
-        pykit.event(this._html, "mouseup", this._onMouseUp, this);
-		pykit.event(this._html, "touchend", this._onMouseDown, this);
+		config.on = config.on || {};
+		pykit.event(this._html, "click", this._onClick, this);
 		pykit.event(this._html, "contextmenu", this._onContext, this);
+		
+		// Optimization: these rarely get used.
+		if (config.on.onMouseDown) {
+			pykit.event(this._html, "mousedown", this._onMouseDown, this);
+		}
+		if (config.on.onMouseUp) {
+			pykit.event(this._html, "mouseup", this._onMouseUp, this);
+		}
 	},
 	_onClick: function(e){
 		if (this._config.$preventDefault !== false) {
