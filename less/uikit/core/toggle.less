@@ -1,0 +1,62 @@
+@toggle-background-color:                   #ccc;
+@toggle-active-background-color:            #2196F3;
+@toggle-width:                              41px;
+@toggle-height:                             24px;
+
+
+/* The switch - the box around the slider */
+.uk-toggle {
+  position: relative;
+  display: inline-block;
+  width: @toggle-width;
+  height: @toggle-height;
+}
+
+/* Hide default HTML checkbox */
+.uk-toggle input {display:none;}
+
+/* The slider */
+.uk-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: @toggle-background-color;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 14px;
+}
+
+.uk-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: @toggle-height - 4px;
+  width: @toggle-height - 4px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: @toggle-height / 2;
+}
+
+input:checked + .uk-toggle-slider {
+  background-color: @toggle-active-background-color;
+}
+
+input:focus + .uk-toggle-slider {
+  box-shadow: 0 0 1px @toggle-active-background-color;
+}
+
+input:checked + .uk-toggle-slider:before {
+  -webkit-transform: translateX(17px);
+  -ms-transform: translateX(17px);
+  transform: translateX(17px);
+}
+
+/* Rounded sliders */
+.uk-toggle-slider.round {
+
+}
