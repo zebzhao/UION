@@ -3,6 +3,15 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.0
+-----------
+- deprecated: almost-flat-dark css theme (as hard to maintain)
+- changed: `table.data.schema` changed to `table.data.template`
+- changed: `element.template` attribute now takes Object/String/Function
+- changed: template String now accepts interpolated value (surround with {} to access properties from config)
+- added: new toggle component
+- changed: optimized click event handlers, onMouseDown, onMouseUp not registered by default
+
 Version 0.5.0
 -----------
 - fixed: initializing table with schema with data resulted in error
