@@ -2911,6 +2911,10 @@ pykit.UI.form = pykit.defUI({
 			layout: {
 				stacked: "uk-form-stacked",
 				horizontal: "uk-form-horizontal"
+			},
+			formStyle: {
+				line: "uk-form-line",
+				"": ""
 			}
 		}),
 		{
