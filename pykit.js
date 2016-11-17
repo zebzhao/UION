@@ -2616,10 +2616,15 @@ pykit.UI.tree = pykit.defUI({
 		parentNode.innerHTML = this.template(config);
 	},
 	_dragStart: function(item, node, e) {
-		e.dataTransfer.setData('text/plain', node[this._config.dataTransfer]);
-		pykit.html.addCSS(this.getItemNode(item.id), "uk-hidden");
-		if (item.$branch)
-			this._hideChildren(item);
+		var $this = this;
+		e.dataTransfer.setData('text/plain', node[$this._config.dataTransfer]);
+		// Chrome bug: dragend fires immediatelly if DOM is manipulated in dragstart handler
+		// See https://groups.google.com/a/chromium.org/forum/?fromgroups=#!msg/chromium-bugs/YHs3orFC8Dc/ryT25b7J-NwJ
+		setTimeout(function() {
+			pykit.html.addCSS($this.getItemNode(item.id), "uk-hidden");
+			if (item.$branch)
+				$this._hideChildren(item);
+		}, 10);
 	},
 	_dragEnd: function(item) {
 		pykit.html.removeCSS(this.getItemNode(item.id), "uk-hidden");
