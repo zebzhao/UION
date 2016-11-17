@@ -3,6 +3,13 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.1
+-----------
+- added: use `dropdownId` to `element` to assign dropdown id attribute
+- added: use `dropdownMarginX` and `dropdownMarginY` to finely adjust positioning of dropdown
+- fix: `tooltip` inserting extra characters to `data-uk-tooltip` attribute
+- fix: drag events in Chrome not working due to bug, used setTimeout to avoid bug
+
 Version 0.6.0
 -----------
 - deprecated: almost-flat-dark css theme (as hard to maintain)
