@@ -5719,6 +5719,9 @@ pykit.UI.element = pykit.defUI({
 		tooltipPos: 'bottom',
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
+		dropdownId: undefined,
+		dropdownMarginX: 5,
+		dropdownMarginY: 5,
 		margin: "all-sm",
 		uploadOptions: {},
 		$preventDefault: true
@@ -5743,7 +5746,7 @@ pykit.UI.element = pykit.defUI({
 			if (value) {
 				this._html.setAttribute("data-uk-tooltip", "");
 				this._html.setAttribute("title", value);
-				this._html.setAttribute("data-uk-tooltip", pykit.replaceString("{pos: '{pos}'}",
+				this._html.setAttribute("data-uk-tooltip", '{' + pykit.replaceString("pos: '{pos}'" + '}',
 					{pos: this._config.tooltipPos}));
 			}
 			else
@@ -5753,20 +5756,21 @@ pykit.UI.element = pykit.defUI({
 		},
 		dropdown: function(value) {
 			var $this = this;
-			var config = $this._config;
+			var masterConfig = $this._config;
 
 			var dropdown = {
+				id: masterConfig.dropdownId,
 				view: "dropdown",
-				pos: config.dropdownPos,
+				pos: masterConfig.dropdownPos,
 				dropdown: value
 			};
 
 			var ui = pykit.UI(dropdown, document.body);
 
-			this._config.on = config.on || {};
-			this.addListener(config.dropdownEvent, function(config, node, e) {
+			this._config.on = masterConfig.on || {};
+			this.addListener(masterConfig.dropdownEvent, function(config, node, e) {
 				ui.open(config, node, $this, e);
-				ui.positionNextTo(node, dropdown.pos, 5, 5);
+				ui.positionNextTo(node, dropdown.pos, masterConfig.dropdownMarginX, masterConfig.dropdownMarginY);
 				ui.moveWithinBoundary();
 			});
 			$this.dropdownPopup = ui;
@@ -7326,7 +7330,7 @@ pykit.UI.list = pykit.defUI({
 
 			pykit.event(node, "dragend", function(e) {
 				this._draggedItem = null;
-				this.dispatch("onItemDragEnd", [itemConfig, document, e]);
+				this.dispatch("onItemDragEnd", [itemConfig, node, e]);
 			}, this);
 		}
 	}
@@ -7365,23 +7369,28 @@ pykit.UI.tree = pykit.defUI({
 		parentNode.innerHTML = this.template(config);
 	},
 	_dragStart: function(item, node, e) {
-		e.dataTransfer.setData('text/plain', node[this._config.dataTransfer]);
-		pykit.html.addCSS(this.getItemNode(item.id), "uk-hidden");
-		if (item.$branch)
-			this._hideChildren(item);
+		var $this = this;
+		e.dataTransfer.setData('text/plain', node[$this._config.dataTransfer]);
+		// Chrome bug: dragend fires immediatelly if DOM is manipulated in dragstart handler
+		// See https://groups.google.com/a/chromium.org/forum/?fromgroups=#!msg/chromium-bugs/YHs3orFC8Dc/ryT25b7J-NwJ
+		setTimeout(function() {
+			pykit.html.addCSS($this.getItemNode(item.id), "uk-hidden");
+			if (item.$branch)
+				$this._hideChildren(item);
+		}, 10);
 	},
 	_dragEnd: function(item) {
 		pykit.html.removeCSS(this.getItemNode(item.id), "uk-hidden");
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-block-primary");
+		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 		if (item.$branch && !item.$closed)
 			this._showChildren(item);
 	},
 	_dragOver: function(item) {
 		if (this._droppable(item, this._draggedItem))
-			pykit.html.addCSS(this.getItemNode(item.id), "uk-block-primary");
+			pykit.html.addCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_dragLeave: function(item) {
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-block-primary");
+		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_showChildren: function(item) {
 		item.$children.until(function(child, queue) {
