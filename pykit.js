@@ -966,6 +966,9 @@ pykit.UI.element = pykit.defUI({
 		tooltipPos: 'bottom',
 		dropdownEvent: "onClick",
 		dropdownPos: 'bottom-center',
+		dropdownId: undefined,
+		dropdownMarginX: 5,
+		dropdownMarginY: 5,
 		margin: "all-sm",
 		uploadOptions: {},
 		$preventDefault: true
@@ -990,7 +993,7 @@ pykit.UI.element = pykit.defUI({
 			if (value) {
 				this._html.setAttribute("data-uk-tooltip", "");
 				this._html.setAttribute("title", value);
-				this._html.setAttribute("data-uk-tooltip", pykit.replaceString("{pos: '{pos}'}",
+				this._html.setAttribute("data-uk-tooltip", '{' + pykit.replaceString("pos: '{pos}'" + '}',
 					{pos: this._config.tooltipPos}));
 			}
 			else
@@ -1000,20 +1003,21 @@ pykit.UI.element = pykit.defUI({
 		},
 		dropdown: function(value) {
 			var $this = this;
-			var config = $this._config;
+			var masterConfig = $this._config;
 
 			var dropdown = {
+				id: masterConfig.dropdownId,
 				view: "dropdown",
-				pos: config.dropdownPos,
+				pos: masterConfig.dropdownPos,
 				dropdown: value
 			};
 
 			var ui = pykit.UI(dropdown, document.body);
 
-			this._config.on = config.on || {};
-			this.addListener(config.dropdownEvent, function(config, node, e) {
+			this._config.on = masterConfig.on || {};
+			this.addListener(masterConfig.dropdownEvent, function(config, node, e) {
 				ui.open(config, node, $this, e);
-				ui.positionNextTo(node, dropdown.pos, 5, 5);
+				ui.positionNextTo(node, dropdown.pos, masterConfig.dropdownMarginX, masterConfig.dropdownMarginY);
 				ui.moveWithinBoundary();
 			});
 			$this.dropdownPopup = ui;
