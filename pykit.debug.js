@@ -7330,7 +7330,7 @@ pykit.UI.list = pykit.defUI({
 
 			pykit.event(node, "dragend", function(e) {
 				this._draggedItem = null;
-				this.dispatch("onItemDragEnd", [itemConfig, document, e]);
+				this.dispatch("onItemDragEnd", [itemConfig, node, e]);
 			}, this);
 		}
 	}
@@ -7381,16 +7381,16 @@ pykit.UI.tree = pykit.defUI({
 	},
 	_dragEnd: function(item) {
 		pykit.html.removeCSS(this.getItemNode(item.id), "uk-hidden");
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-block-primary");
+		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 		if (item.$branch && !item.$closed)
 			this._showChildren(item);
 	},
 	_dragOver: function(item) {
 		if (this._droppable(item, this._draggedItem))
-			pykit.html.addCSS(this.getItemNode(item.id), "uk-block-primary");
+			pykit.html.addCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_dragLeave: function(item) {
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-block-primary");
+		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_showChildren: function(item) {
 		item.$children.until(function(child, queue) {
