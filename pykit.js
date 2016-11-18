@@ -683,16 +683,54 @@ pykit._ready = false;
 pykit._onload = [];
 
 
-var ready = function(){
-    pykit._ready = true;
-	document.body.setAttribute("data-uk-observe", "");
-    for (var i=0; i < pykit._onload.length; i++) {
-        pykit._onload[i]();
-    }
-};
-if (document.readyState == "complete") ready();
-else pykit.event(window, "load", ready);
+(function() {
+	var ready = function(){
+		pykit._ready = true;
+		document.body.setAttribute("data-uk-observe", "");
+		for (var i=0; i < pykit._onload.length; i++) {
+			pykit._onload[i]();
+		}
 
+		pykit._globalMouseUp = function(e) {
+			var dragged = pykit._dragged;
+			if (dragged) {
+				dragged.target.dispatch("onItemDragEnd", [dragged.config, dragged.node, e]);
+				pykit.html.removeCSS(pykit._dragged.node, 'uk-active-drag');
+				pykit._dragged.node.style.top = pykit._dragged.originalPos.top;
+				pykit._dragged.node.style.left = pykit._dragged.originalPos.left;
+				pykit._dragged = null;
+			}
+			pykit._selectedForDrag = null;
+		};
+
+		pykit._dragThreshold = 10;
+
+		pykit.event(window, "mouseup", pykit._globalMouseUp);
+		pykit.event(window, "mousemove", function(e) {
+			var selectedForDrag = pykit._selectedForDrag;
+			var src = e.targetTouches ? e.targetTouches[0] : e;
+			if (selectedForDrag) {
+				if (Math.abs(src.clientX - selectedForDrag.pos.x) > pykit._dragThreshold ||
+					Math.abs(src.clientY - selectedForDrag.pos.y) > pykit._dragThreshold) {
+					// Begin drag event
+					pykit._dragged = selectedForDrag;
+					pykit._selectedForDrag = null;
+					pykit.html.addCSS(selectedForDrag.node, 'uk-active-drag');
+					
+					// Fire drag listener event
+					selectedForDrag.target.dispatch("onItemDragStart",
+						[selectedForDrag.config, selectedForDrag.node, selectedForDrag.event]);
+				}
+			}
+			else if (pykit._dragged) {
+				pykit._dragged.node.style.top = (src.clientY + pykit._dragged.mouseOffset.top) + 'px';
+				pykit._dragged.node.style.left = (src.clientX + pykit._dragged.mouseOffset.left) + 'px';
+			}
+		});
+	};
+	if (document.readyState == "complete") ready();
+	else pykit.event(window, "load", ready);
+}());
 
 
 pykit.PropertySetter = {
@@ -1252,10 +1290,11 @@ pykit.ClickEvents = {
 		this.dispatch("onMouseDown", [this._config, this._html, e]);
 	},
 	_onMouseUp: function(e){
+		this.dispatch("onMouseUp", [this._config, this._html, e]);
 		if (this._config.$preventDefault !== false) {
+			pykit._globalMouseUp(e);
 			pykit.html.preventEvent(e);
 		}
-		this.dispatch("onMouseUp", [this._config, this._html, e]);
 	},
 	_onContext: function(e) {
 		if (this._config.$preventDefault !== false) {
@@ -1400,12 +1439,14 @@ pykit.UI.button = pykit.defUI({
 			return pykit.replaceString("<span>{label}</span>", {label: config.label});
     },
 	select: function() {
+		this._config.$selected = true;
 		pykit.html.addCSS(this._html, "uk-active");
 	},
 	isSelected: function() {
-		return pykit.html.hasCSS(this._html, "uk-active");
+		return !!this._config.$selected;
 	},
 	unselect: function() {
+		this._config.$selected = false;
 		pykit.html.removeCSS(this._html, "uk-active");
 	}
 }, pykit.ClickEvents, pykit.UI.element);
@@ -1906,6 +1947,9 @@ pykit.UI.dropdown = pykit.defUI({
 	},
 	getBoundingClientRect: function() {
 		return this._html.firstChild.getBoundingClientRect();
+	},
+	isOpened: function() {
+		return pykit.html.hasCSS(this._html, 'uk-open');
 	},
 	open: function(config, node, parent, e) {
 		this.dispatch("onOpen", [config, node, this]);
@@ -2536,48 +2580,63 @@ pykit.UI.list = pykit.defUI({
 		}
 
 		if (this.droppable && itemConfig.droppable !== false) {
-			pykit.event(node, "drop", function(e) {
+			pykit.event(node, "mouseup", function(e) {
+				if (pykit._dragged) {
+					if (this._droppable(itemConfig, pykit._dragged.config, pykit._dragged.node))
+						this.dispatch("onItemDrop", [itemConfig, pykit._dragged.config, node, e]);
+				}
 				if (itemConfig.$preventDefault !== false) {
+					pykit._globalMouseUp(e);
 					pykit.html.preventEvent(e);
 				}
-				if (this._droppable(itemConfig, this._draggedItem))
-					this.dispatch("onItemDrop", [itemConfig, this._draggedItem, node, e]);
-				this._draggedItem = null;
 			}, this);
 
-			pykit.event(node, "dragover", function(e) {
+			pykit.event(node, "mouseover", function(e) {
 				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragOver", [itemConfig, node, e]);
+				if (pykit._dragged) {
+					this.dispatch("onItemDragOver", [itemConfig, node, e]);
+				}
 			}, this);
 
-			pykit.event(node, "dragenter", function(e) {
+			pykit.event(node, "mouseenter", function(e) {
 				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragEnter", [itemConfig, node, e]);
+				if (pykit._dragged) {
+					this.dispatch("onItemDragEnter", [itemConfig, node, e]);
+				}
 			}, this);
 
-			pykit.event(node, "dragleave", function(e) {
+			pykit.event(node, "mouseout", function(e) {
 				if (itemConfig.$preventDefault !== false) {
 					pykit.html.preventEvent(e);
 				}
-				this.dispatch("onItemDragLeave", [itemConfig, node, e]);
+				if (pykit._dragged) {
+					this.dispatch("onItemDragLeave", [itemConfig, node, e]);
+				}
 			}, this);
 		}
 
 		if (this.draggable && itemConfig.draggable !== false) {
-			node.setAttribute("draggable", "true");
+			node.setAttribute("draggable", "false");
 
-			pykit.event(node, "dragstart", function(e) {
-				this._draggedItem = itemConfig;
-				this.dispatch("onItemDragStart", [itemConfig, node, e]);
-			}, this);
-
-			pykit.event(node, "dragend", function(e) {
-				this._draggedItem = null;
-				this.dispatch("onItemDragEnd", [itemConfig, node, e]);
+			pykit.event(node, "mousedown", function(e) {
+				var ev = e.touches && e.touches[0] || e;
+				var offset = node.getBoundingClientRect();
+				pykit._selectedForDrag = {
+					target: this,
+					config: itemConfig,
+					node: node,
+					originalPos: {top: node.style.top, left: node.style.left},
+					pos: {x: ev.clientX, y: ev.clientY},
+					mouseOffset: {
+						left: offset.left - ev.clientX,
+						top: offset.top - ev.clientY
+					},
+					event: e
+				};
 			}, this);
 		}
 	}
@@ -2617,23 +2676,15 @@ pykit.UI.tree = pykit.defUI({
 	},
 	_dragStart: function(item, node, e) {
 		var $this = this;
-		e.dataTransfer.setData('text/plain', node[$this._config.dataTransfer]);
-		// Chrome bug: dragend fires immediatelly if DOM is manipulated in dragstart handler
-		// See https://groups.google.com/a/chromium.org/forum/?fromgroups=#!msg/chromium-bugs/YHs3orFC8Dc/ryT25b7J-NwJ
-		setTimeout(function() {
-			pykit.html.addCSS($this.getItemNode(item.id), "uk-hidden");
-			if (item.$branch)
-				$this._hideChildren(item);
-		}, 10);
+		if (item.$branch)
+			$this._hideChildren(item);
 	},
 	_dragEnd: function(item) {
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-hidden");
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 		if (item.$branch && !item.$closed)
 			this._showChildren(item);
 	},
 	_dragOver: function(item) {
-		if (this._droppable(item, this._draggedItem))
+		if (this._droppable(item, pykit._dragged.config, pykit._dragged.node))
 			pykit.html.addCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_dragLeave: function(item) {
