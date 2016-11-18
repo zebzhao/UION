@@ -1268,7 +1268,7 @@ pykit.ClickEvents = {
 		config.on = config.on || {};
 		pykit.event(this._html, "click", this._onClick, this);
 		pykit.event(this._html, "contextmenu", this._onContext, this);
-		
+
 		// Optimization: these rarely get used.
 		if (config.on.onMouseDown) {
 			pykit.event(this._html, "mousedown", this._onMouseDown, this);
@@ -2619,10 +2619,12 @@ pykit.UI.list = pykit.defUI({
 			}, this);
 		}
 
-		if (this.draggable && itemConfig.draggable !== false) {
+		if (this.dragNode && !itemConfig.$draggable) {
+			if (!pykit.isFunction(this.dragNode))
+				pykit.assert(false, 'invalid value for dragNode: must be a function', this.dragNode);
 			node.setAttribute("draggable", "false");
 
-			pykit.event(node, "mousedown", function(e) {
+			pykit.event(this.dragNode, "mousedown", function(e) {
 				var ev = e.touches && e.touches[0] || e;
 				var offset = node.getBoundingClientRect();
 				pykit._selectedForDrag = {
@@ -2651,7 +2653,9 @@ pykit.UI.tree = pykit.defUI({
 		selectable: false,
 		indentWidth: 15,
 		dataTransfer: 'id',
-		draggable: true,
+		dragNode: function() {
+			return this._html;
+		},
 		orderAfter: function(other) {
 			var isParent = this.$parent == other.id;
 			var isNestedDeeper = this.$depth < other.$depth;
