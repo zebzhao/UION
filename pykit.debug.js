@@ -5452,8 +5452,25 @@ pykit._onload = [];
 				pykit._dragged.node.style.top = pykit._dragged.originalPos.top;
 				pykit._dragged.node.style.left = pykit._dragged.originalPos.left;
 				pykit._dragged = null;
+
+                var src = e.changedTouches ? e.changedTouches[0] : e;
+                var dropNode = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
+                if (dropNode && dropNode.master._droppable(dropNode.config, dragged.config, dragged.node))
+                    dropNode.master.dispatch("onItemDrop", [dropNode.config, dragged.config, dropNode, e]);
 			}
 			pykit._selectedForDrag = null;
+
+            function findDroppableParent(node) {
+                // Exit after 100 tries, otherwise assume circular reference
+                for(var i=0; i<100; i++) {
+                    if (!node)
+                        break;
+                    else if (node.config && node.master)
+                        return node;
+                    else
+                        node = node.parentNode;
+                }
+            }
 		};
 
 		pykit._globalMouseMove = function(e) {
@@ -5482,7 +5499,11 @@ pykit._onload = [];
 
 		pykit.event(window, "mouseup", pykit._globalMouseUp);
 		pykit.event(window, "mousemove", pykit._globalMouseMove);
-		pykit.event(window, "touchmove", pykit._globalMouseMove);
+
+		if (UIkit.support.touch) {
+			pykit.event(window, "touchend", pykit._globalMouseUp);
+			pykit.event(window, "touchmove", pykit._globalMouseMove);
+		}
 	};
 	if (document.readyState == "complete") ready();
 	else pykit.event(window, "load", ready);
@@ -7335,17 +7356,9 @@ pykit.UI.list = pykit.defUI({
 			}, this);
 		}
 
-		if (this.droppable && itemConfig.droppable !== false) {
-			pykit.event(node, "mouseup", function(e) {
-				if (pykit._dragged) {
-					if (this._droppable(itemConfig, pykit._dragged.config, pykit._dragged.node))
-						this.dispatch("onItemDrop", [itemConfig, pykit._dragged.config, node, e]);
-				}
-				if (itemConfig.$preventDefault !== false) {
-					pykit._globalMouseUp(e);  // This needs to fire after dispatching onItemDrop
-					pykit.html.preventEvent(e);
-				}
-			}, this);
+		if (this.droppable && itemConfig.$droppable !== false) {
+            node.config = itemConfig;
+            node.master = this;
 
 			pykit.event(node, "mouseover", function(e) {
 				if (pykit._dragged) {
@@ -7369,7 +7382,7 @@ pykit.UI.list = pykit.defUI({
 		if (this.draggable && !itemConfig.$draggable) {
 			node.setAttribute("draggable", "false");
 
-			pykit.event(node, "mousedown", function(e) {
+			function onMouseDown(e) {
 				if (pykit.isFunction(this.draggable) && !this.draggable(e)) {
 					return;
 				}
@@ -7387,7 +7400,17 @@ pykit.UI.list = pykit.defUI({
 					},
 					event: e
 				};
-			}, this);
+			}
+
+			if (UIkit.support.touch) {
+				pykit.event(node, "touchstart", function(e) {
+					// Very important, or touchend will always fire with the wrong target
+					pykit.html.preventEvent(e);
+					onMouseDown.call(this, e);
+				}, this);
+			}
+
+			pykit.event(node, "mousedown", onMouseDown, this);
 		}
 	}
 }, pykit.UI.stack);
