@@ -5454,23 +5454,11 @@ pykit._onload = [];
 				pykit._dragged = null;
 
                 var src = e.changedTouches ? e.changedTouches[0] : e;
-                var dropNode = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
-                if (dropNode && dropNode.master._droppable(dropNode.config, dragged.config, dragged.node))
-                    dropNode.master.dispatch("onItemDrop", [dropNode.config, dragged.config, dropNode, e]);
+                var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
+                if (dropTarget && dropTarget.master._droppable(dropTarget.config, dragged.config, dragged.node))
+                    dropTarget.master.dispatch("onItemDrop", [dropTarget.config, dragged.config, dropTarget, e]);
 			}
 			pykit._selectedForDrag = null;
-
-            function findDroppableParent(node) {
-                // Exit after 100 tries, otherwise assume circular reference
-                for(var i=0; i<100; i++) {
-                    if (!node)
-                        break;
-                    else if (node.config && node.master)
-                        return node;
-                    else
-                        node = node.parentNode;
-                }
-            }
 		};
 
 		pykit._globalMouseMove = function(e) {
@@ -5490,9 +5478,25 @@ pykit._onload = [];
 				}
 			}
 			else if (pykit._dragged) {
-				pykit._dragged.node.style.top = (src.clientY + pykit._dragged.mouseOffset.top) + 'px';
-				pykit._dragged.node.style.left = (src.clientX + pykit._dragged.mouseOffset.left) + 'px';
-			}
+				var dragged = pykit._dragged;
+                dragged.node.style.top = (src.clientY + dragged.mouseOffset.top) + 'px';
+                dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
+
+                var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
+                if (dropTarget && dropTarget.master._droppable(dropTarget.config, dragged.config, dragged.node)) {
+                    var oldDropTarget = pykit._dropTarget;
+                    if (oldDropTarget != dropTarget) {
+                        if (oldDropTarget) {
+                            oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTarget.config, oldDropTarget, e]);
+                        }
+                        dropTarget.master.dispatch('onItemDragEnter', [dropTarget.config, dropTarget, e]);
+                        pykit._dropTarget = dropTarget;
+                    }
+                    else if (oldDropTarget) {
+                        oldDropTarget.master.dispatch('onItemDragOver', [oldDropTarget.config, oldDropTarget, e]);
+                    }
+                }
+            }
 		};
 
 		pykit._dragThreshold = 10;
@@ -5504,6 +5508,18 @@ pykit._onload = [];
 			pykit.event(window, "touchend", pykit._globalMouseUp);
 			pykit.event(window, "touchmove", pykit._globalMouseMove);
 		}
+
+        function findDroppableParent(node) {
+            // Exit after 100 tries, otherwise assume circular reference
+            for(var i=0; i<100; i++) {
+                if (!node)
+                    break;
+                else if (node.config && node.master)
+                    return node;
+                else
+                    node = node.parentNode;
+            }
+        }
 	};
 	if (document.readyState == "complete") ready();
 	else pykit.event(window, "load", ready);
@@ -7359,24 +7375,6 @@ pykit.UI.list = pykit.defUI({
 		if (this.droppable && itemConfig.$droppable !== false) {
             node.config = itemConfig;
             node.master = this;
-
-			pykit.event(node, "mouseover", function(e) {
-				if (pykit._dragged) {
-					this.dispatch("onItemDragOver", [itemConfig, node, e]);
-				}
-			}, this);
-
-			pykit.event(node, "mouseenter", function(e) {
-				if (pykit._dragged) {
-					this.dispatch("onItemDragEnter", [itemConfig, node, e]);
-				}
-			}, this);
-
-			pykit.event(node, "mouseout", function(e) {
-				if (pykit._dragged) {
-					this.dispatch("onItemDragLeave", [itemConfig, node, e]);
-				}
-			}, this);
 		}
 
 		if (this.draggable && !itemConfig.$draggable) {
