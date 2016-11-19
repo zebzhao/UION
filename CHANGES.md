@@ -3,6 +3,12 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.2
+-----------
+- added: `isOpened` to `dropdown`
+- changed: rewrote drag and drop implementation to not use native events to support touchscreen
+- fixed: file tree drag and drop works both for touch and pointer devices
+
 Version 0.6.1
 -----------
 - added: use `dropdownId` to `element` to assign dropdown id attribute
