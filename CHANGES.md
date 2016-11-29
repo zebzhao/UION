@@ -5,6 +5,7 @@ Here you can see the full list of changes between each Pykit release.
 
 Version 0.6.3
 -----------
+- changed: all `$css`, `css`, `itemStyle` css related attributes can accept both array and string
 - fix: object passed to `template` does not create duplicate elements upon each `render`
 - fix: empty string template did not default to `element` for `view` attribute
 - fix: `fieldset` element `view` now defaults to `element`
