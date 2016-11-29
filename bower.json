@@ -1,6 +1,6 @@
 {
   "name": "pykit",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "homepage": "https://github.com/zebzhao/Pykit",
   "dependencies": {
     "uikit": "uikit/uikit#^2.26.x",
