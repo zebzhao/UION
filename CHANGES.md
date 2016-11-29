@@ -10,6 +10,7 @@ Version 0.6.3
 - fix: empty string template did not default to `element` for `view` attribute
 - fix: `fieldset` element `view` now defaults to `element`
 - fix: improve `getValues()` for nested elements in `fieldset`
+- fix: improve `setValues()` for nested elements in `fieldset`
 - fix: `help` now accepts (empty string)/null/undefined for `FormControl`
 - added: `size` attribute works with icon and `search`
 - added: `value`, `autocomplete`, `autocapitalize`, `autocorrect` works with `input` and `search`, `autocomplete`

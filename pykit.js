@@ -3122,18 +3122,17 @@ pykit.UI.fieldset = pykit.defUI({
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
 
-		var unprocessed = this.each(function(item) {
-			return item;
-		});
+		var elements = this._html.elements;
 
-		var item;
-		while (unprocessed.length > 0) {
-			item = unprocessed.pop();
-			if (pykit.isDefined(config[item.name])) {
-				$$(item.id).setValue(config[item.name]);
-			}
-			else if (item.view == "flexgrid") {
-				unprocessed = unprocessed.concat($$(item.id).getItems());
+		// Set all children with `name` attributes, including nested flexgrid children.
+		var item, id;
+		for (var i=0; i<elements.length; i++) {
+			id = elements[i].id;
+			if (id) {
+				item = $$(id);
+				if (item && item.config && item.config.name) {
+					item.setValue(config[item.name]);
+				}
 			}
 		}
 	}
