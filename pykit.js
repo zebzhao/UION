@@ -87,6 +87,20 @@ pykit.defUI = function(config) {
 	return cls;
 };
 
+pykit.stringCSS = function(value) {
+	if (pykit.isArray(value)) {
+		var noDups = [];
+		for (var i=0; i<value.length; i++)
+			if (noDups.indexOf(value[i]) == -1)
+				noDups.push(value[i]);
+		return noDups.join(' ');
+	}
+	else if (pykit.isString(value)) {
+		return value;
+	}
+	else return '';
+};
+
 pykit.stringTemplate = function(string, scope) {
 	return pykit.replaceString(string, scope);
 };
@@ -663,8 +677,11 @@ pykit.html = {
         e.cancelBubble=true;
 	},
 	addCSS: function(node, name) {
-		if (name && name.length > 0)
-			node.classList.add(name);
+		var classList = pykit.stringCSS(name).split(' ');
+		for (var cls,i=0; i<classList.length; i++) {
+			cls = classList[i];
+			if (cls) node.classList.add(cls);
+		}
 	},
 	hasCSS: function(node, name) {
 		return node.classList.contains(name);
@@ -1070,11 +1087,7 @@ pykit.UI.element = pykit.defUI({
 			return value;
 		},
 		css: function(value){
-			if (pykit.isArray(value)) {
-				for (var i=0; i<value.length; i++)
-					pykit.html.addCSS(this._html, value[i]);
-			}
-			else pykit.html.addCSS(this._html, value);
+			pykit.html.addCSS(this._html, pykit.stringCSS(value));
 			return value;
 		},
 		tooltip: function(value) {
@@ -1844,7 +1857,6 @@ pykit.UI.password = pykit.defUI({
 		}
 	},
 	__after__: function() {
-		pykit.html.addCSS(this._html, "uk-form");
 		pykit.event(this._html, "change", this._onChange, this);
 	},
 	_onChange: function() {
@@ -1948,7 +1960,7 @@ pykit.UI.dropdown = pykit.defUI({
 	$setters: {
 		dropdown: function (value) {
 			var dropdown = pykit.html.createElement("DIV",
-				{class: this._dropdownCSS()});
+				{class:  pykit.stringCSS(this._dropdownCSS())});
 
 			if (!value.listStyle) {
 				value.listStyle = "dropdown";
@@ -2548,7 +2560,7 @@ pykit.UI.list = pykit.defUI({
         var itemStyle = itemConfig.$css || this._config.itemStyle;
 
         var li = pykit.html.createElement("LI",
-            {class: itemStyle
+            {class: pykit.stringCSS(itemStyle)
             + (itemConfig.header ? "uk-nav-header" : "")
             + (itemConfig.divider ? "uk-nav-divider" : "")});
 
@@ -2895,7 +2907,7 @@ pykit.UI.table = pykit.defUI({
 		var td, column;
 		for (var i=0; i<this._config.columns.length; i++) {
 			column = this._config.columns[i];
-			td = pykit.html.createElement("TD", {class: column.$css ? column.$css : ""});
+			td = pykit.html.createElement("TD", {class: column.$css ? pykit.stringCSS(column.$css) : ""});
 
 			if (column.align)
 				td.style.textAlign = column.align;
@@ -3035,10 +3047,12 @@ pykit.UI.fieldset = pykit.defUI({
 	}),
 	_itemHTML: function(itemConfig) {
 		if (itemConfig.title) {
-			return pykit.html.createElement("LEGEND", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : ""});
+			return pykit.html.createElement("LEGEND",
+				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : ""});
 		}
 		else {
-			return pykit.html.createElement("DIV", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : "uk-form-row"});
+			return pykit.html.createElement("DIV",
+				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : "uk-form-row"});
 		}
 	},
 	_innerHTML: function(parentNode, config) {
