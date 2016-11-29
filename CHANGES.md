@@ -9,6 +9,7 @@ Version 0.6.3
 - fix: object passed to `template` does not create duplicate elements upon each `render`
 - fix: empty string template did not default to `element` for `view` attribute
 - fix: `fieldset` element `view` now defaults to `element`
+- fix: improve `getValues()` for nested elements in `fieldset`
 - added: `size` attribute works with icon and `search`
 - added: `value`, `autocomplete`, `autocapitalize`, `autocorrect` works with `input` and `search`, `autocomplete`
 - added: `reset`, `enable`, `disable` to `input`, `autocomplete`

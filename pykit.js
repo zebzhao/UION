@@ -3103,19 +3103,17 @@ pykit.UI.fieldset = pykit.defUI({
 	getValues: function() {
 		var results = {};
 
-		var unprocessed = this.each(function(item) {
-			return item;
-		});
+		var elements = this._html.elements;
 
 		// Extract all children with `name` attributes, including nested flexgrid children.
-		var item;
-		while (unprocessed.length > 0) {
-			item = unprocessed.pop();
-			if (item.name) {
-				results[item.name] = $$(item.id).getValue();
-			}
-			else if (item.view == "flexgrid") {
-				unprocessed = unprocessed.concat($$(item.id).getItems());
+		var item, id;
+		for (var i=0; i<elements.length; i++) {
+			id = elements[i].id;
+			if (id) {
+				item = $$(id);
+				if (item && item.config && item.config.name) {
+					results[item.config.name] = item.getValue();
+				}
 			}
 		}
 
