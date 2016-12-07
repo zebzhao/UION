@@ -87,21 +87,36 @@ pykit.defUI = function(config) {
 	return cls;
 };
 
+pykit.stringCSS = function(value) {
+	if (pykit.isArray(value)) {
+		var noDups = [];
+		for (var i=0; i<value.length; i++)
+			if (noDups.indexOf(value[i]) == -1)
+				noDups.push(value[i]);
+		return noDups.join(' ');
+	}
+	else if (pykit.isString(value)) {
+		return value;
+	}
+	else return '';
+};
+
 pykit.stringTemplate = function(string, scope) {
 	return pykit.replaceString(string, scope);
 };
 
-pykit.template = function(template, config, thisArg) {
+pykit.template = function(template, config, thisArg, parentNode) {
 	if (pykit.isFunction(template)) {
-		return template.call(thisArg, config);
+		parentNode.innerHTML = template.call(thisArg, config);
 	}
 	else if (pykit.isString(template)) {
-		return pykit.stringTemplate(template, config);
+		parentNode.innerHTML = pykit.stringTemplate(template, config);
 	}
 	else if (pykit.isObject(template)) {
-		var ui = pykit.UI(template);
-		template.$ui = ui;
-		return ui._html.outerHTML;
+		if (!template.$ui) {
+			template.$ui = pykit.UI(template);
+			parentNode.appendChild(template.$ui._html);
+		}
 	}
 	else {
 		pykit.assert(false, 'Unrecognized template!', config);
@@ -662,8 +677,11 @@ pykit.html = {
         e.cancelBubble=true;
 	},
 	addCSS: function(node, name) {
-		if (name && name.length > 0)
-			node.classList.add(name);
+		var classList = pykit.stringCSS(name).split(' ');
+		for (var cls,i=0; i<classList.length; i++) {
+			cls = classList[i];
+			if (cls) node.classList.add(cls);
+		}
 	},
 	hasCSS: function(node, name) {
 		return node.classList.contains(name);
@@ -940,7 +958,7 @@ pykit.UI = function (config, parent) {
 		}
 		else if (config.cells)
 			return new pykit.UI.flexgrid(config);
-		else if (config.template)
+		else
 			return new pykit.UI.element(config);
 	}
 };
@@ -1069,11 +1087,7 @@ pykit.UI.element = pykit.defUI({
 			return value;
 		},
 		css: function(value){
-			if (pykit.isArray(value)) {
-				for (var i=0; i<value.length; i++)
-					pykit.html.addCSS(this._html, value[i]);
-			}
-			else pykit.html.addCSS(this._html, value);
+			pykit.html.addCSS(this._html, pykit.stringCSS(value));
 			return value;
 		},
 		tooltip: function(value) {
@@ -1144,7 +1158,7 @@ pykit.UI.element = pykit.defUI({
 		this.render();
 	},
     render: function() {
-        this._html.innerHTML = pykit.template(this.template, this._config, this);
+        pykit.template(this.template, this._config, this, this._html);
     },
     template: function() {
         return ""
@@ -1634,14 +1648,19 @@ pykit.FormControl = {
 				success: "uk-form-success",
 				danger: "uk-form-danger",
 				"": ""
+			},
+			size: {
+				large: "uk-form-large",
+				small: "uk-form-small",
+				"": ""
 			}
 		}),
 		{
 			help: function(value) {
+				if (this.help && this.help.parentNode) {
+					this.help.parentNode.removeChild(this.help);
+				}
 				if (value) {
-					if (this.help && this.help.parentNode) {
-						this.help.parentNode.removeChild(this.help);
-					}
 					if (this._config.inline) {
 						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
 					}
@@ -1649,9 +1668,38 @@ pykit.FormControl = {
 						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
 					}
 					this.help.innerHTML = value;
-					this._html.parentNode.appendChild(this.help);
+					this.getFormControl().parentNode.appendChild(this.help);
 				}
 				return this.help;
+			},
+			autocomplete: function (value) {
+				if (value == "off" || !value)
+					this.getFormControl().setAttribute("autocomplete", "off");
+				return value;
+			},
+			autocapitalize: function (value) {
+				if (value == "off" || !value)
+					this.getFormControl().setAttribute("autocapitalize", "off");
+				return value;
+			},
+			autocorrect: function (value) {
+				if (value == "off" || !value)
+					this.getFormControl().setAttribute("autocorrect", "off");
+				return value;
+			},
+			type: function (value) {
+				this.getFormControl().setAttribute("type", value);
+				pykit.html.addCSS(this.getFormControl(), "uk-vertical-align-middle");
+				return value;
+			},
+			value: function (value) {
+				if (value !== undefined)
+					this.setValue(value);
+				return value;
+			},
+			placeholder: function (value) {
+				this.getFormControl().setAttribute("placeholder", value);
+				return value;
 			}
 		}
 	),
@@ -1689,6 +1737,21 @@ pykit.FormControl = {
 					pykit.html.removeCSS(helpControl, "uk-text-success");
 			}
 		}
+	},
+	reset: function() {
+		this.getFormControl().value = "";
+	},
+	enable: function() {
+		this.getFormControl().removeAttribute('disabled');
+	},
+	disable: function() {
+		this.getFormControl().setAttribute('disabled', "");
+	},
+	getValue: function() {
+		return this.getFormControl().value;
+	},
+	setValue: function(value) {
+		this.getFormControl().value = value;
 	}
 };
 
@@ -1708,11 +1771,6 @@ pykit.UI.toggle = pykit.defUI({
 	template: function(config) {
 		return pykit.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
 			{checked: config.checked ? " checked" : ""});
-	},
-	checked: function(value) {
-		if (value)
-			this._html.firstChild.checked = value;
-		return value;
 	},
 	reset: function() {
 		this._html.firstChild.checked = false;
@@ -1742,51 +1800,12 @@ pykit.UI.input = pykit.defUI({
 		autocorrect: "on",
 		inline: false
 	},
-	$setters: pykit.extend(pykit.setCSS(
-		{
-			class: {
-				success: "uk-form-success",
-				danger: "uk-form-danger",
-				"": ""
-			},
-			size: {
-				large: "uk-form-large",
-				small: "uk-form-small",
-				"": ""
-			}
-		}),
-		{
-			autocomplete: function(value) {
-				if (value == "off" || !value)
-					this._html.setAttribute("autocomplete", "off");
-				return value;
-			},
-			autocapitalize: function(value) {
-				if (value == "off" || !value)
-					this._html.setAttribute("autocapitalize", "off");
-				return value;
-			},
-			autocorrect: function(value) {
-				if (value == "off" || !value)
-					this._html.setAttribute("autocorrect", "off");
-				return value;
-			},
-			type: function(value) {
-				this._html.setAttribute("type", value);
-				pykit.html.addCSS(this._html, "uk-vertical-align-middle");
-				return value;
-			},
-			checked: function(value) {
-				if (value)
-					this._html.checked = value;
-				return value;
-			},
-			placeholder: function(value) {
-				this._html.setAttribute("placeholder", value);
-				return value;
-			}
+	$setters: {
+		checked: function (value) {
+			this.getFormControl().checked = value;
+			return value;
 		}
-	),
+	},
 	__after__: function() {
 		pykit.event(this._html, "change", this._onChange, this);
 		pykit.event(this._html, "keyup", function (e) {
@@ -1799,27 +1818,27 @@ pykit.UI.input = pykit.defUI({
 	reset: function() {
 		switch(this._config.type) {
 			case "checkbox":
-				this._html.checked = this._config.checked;
+				this.getFormControl().checked = this._config.checked;
 				break;
 			case "number":
-				this._html.value = 0;
+				this.getFormControl().value = 0;
 				break;
 			default:
-				this._html.value = "";
+				this.getFormControl().value = "";
 				break;
 		}
 	},
 	getValue: function() {
 		if (this._config.type == "checkbox") {
-			return this._html.checked;
+			return this.getFormControl().checked;
 		}
-		else return this._html.value;
+		else return this.getFormControl().value;
 	},
 	setValue: function(value) {
 		if (this._config.type == "checkbox") {
-			this._html.checked = value;
+			this.getFormControl().checked = value;
 		}
-		else this._html.value = value;
+		else this.getFormControl().value = value;
 	}
 }, pykit.FormControl, pykit.UI.element);
 
@@ -1838,7 +1857,6 @@ pykit.UI.password = pykit.defUI({
 		}
 	},
 	__after__: function() {
-		pykit.html.addCSS(this._html, "uk-form");
 		pykit.event(this._html, "change", this._onChange, this);
 	},
 	_onChange: function() {
@@ -1847,24 +1865,7 @@ pykit.UI.password = pykit.defUI({
 	getFormControl: function() {
 		return this._html.firstChild;
 	},
-	template: function() {
-		return "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>";
-	},
-	reset: function() {
-		this._html.firstChild.value = "";
-	},
-	enable: function() {
-		this._html.firstChild.removeAttribute('disabled');
-	},
-	disable: function() {
-		this._html.firstChild.setAttribute('disabled', "");
-	},
-	getValue: function() {
-		return this._html.firstChild.value;
-	},
-	setValue: function(value) {
-		this._html.firstChild.value = value;
-	}
+	template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
 }, pykit.FormControl, pykit.UI.element);
 
 
@@ -1933,26 +1934,14 @@ pykit.UI.search = pykit.defUI({
 	_onChange: function () {
 		this.dispatch("onChange");
 	},
+	getFormControl: function () {
+		return this._html.firstChild;
+	},
 	template: function(obj) {
 		return pykit.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
 			{placeholder: obj.placeholder})
-	},
-	reset: function() {
-		this._html.firstChild.value = "";
-	},
-	enable: function() {
-		this._html.firstChild.removeAttribute('disabled');
-	},
-	disable: function() {
-		this._html.firstChild.setAttribute('disabled', "");
-	},
-	getValue: function() {
-		return this._html.firstChild.value;
-	},
-	setValue: function(value) {
-		this._html.firstChild.value = value;
 	}
-}, pykit.UI.element);
+}, pykit.FormControl, pykit.UI.element);
 
 
 
@@ -1971,7 +1960,7 @@ pykit.UI.dropdown = pykit.defUI({
 	$setters: {
 		dropdown: function (value) {
 			var dropdown = pykit.html.createElement("DIV",
-				{class: this._dropdownCSS()});
+				{class:  pykit.stringCSS(this._dropdownCSS())});
 
 			if (!value.listStyle) {
 				value.listStyle = "dropdown";
@@ -2571,7 +2560,7 @@ pykit.UI.list = pykit.defUI({
         var itemStyle = itemConfig.$css || this._config.itemStyle;
 
         var li = pykit.html.createElement("LI",
-            {class: itemStyle
+            {class: pykit.stringCSS(itemStyle)
             + (itemConfig.header ? "uk-nav-header" : "")
             + (itemConfig.divider ? "uk-nav-divider" : "")});
 
@@ -2918,12 +2907,12 @@ pykit.UI.table = pykit.defUI({
 		var td, column;
 		for (var i=0; i<this._config.columns.length; i++) {
 			column = this._config.columns[i];
-			td = pykit.html.createElement("TD", {class: column.$css ? column.$css : ""});
+			td = pykit.html.createElement("TD", {class: column.$css ? pykit.stringCSS(column.$css) : ""});
 
 			if (column.align)
 				td.style.textAlign = column.align;
 
-			td.innerHTML = pykit.template(column.template, obj, this);
+			pykit.template(column.template, obj, this, td);
 			node.appendChild(td);
 		}
 		this._attachNodeEvents(node, obj);
@@ -3058,17 +3047,19 @@ pykit.UI.fieldset = pykit.defUI({
 	}),
 	_itemHTML: function(itemConfig) {
 		if (itemConfig.title) {
-			return pykit.html.createElement("LEGEND", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : ""});
+			return pykit.html.createElement("LEGEND",
+				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : ""});
 		}
 		else {
-			return pykit.html.createElement("DIV", {class: itemConfig.$itemCSS ? itemConfig.$itemCSS : "uk-form-row"});
+			return pykit.html.createElement("DIV",
+				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : "uk-form-row"});
 		}
 	},
 	_innerHTML: function(parentNode, config) {
 		if (config.title) {
 			parentNode.innerHTML = config.label;
 		}
-		else if (config.view) {
+		else {
 			config.margin = config.margin || "";
 			var ui = pykit.UI(config);
 
@@ -3112,19 +3103,17 @@ pykit.UI.fieldset = pykit.defUI({
 	getValues: function() {
 		var results = {};
 
-		var unprocessed = this.each(function(item) {
-			return item;
-		});
+		var elements = this._html.form.elements;
 
 		// Extract all children with `name` attributes, including nested flexgrid children.
-		var item;
-		while (unprocessed.length > 0) {
-			item = unprocessed.pop();
-			if (item.name) {
-				results[item.name] = $$(item.id).getValue();
-			}
-			else if (item.view == "flexgrid") {
-				unprocessed = unprocessed.concat($$(item.id).getItems());
+		var item, id;
+		for (var i=0; i<elements.length; i++) {
+			id = elements[i].id;
+			if (id) {
+				item = $$(id);
+				if (item && item.config && item.config.name) {
+					results[item.config.name] = item.getValue();
+				}
 			}
 		}
 
@@ -3133,18 +3122,17 @@ pykit.UI.fieldset = pykit.defUI({
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
 
-		var unprocessed = this.each(function(item) {
-			return item;
-		});
+		var elements = this._html.form.elements;
 
-		var item;
-		while (unprocessed.length > 0) {
-			item = unprocessed.pop();
-			if (pykit.isDefined(config[item.name])) {
-				$$(item.id).setValue(config[item.name]);
-			}
-			else if (item.view == "flexgrid") {
-				unprocessed = unprocessed.concat($$(item.id).getItems());
+		// Set all children with `name` attributes, including nested flexgrid children.
+		var item, id;
+		for (var i=0; i<elements.length; i++) {
+			id = elements[i].id;
+			if (id) {
+				item = $$(id);
+				if (item && item.config && item.config.name) {
+					item.setValue(config[item.name]);
+				}
 			}
 		}
 	}

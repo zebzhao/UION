@@ -3,6 +3,19 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.3
+-----------
+- changed: all `$css`, `css`, `itemStyle` css related attributes can accept both array and string
+- fix: object passed to `template` does not create duplicate elements upon each `render`
+- fix: empty string template did not default to `element` for `view` attribute
+- fix: `fieldset` element `view` now defaults to `element`
+- fix: improve `getValues()` for nested elements in `fieldset`
+- fix: improve `setValues()` for nested elements in `fieldset`
+- fix: `help` now accepts (empty string)/null/undefined for `FormControl`
+- added: `size` attribute works with icon and `search`
+- added: `value`, `autocomplete`, `autocapitalize`, `autocorrect` works with `input` and `search`, `autocomplete`
+- added: `reset`, `enable`, `disable` to `input`, `autocomplete`
+
 Version 0.6.2
 -----------
 - added: `isOpened` to `dropdown`
