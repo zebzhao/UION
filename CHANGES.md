@@ -3,6 +3,10 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.4
+-----------
+- fix: `setValues` will ignore undefined values like before
+
 Version 0.6.3
 -----------
 - changed: all `$css`, `css`, `itemStyle` css related attributes can accept both array and string

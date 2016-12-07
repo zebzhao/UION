@@ -7883,7 +7883,7 @@ pykit.UI.fieldset = pykit.defUI({
 			id = elements[i].id;
 			if (id) {
 				item = $$(id);
-				if (item && item.config && item.config.name) {
+				if (item && item.config && item.config.name && pykit.isDefined(config[item.name])) {
 					item.setValue(config[item.name]);
 				}
 			}
