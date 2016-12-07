@@ -7856,7 +7856,7 @@ pykit.UI.fieldset = pykit.defUI({
 	getValues: function() {
 		var results = {};
 
-		var elements = this._html.elements;
+		var elements = this._html.form.elements;
 
 		// Extract all children with `name` attributes, including nested flexgrid children.
 		var item, id;
@@ -7875,7 +7875,7 @@ pykit.UI.fieldset = pykit.defUI({
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
 
-		var elements = this._html.elements;
+		var elements = this._html.form.elements;
 
 		// Set all children with `name` attributes, including nested flexgrid children.
 		var item, id;
