@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Pykit release.
 Version 0.6.4
 -----------
 - fix: `setValues` will ignore undefined values like before
+- fix: `setValues` works with toggle or any other nested input fields
 
 Version 0.6.3
 -----------
