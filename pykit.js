@@ -115,6 +115,7 @@ pykit.template = function(template, config, thisArg, parentNode) {
 	else if (pykit.isObject(template)) {
 		if (!template.$ui) {
 			template.$ui = pykit.UI(template);
+			thisArg.$uis.push(template.$ui);
 			parentNode.appendChild(template.$ui._html);
 		}
 	}
@@ -1144,6 +1145,7 @@ pykit.UI.element = pykit.defUI({
 		var node = pykit.node(config.id);
 		pykit.assert(!node, pykit.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
 
+		this.$uis = pykit.list();
 		this.element = this._html = pykit.html.createElement(config.htmlTag || "DIV", {id: config.id});
 		if (config.tagClass)
 			this.element.setAttribute("class", config.tagClass);
@@ -1231,7 +1233,7 @@ pykit.UI.flexgrid = pykit.defUI({
 				var ui = pykit.UI(config);
 				if (!this._config.singleView)
 					this._html.appendChild(ui._html);
-				this._cells.push(ui);
+				this.$uis.push(ui);
 			}
 
 			if(this._config.singleView && this._config.defaultView)
@@ -1240,46 +1242,43 @@ pykit.UI.flexgrid = pykit.defUI({
 			return value;
 		}
 	},
-	__init__: function() {
-		this._cells = pykit.list();
-	},
 	render: function() {
 		// Do nothing, overwrites render function.
 	},
 	each: function(func, thisArg) {
-		return this._cells.each(func, thisArg);
+		return this.$uis.each(func, thisArg);
 	},
 	insertChild: function(index, config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells.splice(index, 0, ui);
+		this.$uis.splice(index, 0, ui);
 		return ui;
 	},
 	addChild: function(config) {
 		var ui = config.element ? config : pykit.UI(config);
-		this._cells.push(ui);
+		this.$uis.push(ui);
 		return ui;
 	},
 	removeChild: function(id) {
 		if (id.element) {
 			this._html.removeChild(id._html);
-			this._cells.remove(id);
+			this.$uis.remove(id);
 		}
 		else if (pykit.isString(id)) {
 			this._html.removeChild(this.getChild(id)._html);
-			this._cells.removeWhere('id', id);
+			this.$uis.removeWhere('id', id);
 		}
 		else {
 			pykit.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
 		}
 	},
 	getChild: function(id) {
-		return this._cells.findOne('id', id);
+		return this.$uis.findOne('id', id);
 	},
 	getChildren: function() {
-		return this._cells;
+		return this.$uis;
 	},
 	getItems: function() {
-		return this._cells.each(function(item) {
+		return this.$uis.each(function(item) {
 			return item.config;
 		});
 	},
@@ -1301,7 +1300,7 @@ pykit.UI.flexgrid = pykit.defUI({
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
-		this._cells.each(function(item) {
+		this.$uis.each(function(item) {
 			if (value.indexOf(item.config[key]) != -1) {
 				if (item._html.parentNode != this._html || rerender) {
 					this._html.appendChild(item._html);
@@ -1423,6 +1422,7 @@ pykit.UI.modal = pykit.defUI({
 			value.halign = value.halign || "center";
             var innerBody = pykit.UI(value);
 			this.bodyContent = innerBody;
+			this.$uis.push(this.bodyContent);
 
 			if (this._footer.parentNode) {
 				this._body.insertBefore(innerBody._html, this._footer);
@@ -1437,6 +1437,7 @@ pykit.UI.modal = pykit.defUI({
 			var innerHeader = pykit.UI(value);
 			this._header.appendChild(innerHeader._html);
 			this.headerContent = innerHeader;
+			this.$uis.push(this.headerContent);
 			return value;
         },
         footer: function(value) {
@@ -1444,6 +1445,7 @@ pykit.UI.modal = pykit.defUI({
 			var innerFooter = pykit.UI(value);
 			this._footer.appendChild(innerFooter._html);
 			this.footerContent = innerFooter;
+			this.$uis.push(this.footerContent);
 			return value;
         },
 		caption: function(value) {
@@ -1970,6 +1972,7 @@ pykit.UI.dropdown = pykit.defUI({
 			dropdown.appendChild(ui._html);
 			this._html.appendChild(dropdown);
 			this._inner = ui;
+			this.$uis.push(this._inner);
 			return value;
 		}
 	},
@@ -2572,6 +2575,7 @@ pykit.UI.list = pykit.defUI({
 	_innerHTML: function(parentNode, config) {
 		if (config.view) {
 			var ui = pykit.UI(config);
+			this.$uis.push(ui);
 			parentNode.appendChild(ui._html);
 		}
 		else if (config.header) {
@@ -2581,6 +2585,7 @@ pykit.UI.list = pykit.defUI({
 		}
 		else {
 			var link = new pykit.UI.link(config);
+			this.$uis.push(link);
 			parentNode.appendChild(link._html);
 			this._addCloseHTML(link._html, config);
 		}
@@ -3003,6 +3008,7 @@ pykit.UI.form = pykit.defUI({
 					data: value
 				});
 				this._fieldset = ui;
+				this.$uis.push(this._fieldset);
 				this._html.appendChild(ui._html);
 				return value;
 			}
@@ -3062,6 +3068,7 @@ pykit.UI.fieldset = pykit.defUI({
 		else {
 			config.margin = config.margin || "";
 			var ui = pykit.UI(config);
+			this.$uis.push(ui);
 
 			if (config.formLabel) {
 				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
@@ -3103,17 +3110,17 @@ pykit.UI.fieldset = pykit.defUI({
 	getValues: function() {
 		var results = {};
 
-		var elements = this._html.form.elements;
+		var unprocessed = this.$uis.copy();
 
 		// Extract all children with `name` attributes, including nested flexgrid children.
-		var item, id;
-		for (var i=0; i<elements.length; i++) {
-			id = elements[i].id;
-			if (id) {
-				item = $$(id);
-				if (item && item.config && item.config.name) {
-					results[item.config.name] = item.getValue();
-				}
+		var ui;
+		while (unprocessed.length > 0) {
+			ui = unprocessed.pop();
+			if (ui && ui.config.name) {
+				results[ui.config.name] = ui.getValue();
+			}
+			else if (ui.$uis) {
+				unprocessed = unprocessed.concat(ui.$uis);
 			}
 		}
 
@@ -3122,17 +3129,16 @@ pykit.UI.fieldset = pykit.defUI({
 	setValues: function(config) {
 		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
 
-		var elements = this._html.form.elements;
+		var unprocessed = this.$uis.copy();
 
-		// Set all children with `name` attributes, including nested flexgrid children.
-		var item, id;
-		for (var i=0; i<elements.length; i++) {
-			id = elements[i].id;
-			if (id) {
-				item = $$(id);
-				if (item && item.config && item.config.name) {
-					item.setValue(config[item.name]);
-				}
+		var ui;
+		while (unprocessed.length > 0) {
+			ui = unprocessed.pop();
+			if (ui && pykit.isDefined(config[ui.config.name])) {
+				ui.setValue(config[ui.config.name]);
+			}
+			else if (ui.$uis) {
+				unprocessed = unprocessed.concat(ui.$uis);
 			}
 		}
 	}
