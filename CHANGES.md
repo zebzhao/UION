@@ -3,6 +3,11 @@ Pykit Changelog
 
 Here you can see the full list of changes between each Pykit release.
 
+Version 0.6.5
+-----------
+- added: `modal` contains all UIKit modal options (`bgclose`, etc...)
+- changed: better color scheme for buttons in almost-flat theme
+
 Version 0.6.4
 -----------
 - fix: `setValues` will ignore undefined values like before
