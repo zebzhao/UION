@@ -1374,6 +1374,7 @@ pykit.UI.modal = pykit.defUI({
         tagClass: "uk-modal",
         light: false,
 		closeButton: true,
+		bgClose: true,
 		flex: false,
 		center: true,
 		margin : "",
@@ -1457,9 +1458,10 @@ pykit.UI.modal = pykit.defUI({
 		}
 	},
 	open: function(args) {
-		this.dispatch("onOpen", [this._config, this._html, args]);
-		UIkit.modal('#' + this._config.id, {center: this._config.center}).show();
-		this.dispatch("onOpened", [this._config, this._html, args]);
+		var config = this._config;
+		this.dispatch("onOpen", [config, this._html, args]);
+		UIkit.modal('#' + config.id, {center: config.center, bgclose: config.bgClose}).show();
+		this.dispatch("onOpened", [config, this._html, args]);
 	},
 	close: function() {
 		UIkit.modal('#' + this._config.id).hide();
