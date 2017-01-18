@@ -1375,6 +1375,9 @@ pykit.UI.modal = pykit.defUI({
         light: false,
 		closeButton: true,
 		bgClose: true,
+		keyboard: true,
+		minScrollHeight: 150,
+		closeModals: true,
 		flex: false,
 		center: true,
 		margin : "",
@@ -1460,7 +1463,13 @@ pykit.UI.modal = pykit.defUI({
 	open: function(args) {
 		var config = this._config;
 		this.dispatch("onOpen", [config, this._html, args]);
-		UIkit.modal('#' + config.id, {center: config.center, bgclose: config.bgClose}).show();
+		UIkit.modal('#' + config.id, {
+			center: config.center,
+			bgclose: config.bgClose,
+			keyboard: config.keyboard,
+			modal: config.closeModals,
+			minScrollHeight: config.minScrollHeight
+		}).show();
 		this.dispatch("onOpened", [config, this._html, args]);
 	},
 	close: function() {
