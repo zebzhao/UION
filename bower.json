@@ -1,7 +1,7 @@
 {
   "name": "jikit",
   "version": "0.8.0",
-  "homepage": "https://github.com/zebzhao/Pykit",
+  "homepage": "https://github.com/zebzhao/JIkit",
   "dependencies": {
     "uikit": "uikit/uikit#^2.26.x",
     "jquery": "^2.x.x"
