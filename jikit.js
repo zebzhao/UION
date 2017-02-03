@@ -1,78 +1,78 @@
-window.pykit = {debug: true};
+var jikit = {debug: true};
 
-pykit.isArray = function(obj) {
+jikit.isArray = function(obj) {
 	return Array.isArray ? Array.isArray(obj) : (Object.prototype.toString.call(obj) == '[object Array]');
 };
 
-pykit.isString = function(obj) {
+jikit.isString = function(obj) {
 	return Object.prototype.toString.call(obj) == '[object String]';
 };
 
-pykit.isObject = function(obj) {
+jikit.isObject = function(obj) {
 	return Object.prototype.toString.call(obj) == '[object Object]';
 };
 
-pykit.isDefined = function(obj) {
+jikit.isDefined = function(obj) {
 	return obj !== undefined;
 };
 
-pykit.isUndefined = function(obj){
+jikit.isUndefined = function(obj){
 	return obj === undefined;
 };
 
-pykit.isNumber = function(obj) {
+jikit.isNumber = function(obj) {
 	return Object.prototype.toString.call(obj) == '[object Number]';
 };
 
-pykit.isBoolean = function(obj) {
+jikit.isBoolean = function(obj) {
 	return Object.prototype.toString.call(obj) == '[object Boolean]';
 };
 
-pykit.isFunction = function(obj) {
+jikit.isFunction = function(obj) {
 	return Object.prototype.toString.call(obj) == '[object Function]';
 };
 
-pykit.assert = function(cond, msg, details){
+jikit.assert = function(cond, msg, details){
 	if (!cond) {
-		if (details) pykit.log("debug", details);
-		pykit.fail(msg);
+		if (details) jikit.log("debug", details);
+		jikit.fail(msg);
 	}
 };
 
-pykit.fail = function(message){
-	pykit.log("error", message);
-	if (pykit.debug !== false) {
+jikit.fail = function(message){
+	jikit.log("error", message);
+	if (jikit.debug !== false) {
 		debugger;
 		throw new Error(message);
 	}
 };
 
-pykit.replaceString = function(str, obj) {
+jikit.replaceString = function(str, obj) {
 	var regex = /\{[^}]*}/gi;
 	return str.replace(regex, function(match) {
-		return pykit.selectors.property(match.substring(1, match.length-1))(obj);
+		return jikit.selectors.property(match.substring(1, match.length-1))(obj);
 	});
 };
 
-pykit.extend = function(target, src) {
+jikit.extend = function(target, src) {
 	for (var i in src) {
-		if (src.hasOwnProperty(i) && pykit.isDefined(src[i])) {
+		if (src.hasOwnProperty(i) && jikit.isDefined(src[i])) {
 			target[i] = src[i];
 		}
 	}
 	return target;
 };
 
-pykit.defaults = function(target, defaults) {
+jikit.defaults = function(target, defaults) {
 	for (var i in defaults) {
-		if (defaults.hasOwnProperty(i) && !pykit.isDefined(target[i])) {
+		if (defaults.hasOwnProperty(i) && !jikit.isDefined(target[i])) {
 			target[i] = defaults[i];
 		}
 	}
 	return target;
 };
 
-pykit.pluck = function(array, property) {
+jikit.pluck = function(array, property) {
     var result = [];
     for (var i = 0; i < array.length; i ++) {
         result.push(array[i][property])
@@ -80,53 +80,53 @@ pykit.pluck = function(array, property) {
     return result;
 };
 
-pykit.defUI = function(config) {
+jikit.defUI = function(config) {
 	var bases = Array.prototype.slice.call(arguments, 1);
-	var cls = pykit.class(config, bases);
-	pykit.UI[config.__name__] = cls;
+	var cls = jikit.class(config, bases);
+	jikit.UI[config.__name__] = cls;
 	return cls;
 };
 
-pykit.stringCSS = function(value) {
-	if (pykit.isArray(value)) {
+jikit.stringCSS = function(value) {
+	if (jikit.isArray(value)) {
 		var noDups = [];
 		for (var i=0; i<value.length; i++)
 			if (noDups.indexOf(value[i]) == -1)
 				noDups.push(value[i]);
 		return noDups.join(' ');
 	}
-	else if (pykit.isString(value)) {
+	else if (jikit.isString(value)) {
 		return value;
 	}
 	else return '';
 };
 
-pykit.stringTemplate = function(string, scope) {
-	return pykit.replaceString(string, scope);
+jikit.stringTemplate = function(string, scope) {
+	return jikit.replaceString(string, scope);
 };
 
-pykit.template = function(template, config, thisArg, parentNode) {
-	if (pykit.isFunction(template)) {
+jikit.template = function(template, config, thisArg, parentNode) {
+	if (jikit.isFunction(template)) {
 		parentNode.innerHTML = template.call(thisArg, config);
 	}
-	else if (pykit.isString(template)) {
-		parentNode.innerHTML = pykit.stringTemplate(template, config);
+	else if (jikit.isString(template)) {
+		parentNode.innerHTML = jikit.stringTemplate(template, config);
 	}
-	else if (pykit.isObject(template)) {
+	else if (jikit.isObject(template)) {
 		if (!template.$ui) {
-			template.$ui = pykit.UI(template);
+			template.$ui = jikit.UI(template);
 			thisArg.$uis.push(template.$ui);
 			parentNode.appendChild(template.$ui._html);
 		}
 	}
 	else {
-		pykit.assert(false, 'Unrecognized template!', config);
+		jikit.assert(false, 'Unrecognized template!', config);
 	}
 };
 
-pykit.class = function(config, bases) {
-	pykit.assert(config.__name__, "__name__ not defined.", config);
-	var compiled = pykit.extend({}, config);
+jikit.class = function(config, bases) {
+	jikit.assert(config.__name__, "__name__ not defined.", config);
+	var compiled = jikit.extend({}, config);
 	var init = config.__init__ ? [config.__init__] : [];
 	var after = config.__after__ ? [config.__after__] : [];
 	var $defaults = config.$defaults || {};
@@ -135,13 +135,13 @@ pykit.class = function(config, bases) {
 
 	var baseNames = [];
 	for (var j=0; j < bases.length; j++) {
-		pykit.assert(pykit.isDefined(bases[j]),
-			pykit.replaceString("Invalid extension source from {name}", {name: config.__name__}));
+		jikit.assert(jikit.isDefined(bases[j]),
+			jikit.replaceString("Invalid extension source from {name}", {name: config.__name__}));
 
 		if (bases[j].__name__) {
 			baseNames.push(bases[j].__name__);
 		}
-		else if (pykit.isFunction(bases[j])) {
+		else if (jikit.isFunction(bases[j])) {
 			baseNames.push(bases[j].prototype.__name__);
 			baseNames = baseNames.concat(bases[j].prototype.__base__);
 		}
@@ -149,7 +149,7 @@ pykit.class = function(config, bases) {
 
 	for (var base, i=0; i < bases.length; i++) {
 		base = bases[i];
-		if (pykit.isFunction(base)) {
+		if (jikit.isFunction(base)) {
             base = base.prototype;
         }
 		if (base.__check__) {
@@ -162,15 +162,15 @@ pykit.class = function(config, bases) {
 			after.push(base.__after__);
 		}
 		if (base.$defaults) {
-			pykit.defaults($defaults, base.$defaults);
+			jikit.defaults($defaults, base.$defaults);
 		}
 		if (base.$types) {
-			pykit.defaults($types, base.$types);
+			jikit.defaults($types, base.$types);
 		}
         if (base.$setters) {
-            pykit.defaults($setters, base.$setters);
+            jikit.defaults($setters, base.$setters);
         }
-		pykit.defaults(compiled, base);
+		jikit.defaults(compiled, base);
 	}
 
 	// Override special properties that are carried through the inheritance structure.
@@ -191,8 +191,8 @@ pykit.class = function(config, bases) {
 	compiled.$types = $types;
 	compiled.$setters = $setters;
 	var constructor = function(config){
-		pykit.defaults(config, this.$defaults);
-		pykit.defaults(this, config);
+		jikit.defaults(config, this.$defaults);
+		jikit.defaults(this, config);
 		this.template = config.template || this.template;
 		if (this.__init__) this.__init__(config);
 		if (this.__after__) this.__after__(config);
@@ -203,46 +203,46 @@ pykit.class = function(config, bases) {
 	return constructor;
 };
 
-pykit.echo = function(input) {
+jikit.echo = function(input) {
 	return function() {
 		return input;
 	}
 };
 
-pykit.bind = function(func, object){
+jikit.bind = function(func, object){
 	return function() {
 		return func.apply(object,arguments);
 	};
 };
 
-pykit.delay = function(func, obj, params, delay){
+jikit.delay = function(func, obj, params, delay){
 	return window.setTimeout(function(){
 		func.apply(obj, params);
 	}, delay || 1);
 };
 
-pykit.uid = function(){
+jikit.uid = function(){
 	if (!this._counter) this._counter = 0;
 	this._counter++;
 	return this._counter;
 };
 
-pykit.node = function(node) {
+jikit.node = function(node) {
     return typeof node == "string" ? document.getElementById(node) : node;
 };
 
-pykit._events = {};
-pykit.event = function(node, event, handler, master) {
-	pykit.assert(node, pykit.replaceString("Invalid node as target for {event} event", {event: event}));
-	pykit.assert(handler, pykit.replaceString("Invalid handler as target for {event} event", {event: event}));
-	node = pykit.node(node);
+jikit._events = {};
+jikit.event = function(node, event, handler, master) {
+	jikit.assert(node, jikit.replaceString("Invalid node as target for {event} event", {event: event}));
+	jikit.assert(handler, jikit.replaceString("Invalid handler as target for {event} event", {event: event}));
+	node = jikit.node(node);
 
-	var id = pykit.uid();
+	var id = jikit.uid();
 
 	if (master)
-		handler = pykit.bind(handler,master);
+		handler = jikit.bind(handler,master);
 		
-	pykit._events[id] = [node,event,handler];	//store event info, for detaching
+	jikit._events[id] = [node,event,handler];	//store event info, for detaching
 
 	// Not officially supporting, or going out of the way to support IE10-
 	node.addEventListener(event, handler);
@@ -250,18 +250,18 @@ pykit.event = function(node, event, handler, master) {
 	return id;
 };
 
-pykit.removeEvent = function(id){
+jikit.removeEvent = function(id){
 	if (!id) return;
-	pykit.assert(pykit._events[id], pykit.replaceString("Event with id {id} does not exist", {id: id}));
+	jikit.assert(jikit._events[id], jikit.replaceString("Event with id {id} does not exist", {id: id}));
 
-	var e = pykit._events[id];
+	var e = jikit._events[id];
 	e[0].removeEventListener(e[1], e[2]);
 		
-	delete pykit._events[id];
+	delete jikit._events[id];
 };
 
 
-pykit.log = function(type, message, explanation){
+jikit.log = function(type, message, explanation){
 	if (message === undefined){
 		message = type; type = "log";
 	}
@@ -273,7 +273,7 @@ pykit.log = function(type, message, explanation){
 };
 
 
-pykit.Dispatcher = {
+jikit.Dispatcher = {
     __name__: "Dispatcher",
 	__init__: function(config) {
         this._eventsByName = {};
@@ -297,11 +297,11 @@ pykit.Dispatcher = {
         }
 	},
 	addListener: function(name, func, id){
-		pykit.assert(func, "Invalid event handler for " + name);
+		jikit.assert(func, "Invalid event handler for " + name);
 
-        id = id || pykit.uid();
+        id = id || jikit.uid();
 
-		var handlers = this._eventsByName[name] || pykit.list();
+		var handlers = this._eventsByName[name] || jikit.list();
 		handlers.push(func);
 		this._eventsByName[name] = handlers;
 		this._eventsById[id]={ _func:func, _name:name };
@@ -326,7 +326,7 @@ pykit.Dispatcher = {
 };
 
 
-pykit.ListMethods = {
+jikit.ListMethods = {
 	removeAt:function(index){
 		if (index >= 0 && index < this.length) {
 			return this.splice(index, 1)[0];
@@ -372,7 +372,7 @@ pykit.ListMethods = {
 			}
 			else {i += 1;}
 		}
-		pykit.fail(pykit.replaceString("{key}: {value} cannot be removed in {array}",
+		jikit.fail(jikit.replaceString("{key}: {value} cannot be removed in {array}",
 			{key: key, value: value, array: this}));
 	},
 	indexWhere: function(key, value) {
@@ -398,7 +398,7 @@ pykit.ListMethods = {
 				return this[i];
 		}
 		if (error)
-			pykit.fail(pykit.replaceString("{key}: {value} not found in {array}",
+			jikit.fail(jikit.replaceString("{key}: {value} not found in {array}",
 				{key: key, value: value, array: this}));
 	},
 	copy: function() {
@@ -426,7 +426,7 @@ pykit.ListMethods = {
 				break;
 			}
 			else if (i > copy.length) {
-				pykit.fail("Infinite loop detected.");
+				jikit.fail("Infinite loop detected.");
 				break;  // Infinite loop detected.
 			}
 		}
@@ -482,12 +482,12 @@ pykit.ListMethods = {
 };
 
 
-pykit.list = function(array){
-	return pykit.extend((array || []), pykit.ListMethods);
+jikit.list = function(array){
+	return jikit.extend((array || []), jikit.ListMethods);
 };
 
 
-pykit.selectors = {
+jikit.selectors = {
 	property: function(name) {
 		var nested = name.split(".");
 		return function(obj) {
@@ -500,7 +500,7 @@ pykit.selectors = {
 };
 
 
-pykit.css = {
+jikit.css = {
 	flex: {
 		true: "uk-flex",
 		false: "",
@@ -656,7 +656,7 @@ pykit.css = {
 };
 
 
-pykit.html = {
+jikit.html = {
 	createElement:function(name,attrs,html){
 		attrs = attrs || {};
 		var node = document.createElement(name);
@@ -678,7 +678,7 @@ pykit.html = {
         e.cancelBubble=true;
 	},
 	addCSS: function(node, name) {
-		var classList = pykit.stringCSS(name).split(' ');
+		var classList = jikit.stringCSS(name).split(' ');
 		for (var cls,i=0; i<classList.length; i++) {
 			cls = classList[i];
 			if (cls) node.classList.add(cls);
@@ -694,24 +694,24 @@ pykit.html = {
 };
 
 
-pykit.ready = function(code){
-	if (pykit._ready) code.call();
-	else pykit._onload.push(code);
+jikit.ready = function(code){
+	if (jikit._ready) code.call();
+	else jikit._onload.push(code);
 };
-pykit._ready = false;
-pykit._onload = [];
+jikit._ready = false;
+jikit._onload = [];
 
 
 (function() {
 	var ready = function(){
-		pykit._ready = true;
+		jikit._ready = true;
 		document.body.setAttribute("data-uk-observe", "");
-		for (var i=0; i < pykit._onload.length; i++) {
-			pykit._onload[i]();
+		for (var i=0; i < jikit._onload.length; i++) {
+			jikit._onload[i]();
 		}
 
-		pykit._globalMouseUp = function(e) {
-			var dragged = pykit._dragged;
+		jikit._globalMouseUp = function(e) {
+			var dragged = jikit._dragged;
 			if (dragged) {
                 var display = dragged.node.style.display;
                 dragged.node.style.display = 'none';
@@ -725,47 +725,47 @@ pykit._onload = [];
                 }
 
 				dragged.target.dispatch("onItemDragEnd", [dragged.config, dragged.node, e]);
-				pykit.html.removeCSS(dragged.node, 'uk-active-drag');
+				jikit.html.removeCSS(dragged.node, 'uk-active-drag');
                 dragged.node.style.top = dragged.originalPos.top;
 				dragged.node.style.left = dragged.originalPos.left;
 				dragged.node.style.display= display;
-				pykit._dragged = null;
+				jikit._dragged = null;
 
 
 			}
-			pykit._selectedForDrag = null;
+			jikit._selectedForDrag = null;
 		};
 
-		pykit._globalMouseMove = function(e) {
-			var selectedForDrag = pykit._selectedForDrag;
+		jikit._globalMouseMove = function(e) {
+			var selectedForDrag = jikit._selectedForDrag;
 			var src = e.touches ? e.touches[0] : e;
 			if (selectedForDrag) {
-				if (Math.abs(src.clientX - selectedForDrag.pos.x) > pykit._dragThreshold ||
-					Math.abs(src.clientY - selectedForDrag.pos.y) > pykit._dragThreshold) {
+				if (Math.abs(src.clientX - selectedForDrag.pos.x) > jikit._dragThreshold ||
+					Math.abs(src.clientY - selectedForDrag.pos.y) > jikit._dragThreshold) {
 					// Begin drag event
-					pykit._dragged = selectedForDrag;
-					pykit._selectedForDrag = null;
-					pykit.html.addCSS(selectedForDrag.node, 'uk-active-drag');
+					jikit._dragged = selectedForDrag;
+					jikit._selectedForDrag = null;
+					jikit.html.addCSS(selectedForDrag.node, 'uk-active-drag');
 
 					// Fire drag listener event
 					selectedForDrag.target.dispatch("onItemDragStart",
 						[selectedForDrag.config, selectedForDrag.node, selectedForDrag.event]);
 				}
 			}
-			else if (pykit._dragged) {
-				var dragged = pykit._dragged;
+			else if (jikit._dragged) {
+				var dragged = jikit._dragged;
                 dragged.node.style.top = (src.clientY + dragged.mouseOffset.top) + 'px';
                 dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
 
                 var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
                 if (dropTarget && dropTarget.master._droppable(dropTarget.config, dragged.config, dragged.node)) {
-                    var oldDropTarget = pykit._dropTarget;
+                    var oldDropTarget = jikit._dropTarget;
                     if (oldDropTarget != dropTarget) {
                         if (oldDropTarget) {
                             oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTarget.config, oldDropTarget, e]);
                         }
                         dropTarget.master.dispatch('onItemDragEnter', [dropTarget.config, dropTarget, e]);
-                        pykit._dropTarget = dropTarget;
+                        jikit._dropTarget = dropTarget;
                     }
                     else if (oldDropTarget) {
                         oldDropTarget.master.dispatch('onItemDragOver', [oldDropTarget.config, oldDropTarget, e]);
@@ -774,14 +774,14 @@ pykit._onload = [];
             }
 		};
 
-		pykit._dragThreshold = 10;
+		jikit._dragThreshold = 10;
 
-		pykit.event(window, "mouseup", pykit._globalMouseUp);
-		pykit.event(window, "mousemove", pykit._globalMouseMove);
+		jikit.event(window, "mouseup", jikit._globalMouseUp);
+		jikit.event(window, "mousemove", jikit._globalMouseMove);
 
 		if (UIkit.support.touch) {
-			pykit.event(window, "touchend", pykit._globalMouseUp);
-			pykit.event(window, "touchmove", pykit._globalMouseMove);
+			jikit.event(window, "touchend", jikit._globalMouseUp);
+			jikit.event(window, "touchmove", jikit._globalMouseMove);
 		}
 
         function findDroppableParent(node) {
@@ -797,15 +797,15 @@ pykit._onload = [];
         }
 	};
 	if (document.readyState == "complete") ready();
-	else pykit.event(window, "load", ready);
+	else jikit.event(window, "load", ready);
 }());
 
 
-pykit.PropertySetter = {
+jikit.PropertySetter = {
     __name__: "PropertySetter",
     __check__: function(bases) {
-        pykit.assert(bases.indexOf("PropertySetter") == bases.length - 1,
-			pykit.replaceString("PropertySetter should be the last extension in {name}", {name: this.__name__}));
+        jikit.assert(bases.indexOf("PropertySetter") == bases.length - 1,
+			jikit.replaceString("PropertySetter should be the last extension in {name}", {name: this.__name__}));
     },
 	__init__: function(config){
 		this.config = config;
@@ -822,8 +822,8 @@ pykit.PropertySetter = {
     },
 	set: function(name, value){
         if (this.$setters.hasOwnProperty(name)) {
-            pykit.assert(pykit.isFunction(this.$setters[name]),
-                pykit.replaceString("Property setter for {name} is not a function.", {name: name}));
+            jikit.assert(jikit.isFunction(this.$setters[name]),
+                jikit.replaceString("Property setter for {name} is not a function.", {name: name}));
             this[name] = this.$setters[name].call(this, value);
 			this._config[name] = value;
 		}
@@ -835,15 +835,15 @@ pykit.PropertySetter = {
 
 
 
-pykit.ComplexDataSetter = {
+jikit.ComplexDataSetter = {
     __name__: "ComplexDataSetter",
     __check__: function(bases) {
         var iComplexDataSetter = bases.indexOf("ComplexDataSetter");
-        pykit.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
-        pykit.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
+        jikit.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
+        jikit.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
     },
     parse: function(value) {
-		pykit.assert(pykit.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
+		jikit.assert(jikit.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
 		this.clearAll();
 		for (var i=0; i<value.length; i++) {
 			this.add(value[i]);
@@ -853,7 +853,7 @@ pykit.ComplexDataSetter = {
 
 
 
-pykit.AbsolutePositionMethods = {
+jikit.AbsolutePositionMethods = {
 	positionNextTo: function(node, position, marginX, marginY) {
 		var origin = node.getBoundingClientRect();
 		var rect = this.getBoundingClientRect();
@@ -943,30 +943,30 @@ pykit.AbsolutePositionMethods = {
 
 
 
-pykit.UI = function (config, parent) {
+jikit.UI = function (config, parent) {
     var node = makeView(config);
-	pykit.assert(node, pykit.replaceString("Unknown node view {view}.", {view: config.view}), config);
+	jikit.assert(node, jikit.replaceString("Unknown node view {view}.", {view: config.view}), config);
 	if (parent)
 		parent.appendChild(node.element);
-    pykit.UI.views[config.id] = node;
+    jikit.UI.views[config.id] = node;
     return node;
 
 	function makeView(config) {
 		if (config.view){
 			var view = config.view;
-			pykit.assert(pykit.UI[view], "unknown view:"+view);
-			return new pykit.UI[view](config);
+			jikit.assert(jikit.UI[view], "unknown view:"+view);
+			return new jikit.UI[view](config);
 		}
 		else if (config.cells)
-			return new pykit.UI.flexgrid(config);
+			return new jikit.UI.flexgrid(config);
 		else
-			return new pykit.UI.element(config);
+			return new jikit.UI.element(config);
 	}
 };
 
 
 
-pykit.UI.uid = function(name){
+jikit.UI.uid = function(name){
 	this._names = this._names || {};
 	this._names[name] = this._names[name] || 0;
 	this._names[name]++;
@@ -975,15 +975,15 @@ pykit.UI.uid = function(name){
 
 
 
-pykit.UI.views = {};
-window.$$= pykit.$$ = function(id){
+jikit.UI.views = {};
+window.$$= jikit.$$ = function(id){
 	if (!id)
 		return null;
-	else if (pykit.UI.views[id])
-		return pykit.UI.views[id];
+	else if (jikit.UI.views[id])
+		return jikit.UI.views[id];
 };
 
-pykit.forIn = function(func, obj, thisArg) {
+jikit.forIn = function(func, obj, thisArg) {
 	var result = {};
 	for (var i in obj) {
 		if (obj.hasOwnProperty(i)) {
@@ -995,27 +995,27 @@ pykit.forIn = function(func, obj, thisArg) {
 
 
 
-pykit.setCSS = function(cssOptions) {
-	return pykit.forIn(function(options, property) {
+jikit.setCSS = function(cssOptions) {
+	return jikit.forIn(function(options, property) {
 		return function(value) {
 			var oldValue = this._config[property];
 			if (options[oldValue])
-				pykit.html.removeCSS(this._html, options[oldValue]);
+				jikit.html.removeCSS(this._html, options[oldValue]);
 
 			var values = String(value).split(" ");
 
 			for (var v, i=0; i < values.length; i++) {
 				v = values[i];
-				pykit.assert(options.hasOwnProperty(v),
-					pykit.replaceString("Invalid value for '{property}': '{value}'!",
+				jikit.assert(options.hasOwnProperty(v),
+					jikit.replaceString("Invalid value for '{property}': '{value}'!",
 						{property: property, value: v}));
 
 				var classes = options[v];
-				if (pykit.isArray(classes))
+				if (jikit.isArray(classes))
 					for (var c=0; c < classes.length; c++)
-						pykit.html.addCSS(this._html, classes[c]);
+						jikit.html.addCSS(this._html, classes[c]);
 				else
-					pykit.html.addCSS(this._html, classes);
+					jikit.html.addCSS(this._html, classes);
 			}
 
 			return value;
@@ -1024,39 +1024,39 @@ pykit.setCSS = function(cssOptions) {
 };
 
 
-pykit.CommonCSS = {
+jikit.CommonCSS = {
 	__name__: "CommonCSS",
 	__check__: function(bases) {
-		pykit.assert(bases.indexOf("CommonCSS") != -1, "CommonCSS is an abstract class.");
-		pykit.assert(bases.indexOf("PropertySetter") != -1, "CommonCSS must extend PropertySetter.");
+		jikit.assert(bases.indexOf("CommonCSS") != -1, "CommonCSS is an abstract class.");
+		jikit.assert(bases.indexOf("PropertySetter") != -1, "CommonCSS must extend PropertySetter.");
 	},
-	$setters: pykit.setCSS(pykit.css)
+	$setters: jikit.setCSS(jikit.css)
 };
 
 
 
-pykit.CommonEvents = {
+jikit.CommonEvents = {
 	__name__: "CommonEvents",
 	__after__: function(config) {
 		var $this = this;
 		if (config.on) {
 			if (config.on.onResize) {
-				pykit.event(window, "resize", function(e) {
+				jikit.event(window, "resize", function(e) {
 					this.dispatch("onResize", [e]);
 				}, $this);
 			}
 			if (config.on.onDebounceResize) {
-				pykit.event(window, "resize", UIkit.Utils.debounce(function(e) {
+				jikit.event(window, "resize", UIkit.Utils.debounce(function(e) {
 					$this.dispatch("onDebounceResize", [e]);
 				}, 1000));
 			}
 			if (config.on.onFocus) {
-				pykit.event(this._html, "focus", function(e) {
+				jikit.event(this._html, "focus", function(e) {
 					this.dispatch("onFocus", [e]);
 				}, $this);
 			}
 			if (config.on.onBlur) {
-				pykit.event(this._html, "blur", function(e) {
+				jikit.event(this._html, "blur", function(e) {
 					this.dispatch("onBlur", [e]);
 				}, $this);
 			}
@@ -1066,7 +1066,7 @@ pykit.CommonEvents = {
 
 
 
-pykit.UI.element = pykit.defUI({
+jikit.UI.element = jikit.defUI({
 	__name__: "element",
 	$defaults: {
 		tooltipPos: 'bottom',
@@ -1088,18 +1088,18 @@ pykit.UI.element = pykit.defUI({
 			return value;
 		},
 		css: function(value){
-			pykit.html.addCSS(this._html, pykit.stringCSS(value));
+			jikit.html.addCSS(this._html, jikit.stringCSS(value));
 			return value;
 		},
 		tooltip: function(value) {
 			if (value) {
 				this._html.setAttribute("data-uk-tooltip", "");
 				this._html.setAttribute("title", value);
-				this._html.setAttribute("data-uk-tooltip", '{' + pykit.replaceString("pos: '{pos}'" + '}',
+				this._html.setAttribute("data-uk-tooltip", '{' + jikit.replaceString("pos: '{pos}'" + '}',
 					{pos: this._config.tooltipPos}));
 			}
 			else
-				pykit.html.removeCSS(this._html, "data-uk-tooltip");
+				jikit.html.removeCSS(this._html, "data-uk-tooltip");
 
 			return value;
 		},
@@ -1114,7 +1114,7 @@ pykit.UI.element = pykit.defUI({
 				dropdown: value
 			};
 
-			var ui = pykit.UI(dropdown, document.body);
+			var ui = jikit.UI(dropdown, document.body);
 
 			this._config.on = masterConfig.on || {};
 			this.addListener(masterConfig.dropdownEvent, function(config, node, e) {
@@ -1127,30 +1127,30 @@ pykit.UI.element = pykit.defUI({
 		},
 		inline: function(value) {
 			if (value)
-				pykit.html.addCSS(this._html, "uk-display-inline");
+				jikit.html.addCSS(this._html, "uk-display-inline");
 		},
 		uploader: function(value) {
 			if (value) {
 				// Must allow default events to open uploader
 				this._config.$preventDefault = false;
 				// Add css to mock a file input
-				pykit.html.addCSS(this._html, "uk-form-file");
+				jikit.html.addCSS(this._html, "uk-form-file");
 				this._html.appendChild(this._uploadFileHTML());
 			}
 			return value;
 		}
 	},
 	__init__: function(config){
-		if (!config.id) config.id = pykit.UI.uid(this.__name__);
-		var node = pykit.node(config.id);
-		pykit.assert(!node, pykit.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
+		if (!config.id) config.id = jikit.UI.uid(this.__name__);
+		var node = jikit.node(config.id);
+		jikit.assert(!node, jikit.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
 
-		this.$uis = pykit.list();
-		this.element = this._html = pykit.html.createElement(config.htmlTag || "DIV", {id: config.id});
+		this.$uis = jikit.list();
+		this.element = this._html = jikit.html.createElement(config.htmlTag || "DIV", {id: config.id});
 		if (config.tagClass)
 			this.element.setAttribute("class", config.tagClass);
 
-		pykit.extend(this._html.style, {
+		jikit.extend(this._html.style, {
 			top: config.top, bottom: config.bottom, left: config.left, right: config.right,
 			width: config.width, height: config.height, minHeight: config.minHeight, maxHeight: config.maxHeight,
 			minWidth: config.minWidth, maxWidth: config.maxWidth,
@@ -1160,7 +1160,7 @@ pykit.UI.element = pykit.defUI({
 		this.render();
 	},
     render: function() {
-        pykit.template(this.template, this._config, this, this._html);
+        jikit.template(this.template, this._config, this, this._html);
     },
     template: function() {
         return ""
@@ -1169,19 +1169,19 @@ pykit.UI.element = pykit.defUI({
 		return this._html;
 	},
 	isVisible: function(){
-		return !pykit.html.hasCSS(this._html, "uk-hidden");
+		return !jikit.html.hasCSS(this._html, "uk-hidden");
 	},
 	show:function(){
-		pykit.html.removeCSS(this._html, "uk-hidden");
+		jikit.html.removeCSS(this._html, "uk-hidden");
 	},
 	hide:function(){
-		pykit.html.addCSS(this._html, "uk-hidden");
+		jikit.html.addCSS(this._html, "uk-hidden");
 	},
 	conceal: function() {
-		pykit.html.addCSS(this._html, "uk-invisible");
+		jikit.html.addCSS(this._html, "uk-invisible");
 	},
 	reveal: function() {
-		pykit.html.removeCSS(this._html, "uk-invisible");
+		jikit.html.removeCSS(this._html, "uk-invisible");
 	},
 	isEnabled:function(){
 		return !this._html.getAttribute('disabled');
@@ -1196,7 +1196,7 @@ pykit.UI.element = pykit.defUI({
 		var config = this._config;
 		var self = this;
 		
-		var settings = pykit.extend({
+		var settings = jikit.extend({
 			type: 'json',
 			before: function(settings, files) {
 				self.dispatch("onFilesAdded", [settings, files]);
@@ -1205,16 +1205,16 @@ pykit.UI.element = pykit.defUI({
 		}, config.uploadOptions);
 
 		var attrs = settings.filelimit > 1 ? {type: "file", multiple: "multiple"} : {type: "file"};
-		var input = pykit.html.createElement("INPUT", attrs);
+		var input = jikit.html.createElement("INPUT", attrs);
 		UIkit.uploadSelect(input, settings);
 
 		return input;
 	}
-}, pykit.Dispatcher, pykit.CommonEvents, pykit.CommonCSS, pykit.PropertySetter);
+}, jikit.Dispatcher, jikit.CommonEvents, jikit.CommonCSS, jikit.PropertySetter);
 
 
 
-pykit.UI.flexgrid = pykit.defUI({
+jikit.UI.flexgrid = jikit.defUI({
 	__name__: "flexgrid",
 	$defaults: {
 		layout: "row",
@@ -1224,13 +1224,13 @@ pykit.UI.flexgrid = pykit.defUI({
 	},
 	$setters: {
 		cells: function(value) {
-			pykit.assert(pykit.isArray(value), "The cells property must be an array for shell ui object.", this);
+			jikit.assert(jikit.isArray(value), "The cells property must be an array for shell ui object.", this);
 
 			for (var config,i=0; i<value.length; i++) {
 				config = value[i];
 				config.margin = config.margin || "";
 
-				var ui = pykit.UI(config);
+				var ui = jikit.UI(config);
 				if (!this._config.singleView)
 					this._html.appendChild(ui._html);
 				this.$uis.push(ui);
@@ -1249,12 +1249,12 @@ pykit.UI.flexgrid = pykit.defUI({
 		return this.$uis.each(func, thisArg);
 	},
 	insertChild: function(index, config) {
-		var ui = config.element ? config : pykit.UI(config);
+		var ui = config.element ? config : jikit.UI(config);
 		this.$uis.splice(index, 0, ui);
 		return ui;
 	},
 	addChild: function(config) {
-		var ui = config.element ? config : pykit.UI(config);
+		var ui = config.element ? config : jikit.UI(config);
 		this.$uis.push(ui);
 		return ui;
 	},
@@ -1263,12 +1263,12 @@ pykit.UI.flexgrid = pykit.defUI({
 			this._html.removeChild(id._html);
 			this.$uis.remove(id);
 		}
-		else if (pykit.isString(id)) {
+		else if (jikit.isString(id)) {
 			this._html.removeChild(this.getChild(id)._html);
 			this.$uis.removeWhere('id', id);
 		}
 		else {
-			pykit.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
+			jikit.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
 		}
 	},
 	getChild: function(id) {
@@ -1296,7 +1296,7 @@ pykit.UI.flexgrid = pykit.defUI({
 		 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
 		 * However, to preserve the order of elements, will need to rerender.
 		 */
-		this._setVisible('batch', pykit.isArray(name) ? name : [name], preserveOrder);
+		this._setVisible('batch', jikit.isArray(name) ? name : [name], preserveOrder);
 		this.batch = name;
 	},
 	_setVisible: function(key, value, rerender) {
@@ -1311,11 +1311,11 @@ pykit.UI.flexgrid = pykit.defUI({
 			}
 		}, this);
 	}
-}, pykit.UI.element);
+}, jikit.UI.element);
 
 
 
-pykit.ClickEvents = {
+jikit.ClickEvents = {
 	$setters: {
 		target: function(value) {
 			this._html.setAttribute("target", value);
@@ -1328,39 +1328,39 @@ pykit.ClickEvents = {
 	},
 	__after__: function(config){
 		config.on = config.on || {};
-		pykit.event(this._html, "click", this._onClick, this);
-		pykit.event(this._html, "contextmenu", this._onContext, this);
+		jikit.event(this._html, "click", this._onClick, this);
+		jikit.event(this._html, "contextmenu", this._onContext, this);
 
 		// Optimization: these rarely get used.
 		if (config.on.onMouseDown) {
-			pykit.event(this._html, "mousedown", this._onMouseDown, this);
+			jikit.event(this._html, "mousedown", this._onMouseDown, this);
 		}
 		if (config.on.onMouseUp) {
-			pykit.event(this._html, "mouseup", this._onMouseUp, this);
+			jikit.event(this._html, "mouseup", this._onMouseUp, this);
 		}
 	},
 	_onClick: function(e){
 		if (this._config.$preventDefault !== false) {
-			pykit.html.preventEvent(e);
+			jikit.html.preventEvent(e);
 		}
         this.dispatch("onClick", [this._config, this._html, e]);
 	},
 	_onMouseDown: function(e){
 		if (this._config.$preventDefault !== false) {
-			pykit.html.preventEvent(e);
+			jikit.html.preventEvent(e);
 		}
 		this.dispatch("onMouseDown", [this._config, this._html, e]);
 	},
 	_onMouseUp: function(e){
 		this.dispatch("onMouseUp", [this._config, this._html, e]);
 		if (this._config.$preventDefault !== false) {
-			pykit._globalMouseUp(e);
-			pykit.html.preventEvent(e);
+			jikit._globalMouseUp(e);
+			jikit.html.preventEvent(e);
 		}
 	},
 	_onContext: function(e) {
 		if (this._config.$preventDefault !== false) {
-			pykit.html.preventEvent(e);
+			jikit.html.preventEvent(e);
 		}
         this.dispatch("onContext", [this._config, this._html, e]);
 	}
@@ -1368,12 +1368,16 @@ pykit.ClickEvents = {
 
 
 
-pykit.UI.modal = pykit.defUI({
+jikit.UI.modal = jikit.defUI({
 	__name__: "modal",
     $defaults: {
         tagClass: "uk-modal",
         light: false,
 		closeButton: true,
+		bgClose: true,
+		keyboard: true,
+		minScrollHeight: 150,
+		closeModals: true,
 		flex: false,
 		center: true,
 		margin : "",
@@ -1381,9 +1385,9 @@ pykit.UI.modal = pykit.defUI({
 		layout: ""
     },
 	__init__: function(config) {
-		this.header = this._header = pykit.html.createElement("DIV", {class: "uk-modal-header"});
-		this.footer = this._footer = pykit.html.createElement("DIV", {class: "uk-modal-footer"});
-		this.body = this._body = pykit.html.createElement("DIV", {class: "uk-modal-dialog"});
+		this.header = this._header = jikit.html.createElement("DIV", {class: "uk-modal-header"});
+		this.footer = this._footer = jikit.html.createElement("DIV", {class: "uk-modal-footer"});
+		this.body = this._body = jikit.html.createElement("DIV", {class: "uk-modal-dialog"});
 		this._html.appendChild(this._body);
 		if (config.header) this._body.appendChild(this._header);
 		if (config.footer) this._body.appendChild(this._footer);
@@ -1391,22 +1395,22 @@ pykit.UI.modal = pykit.defUI({
 	$setters: {
         light: function(value) {
             if (value)
-                pykit.html.addCSS(this._html, "uk-modal-dialog-lightbox");
+                jikit.html.addCSS(this._html, "uk-modal-dialog-lightbox");
 			return value;
         },
 		bodyWidth: function(value) {
-			value = pykit.isNumber(value) ? value + "px": value;
+			value = jikit.isNumber(value) ? value + "px": value;
 			this._body.style.width = value;
 			return value;
 		},
 		bodyHeight: function(value) {
-			value = pykit.isNumber(value) ? value + "px": value;
+			value = jikit.isNumber(value) ? value + "px": value;
 			this._body.style.height = value;
 			return value;
 		},
         closeButton: function(value) {
 			if (value) {
-				this._close = pykit.html.createElement("A",
+				this._close = jikit.html.createElement("A",
 					{class: "uk-modal-close uk-close"});
 				if (this._body.firstChild) {
 					this._body.insertBefore(this._close, this._body.firstChild);
@@ -1420,7 +1424,7 @@ pykit.UI.modal = pykit.defUI({
         body: function(value) {
 			value.margin = value.margin || "";
 			value.halign = value.halign || "center";
-            var innerBody = pykit.UI(value);
+            var innerBody = jikit.UI(value);
 			this.bodyContent = innerBody;
 			this.$uis.push(this.bodyContent);
 
@@ -1434,7 +1438,7 @@ pykit.UI.modal = pykit.defUI({
         },
         header: function(value) {
 			value.margin = value.margin || "";
-			var innerHeader = pykit.UI(value);
+			var innerHeader = jikit.UI(value);
 			this._header.appendChild(innerHeader._html);
 			this.headerContent = innerHeader;
 			this.$uis.push(this.headerContent);
@@ -1442,7 +1446,7 @@ pykit.UI.modal = pykit.defUI({
         },
         footer: function(value) {
 			value.margin = value.margin || "";
-			var innerFooter = pykit.UI(value);
+			var innerFooter = jikit.UI(value);
 			this._footer.appendChild(innerFooter._html);
 			this.footerContent = innerFooter;
 			this.$uis.push(this.footerContent);
@@ -1450,25 +1454,32 @@ pykit.UI.modal = pykit.defUI({
         },
 		caption: function(value) {
 			if (!this._caption)
-				this._caption = pykit.html.createElement("DIV", {class: "uk-modal-caption"});
+				this._caption = jikit.html.createElement("DIV", {class: "uk-modal-caption"});
 			this._caption.innerHTML = value;
 			this._body.appendChild(this._caption);
 			return value;
 		}
 	},
 	open: function(args) {
-		this.dispatch("onOpen", [this._config, this._html, args]);
-		UIkit.modal('#' + this._config.id, {center: this._config.center}).show();
-		this.dispatch("onOpened", [this._config, this._html, args]);
+		var config = this._config;
+		this.dispatch("onOpen", [config, this._html, args]);
+		UIkit.modal('#' + config.id, {
+			center: config.center,
+			bgclose: config.bgClose,
+			keyboard: config.keyboard,
+			modal: config.closeModals,
+			minScrollHeight: config.minScrollHeight
+		}).show();
+		this.dispatch("onOpened", [config, this._html, args]);
 	},
 	close: function() {
 		UIkit.modal('#' + this._config.id).hide();
 	}
-}, pykit.UI.flexgrid);
+}, jikit.UI.flexgrid);
 
 
 
-pykit.UI.button = pykit.defUI({
+jikit.UI.button = jikit.defUI({
 	__name__:"button",
 	$defaults: {
 		label: "",
@@ -1476,7 +1487,7 @@ pykit.UI.button = pykit.defUI({
         tagClass: "uk-button",
 		iconSize: "small"
 	},
-	$setters: pykit.setCSS({
+	$setters: jikit.setCSS({
 		type: {
 			primary: "uk-button-primary",
 			success: "uk-button-success",
@@ -1498,27 +1509,27 @@ pykit.UI.button = pykit.defUI({
 	}),
     template: function(config) {
 		if (config.type  == "icon")
-			return pykit.replaceString("<i class='{icon} uk-icon-{iconSize}'></i><span>{label}</span>",
+			return jikit.replaceString("<i class='{icon} uk-icon-{iconSize}'></i><span>{label}</span>",
 				{icon: config.icon, label: config.label, iconSize: config.iconSize});
         else
-			return pykit.replaceString("<span>{label}</span>", {label: config.label});
+			return jikit.replaceString("<span>{label}</span>", {label: config.label});
     },
 	select: function() {
 		this._config.$selected = true;
-		pykit.html.addCSS(this._html, "uk-active");
+		jikit.html.addCSS(this._html, "uk-active");
 	},
 	isSelected: function() {
 		return !!this._config.$selected;
 	},
 	unselect: function() {
 		this._config.$selected = false;
-		pykit.html.removeCSS(this._html, "uk-active");
+		jikit.html.removeCSS(this._html, "uk-active");
 	}
-}, pykit.ClickEvents, pykit.UI.element);
+}, jikit.ClickEvents, jikit.UI.element);
 
 
 
-pykit.UI.icon = pykit.defUI({
+jikit.UI.icon = jikit.defUI({
 	__name__:"icon",
 	$defaults:{
 		htmlTag: "A",
@@ -1532,20 +1543,20 @@ pykit.UI.icon = pykit.defUI({
 			config.tagClass = "uk-icon-button";
 	},
 	template:function(config){
-		return pykit.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
+		return jikit.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
 			{icon: config.icon, iconSize: config.iconSize, content: config.content});
 	}
-}, pykit.ClickEvents, pykit.UI.element);
+}, jikit.ClickEvents, jikit.UI.element);
 
 
 
-pykit.UI.label = pykit.defUI({
+jikit.UI.label = jikit.defUI({
 	__name__:"label",
 	$defaults: {
 		label: "",
 		htmlTag: "SPAN"
 	},
-	$setters: pykit.setCSS({
+	$setters: jikit.setCSS({
 		type: {
 			form: "uk-form-label",
 			"": ""
@@ -1561,11 +1572,11 @@ pykit.UI.label = pykit.defUI({
 		this._config.label = value;
 		this.render();
 	}
-}, pykit.UI.element);
+}, jikit.UI.element);
 
 
 
-pykit.UI.link = pykit.defUI({
+jikit.UI.link = jikit.defUI({
 	__name__:"link",
 	$defaults: {
 		label: "",
@@ -1576,11 +1587,11 @@ pykit.UI.link = pykit.defUI({
 	template:function(config){
 		return config.label;
 	}
-}, pykit.ClickEvents, pykit.UI.element);
+}, jikit.ClickEvents, jikit.UI.element);
 
 
 
-pykit.UI.progress = pykit.defUI({
+jikit.UI.progress = jikit.defUI({
 	__name__:"progress",
 	$defaults: {
 		htmlTag: "DIV",
@@ -1588,7 +1599,7 @@ pykit.UI.progress = pykit.defUI({
 		margin: "none",
 		position: "top z-index"
 	},
-	$setters: pykit.setCSS({
+	$setters: jikit.setCSS({
 		size: {
 			mini: "uk-progress-mini",
 			small: "uk-progress-small",
@@ -1604,24 +1615,24 @@ pykit.UI.progress = pykit.defUI({
 	}),
 	render: function() {},
 	__init__: function() {
-		this._bar = pykit.html.createElement("DIV", {class: "uk-progress-bar"});
+		this._bar = jikit.html.createElement("DIV", {class: "uk-progress-bar"});
 		this._html.appendChild(this._bar);
 	},
 	getValue: function() {
 		return this._progress;
 	},
 	setValue: function(value) {
-		pykit.assert(pykit.isNumber(value), "Progress value should be a number.");
+		jikit.assert(jikit.isNumber(value), "Progress value should be a number.");
 
 		var $this = this;
 		$this._bar.style.width = value + '%';
 		$this._progress = value;
 	}
-}, pykit.UI.element);
+}, jikit.UI.element);
 
 
 
-pykit.UI.image = pykit.defUI({
+jikit.UI.image = jikit.defUI({
 	__name__:"image",
 	$defaults: {
 		htmlTag: "IMG",
@@ -1635,16 +1646,16 @@ pykit.UI.image = pykit.defUI({
 		}
 	},
 	__after__: function() {
-		pykit.event(this._html, "load", function(e) {
+		jikit.event(this._html, "load", function(e) {
 			this.dispatch("onLoad", [e])
 		}, this);
 	}
-}, pykit.ClickEvents, pykit.UI.element);
+}, jikit.ClickEvents, jikit.UI.element);
 
 
 
-pykit.FormControl = {
-	$setters: pykit.extend(pykit.setCSS(
+jikit.FormControl = {
+	$setters: jikit.extend(jikit.setCSS(
 		{
 			class: {
 				success: "uk-form-success",
@@ -1664,10 +1675,10 @@ pykit.FormControl = {
 				}
 				if (value) {
 					if (this._config.inline) {
-						this.help = pykit.html.createElement("SPAN", {class: "uk-form-help-inline"});
+						this.help = jikit.html.createElement("SPAN", {class: "uk-form-help-inline"});
 					}
 					else {
-						this.help = pykit.html.createElement("P", {class: "uk-form-help-block"});
+						this.help = jikit.html.createElement("P", {class: "uk-form-help-block"});
 					}
 					this.help.innerHTML = value;
 					this.getFormControl().parentNode.appendChild(this.help);
@@ -1691,7 +1702,7 @@ pykit.FormControl = {
 			},
 			type: function (value) {
 				this.getFormControl().setAttribute("type", value);
-				pykit.html.addCSS(this.getFormControl(), "uk-vertical-align-middle");
+				jikit.html.addCSS(this.getFormControl(), "uk-vertical-align-middle");
 				return value;
 			},
 			value: function (value) {
@@ -1712,31 +1723,31 @@ pykit.FormControl = {
 		var formControl = this.getFormControl();
 		switch(value) {
 			case "success":
-				pykit.html.removeCSS(formControl, "uk-form-danger");
-				pykit.html.addCSS(formControl, "uk-form-success");
+				jikit.html.removeCSS(formControl, "uk-form-danger");
+				jikit.html.addCSS(formControl, "uk-form-success");
 				break;
 			case "danger":
-				pykit.html.addCSS(formControl, "uk-form-danger");
-				pykit.html.removeCSS(formControl, "uk-form-success");
+				jikit.html.addCSS(formControl, "uk-form-danger");
+				jikit.html.removeCSS(formControl, "uk-form-success");
 				break;
 			default:
-				pykit.html.removeCSS(formControl, "uk-form-danger");
-				pykit.html.removeCSS(formControl, "uk-form-success");
+				jikit.html.removeCSS(formControl, "uk-form-danger");
+				jikit.html.removeCSS(formControl, "uk-form-success");
 		}
 		var helpControl = this.help;
 		if (helpControl) {
 			switch(value) {
 				case "success":
-					pykit.html.removeCSS(helpControl, "uk-text-danger");
-					pykit.html.addCSS(helpControl, "uk-text-success");
+					jikit.html.removeCSS(helpControl, "uk-text-danger");
+					jikit.html.addCSS(helpControl, "uk-text-success");
 					break;
 				case "danger":
-					pykit.html.addCSS(helpControl, "uk-text-danger");
-					pykit.html.removeCSS(helpControl, "uk-text-success");
+					jikit.html.addCSS(helpControl, "uk-text-danger");
+					jikit.html.removeCSS(helpControl, "uk-text-success");
 					break;
 				default:
-					pykit.html.removeCSS(helpControl, "uk-text-danger");
-					pykit.html.removeCSS(helpControl, "uk-text-success");
+					jikit.html.removeCSS(helpControl, "uk-text-danger");
+					jikit.html.removeCSS(helpControl, "uk-text-success");
 			}
 		}
 	},
@@ -1758,20 +1769,20 @@ pykit.FormControl = {
 };
 
 
-pykit.UI.toggle = pykit.defUI({
+jikit.UI.toggle = jikit.defUI({
 	__name__: "toggle",
 	$defaults: {
 		htmlTag: "LABEL",
 		tagClass: "uk-toggle"
 	},
 	__after__: function() {
-		pykit.event(this._html, "change", this._onChange, this);
+		jikit.event(this._html, "change", this._onChange, this);
 	},
 	_onChange: function () {
 		this.dispatch("onChange");
 	},
 	template: function(config) {
-		return pykit.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
+		return jikit.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
 			{checked: config.checked ? " checked" : ""});
 	},
 	reset: function() {
@@ -1789,10 +1800,10 @@ pykit.UI.toggle = pykit.defUI({
 	setValue: function(value) {
 		this._html.firstChild.checked = value;
 	}
-}, pykit.UI.element);
+}, jikit.UI.element);
 
 
-pykit.UI.input = pykit.defUI({
+jikit.UI.input = jikit.defUI({
 	__name__: "input",
 	$defaults: {
 		htmlTag: "INPUT",
@@ -1809,8 +1820,8 @@ pykit.UI.input = pykit.defUI({
 		}
 	},
 	__after__: function() {
-		pykit.event(this._html, "change", this._onChange, this);
-		pykit.event(this._html, "keyup", function (e) {
+		jikit.event(this._html, "change", this._onChange, this);
+		jikit.event(this._html, "keyup", function (e) {
 			this.dispatch("onKeyUp", [e, this._html, this]);
 		}, this);
 	},
@@ -1842,11 +1853,11 @@ pykit.UI.input = pykit.defUI({
 		}
 		else this.getFormControl().value = value;
 	}
-}, pykit.FormControl, pykit.UI.element);
+}, jikit.FormControl, jikit.UI.element);
 
 
 
-pykit.UI.password = pykit.defUI({
+jikit.UI.password = jikit.defUI({
 	__name__: "password",
 	$defaults: {
 		tagClass: "uk-form-password",
@@ -1859,7 +1870,7 @@ pykit.UI.password = pykit.defUI({
 		}
 	},
 	__after__: function() {
-		pykit.event(this._html, "change", this._onChange, this);
+		jikit.event(this._html, "change", this._onChange, this);
 	},
 	_onChange: function() {
 		this.dispatch("onChange", [this.getValue()]);
@@ -1868,11 +1879,11 @@ pykit.UI.password = pykit.defUI({
 		return this._html.firstChild;
 	},
 	template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
-}, pykit.FormControl, pykit.UI.element);
+}, jikit.FormControl, jikit.UI.element);
 
 
 
-pykit.defUI({
+jikit.defUI({
 	__name__: "autocomplete",
 	$defaults: {
 		tagClass: "uk-autocomplete",
@@ -1885,7 +1896,7 @@ pykit.defUI({
 			var config = this._config;
 			if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
 
-			release(pykit.ListMethods.filter.call(this._getSource(),
+			release(jikit.ListMethods.filter.call(this._getSource(),
 				function(item) {
 					var value = config.caseSensitive ? item.value : item.value.toLowerCase();
 					return value.indexOf(searchValue) != -1;
@@ -1894,17 +1905,17 @@ pykit.defUI({
 	},
 	$setters: {
 		sources: function(value) {
-			if (pykit.isFunction(value))
+			if (jikit.isFunction(value))
 				this._getSource = value;
 			else
-				this._getSource = pykit.echo(value);
+				this._getSource = jikit.echo(value);
 			return value;
 		},
 		autocomplete: function(value) {
 			var self = this;
 			this._html.style.wordBreak = "break-word";
 			self._autocomplete = UIkit.autocomplete(self._html,
-				{source: pykit.bind(value, self), minLength: self._config.minLength});
+				{source: jikit.bind(value, self), minLength: self._config.minLength});
 			self._autocomplete.dropdown.attr("style", "width:100%");
 			self._autocomplete.on("selectitem.uk.autocomplete", function(e, obj) {
 				self.dispatch("onChange", [obj.value]);
@@ -1913,23 +1924,23 @@ pykit.defUI({
 		}
 	},
 	template: function(config) {
-		return pykit.replaceString(
+		return jikit.replaceString(
 			'<input type="text" placeholder="{placeholder}" style="width:100%">',
 			{placeholder: config.placeholder});
 	}
-}, pykit.UI.password);
+}, jikit.UI.password);
 
 
 
-pykit.UI.search = pykit.defUI({
+jikit.UI.search = jikit.defUI({
 	__name__:"search",
 	$defaults: {
 		tagClass: "uk-search",
 		placeholder: "search..."
 	},
 	__after__: function() {
-		pykit.event(this._html, "change", this._onChange, this);
-		pykit.event(this._html, "keyup", function (e) {
+		jikit.event(this._html, "change", this._onChange, this);
+		jikit.event(this._html, "keyup", function (e) {
 			this.dispatch("onKeyUp", [e, this._html, this]);
 		}, this);
 	},
@@ -1940,14 +1951,14 @@ pykit.UI.search = pykit.defUI({
 		return this._html.firstChild;
 	},
 	template: function(obj) {
-		return pykit.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
+		return jikit.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
 			{placeholder: obj.placeholder})
 	}
-}, pykit.FormControl, pykit.UI.element);
+}, jikit.FormControl, jikit.UI.element);
 
 
 
-pykit.UI.dropdown = pykit.defUI({
+jikit.UI.dropdown = jikit.defUI({
 	__name__: "dropdown",
 	$defaults: {
 		mode: "click",
@@ -1961,14 +1972,14 @@ pykit.UI.dropdown = pykit.defUI({
 	},
 	$setters: {
 		dropdown: function (value) {
-			var dropdown = pykit.html.createElement("DIV",
-				{class:  pykit.stringCSS(this._dropdownCSS())});
+			var dropdown = jikit.html.createElement("DIV",
+				{class:  jikit.stringCSS(this._dropdownCSS())});
 
 			if (!value.listStyle) {
 				value.listStyle = "dropdown";
 			}
 
-			var ui = pykit.UI(value);
+			var ui = jikit.UI(value);
 			dropdown.appendChild(ui._html);
 			this._html.appendChild(dropdown);
 			this._inner = ui;
@@ -1990,7 +2001,7 @@ pykit.UI.dropdown = pykit.defUI({
 		return this._html.firstChild.getBoundingClientRect();
 	},
 	isOpened: function() {
-		return pykit.html.hasCSS(this._html, 'uk-open');
+		return jikit.html.hasCSS(this._html, 'uk-open');
 	},
 	open: function(config, node, parent, e) {
 		this.dispatch("onOpen", [config, node, this]);
@@ -2012,20 +2023,20 @@ pykit.UI.dropdown = pykit.defUI({
 		// Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
 		// Adding a delay helps close dropdowns properly on Chrome (mobile)
 		setTimeout(function() {
-			pykit.html.removeCSS($this._html, 'uk-open');
+			jikit.html.removeCSS($this._html, 'uk-open');
 			$this.dispatch("onClosed", [master, node, $this]);
 			$this._inner.dispatch("onClosed", [master, node, $this]);
 		}, 10);
 	}
-}, pykit.UI.flexgrid, pykit.AbsolutePositionMethods);
+}, jikit.UI.flexgrid, jikit.AbsolutePositionMethods);
 
 
 
-pykit.LinkedList = {
+jikit.LinkedList = {
     __name__: "LinkedList",
     __check__: function(bases) {
-        pykit.assert(bases.indexOf('LinkedList') != -1, "LinkedList is an abstract class and must be extended.");
-        pykit.assert(bases.indexOf('Dispatcher') != -1, "LinkedList must extend Dispatcher.");
+        jikit.assert(bases.indexOf('LinkedList') != -1, "LinkedList is an abstract class and must be extended.");
+        jikit.assert(bases.indexOf('Dispatcher') != -1, "LinkedList must extend Dispatcher.");
     },
     __init__: function() {
         this.headNode = null;
@@ -2033,7 +2044,7 @@ pykit.LinkedList = {
 		this._nodeList = [];
     },
 	id:function(data) {
-		return data.id || (data.id=pykit.UI.uid("data"));
+		return data.id || (data.id=jikit.UI.uid("data"));
 	},
 	getItem: function(id){
 		return this.findOne('id', id);
@@ -2042,10 +2053,10 @@ pykit.LinkedList = {
 		return this._nodeList.length;
 	},
 	updateItem: function(item, update){
-        pykit.assert(update, pykit.replaceString("Invalid update object for Id {id}", {id:item.id}));
+        jikit.assert(update, jikit.replaceString("Invalid update object for Id {id}", {id:item.id}));
 		var refNode = item.$tailNode;
 		this.remove(item);
-		pykit.extend(item, update, true);
+		jikit.extend(item, update, true);
 		this.add(item, refNode);
 	},
 	refresh:function(){
@@ -2071,8 +2082,8 @@ pykit.LinkedList = {
 		return this.insertBefore(obj, node);
 	},
 	insertBefore:function(obj, node){
-        pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
-        pykit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+        jikit.assert(jikit.isObject(obj), jikit.replaceString("Expected object, got {obj}", {obj: obj}));
+        jikit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
 
 		obj.id = this.id(obj);
 
@@ -2108,8 +2119,8 @@ pykit.LinkedList = {
 		}
 	},
 	insertAfter:function(obj, node){
-		pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
-		pykit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+		jikit.assert(jikit.isObject(obj), jikit.replaceString("Expected object, got {obj}", {obj: obj}));
+		jikit.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
 
 		obj.id = this.id(obj);
 
@@ -2145,7 +2156,7 @@ pykit.LinkedList = {
 		}
 	},
 	remove: function(obj) {
-		pykit.assert(pykit.isObject(obj), pykit.replaceString("Expected object, got {obj}", {obj: obj}));
+		jikit.assert(jikit.isObject(obj), jikit.replaceString("Expected object, got {obj}", {obj: obj}));
 
         this.dispatch("onDelete",[obj]);
 
@@ -2158,7 +2169,7 @@ pykit.LinkedList = {
 		obj.$tailNode = obj.$headNode = null;
 
 		if (this._nodeList.indexOf(obj) != -1)
-			pykit.ListMethods.remove.call(this._nodeList, obj);
+			jikit.ListMethods.remove.call(this._nodeList, obj);
 
 		this.dispatch("onDeleted",[obj]);
 		return obj;
@@ -2226,16 +2237,16 @@ pykit.LinkedList = {
 
 
 
-pykit.UI.stack = pykit.defUI({
+jikit.UI.stack = jikit.defUI({
     __name__: "stack",
 	$setters: {
 		filter: function(value) {
-			pykit.assert(pykit.isFunction(value), "Expected function for 'filter', got: " + value);
+			jikit.assert(jikit.isFunction(value), "Expected function for 'filter', got: " + value);
 			this._filter = value;
 			return value;
 		},
 		droppable: function(value) {
-			if (pykit.isFunction(value))
+			if (jikit.isFunction(value))
 				this._droppable = value;
 			return value;
 		}
@@ -2268,10 +2279,10 @@ pykit.UI.stack = pykit.defUI({
         return this._html;
     },
     _itemHTML: function() {
-        return pykit.html.createElement("DIV");
+        return jikit.html.createElement("DIV");
     },
     _innerHTML: function() {
-        return {id: pykit.UI.uid("item")};
+        return {id: jikit.UI.uid("item")};
     },
     _createItem: function(obj) {
         var item = this._itemHTML(obj);
@@ -2329,16 +2340,16 @@ pykit.UI.stack = pykit.defUI({
 		this.batch = name;
 		this.each(function(item) {
 			if (name.indexOf(item.batch) != -1)
-				pykit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
+				jikit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
 			else
-				pykit.html.addCSS(this._itemNodes[item.id], "uk-hidden");
+				jikit.html.addCSS(this._itemNodes[item.id], "uk-hidden");
 		}, this);
 	}
-}, pykit.LinkedList, pykit.ComplexDataSetter, pykit.UI.element);
+}, jikit.LinkedList, jikit.ComplexDataSetter, jikit.UI.element);
 
 
 
-pykit.UI.list = pykit.defUI({
+jikit.UI.list = jikit.defUI({
 	__name__:"list",
 	$defaults: {
 		htmlTag: "UL",
@@ -2348,8 +2359,8 @@ pykit.UI.list = pykit.defUI({
 		margin: "",
 		dropdownEvent: "onItemClick"
 	},
-	$setters: pykit.extend(
-		pykit.setCSS({
+	$setters: jikit.extend(
+		jikit.setCSS({
 			listStyle: {
 				"nav": "uk-nav",
 				"side": ["uk-nav", "uk-nav-side"],
@@ -2385,7 +2396,7 @@ pykit.UI.list = pykit.defUI({
 					if (value == "responsive") {
 						// Create a list of linked data to the actual data
 						// This avoids needing to duplicate the data
-						var linkedData = pykit.list($this.config.data).each(function(item) {
+						var linkedData = jikit.list($this.config.data).each(function(item) {
 							return {label: item.label, $link: item, $close: item.$close};
 						});
 
@@ -2420,13 +2431,13 @@ pykit.UI.list = pykit.defUI({
 			if (config.tab == 'responsive') {
 				this.addListener("onDOMChanged", this._onDOMChanged);
 				this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
-				pykit.event(window, "resize", this.updateFit, this);
+				jikit.event(window, "resize", this.updateFit, this);
 				this.dispatch("onDOMChanged", [null, "refresh"]);
 			}
 		}
 	},
 	_onDOMChanged: function() {
-		pykit.delay(this.updateFit, this);
+		jikit.delay(this.updateFit, this);
 	} ,
 	_onTabAdded: function(item, before) {
 		if (this.dropdownList && !item.$tabmenu) {
@@ -2479,8 +2490,8 @@ pykit.UI.list = pykit.defUI({
 	updateFit: function() {
 		this.each(function(item) {
 			// Show everything for checking y-offset (keep invisible to avoid blink)
-			pykit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
-			pykit.html.addCSS(this._itemNodes[item.id], "uk-invisible");
+			jikit.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
+			jikit.html.addCSS(this._itemNodes[item.id], "uk-invisible");
 			// Update batch according to $selected state
 			if (!item.$tabmenu) {
 				item.batch = item.$selected ? "$selected" : undefined;
@@ -2499,7 +2510,7 @@ pykit.UI.list = pykit.defUI({
 		}
 
 		this.each(function(item) {
-			pykit.html.removeCSS(this._itemNodes[item.id], "uk-invisible");
+			jikit.html.removeCSS(this._itemNodes[item.id], "uk-invisible");
 		}, this);
 
 		if (doResponsive) {
@@ -2515,27 +2526,27 @@ pykit.UI.list = pykit.defUI({
 	setActive: function(key, value) {
 		this.unselectAll();
 		var item = this.findOne(key, value);
-		pykit.assert(item, pykit.replaceString("Could not find {key} {value} in {id}.",
+		jikit.assert(item, jikit.replaceString("Could not find {key} {value} in {id}.",
 			{key: key, value: value, id: this._config.id}));
 		this.select(item);
 	},
 	isSelected: function(target) {
-		if (pykit.isString(target))
+		if (jikit.isString(target))
 			target = this.getItem(target);
 		return target.$selected;
 	},
 	select: function(target) {
-		if (pykit.isString(target))
+		if (jikit.isString(target))
 			target = this.getItem(target);
 		target.$selected = true;
-		pykit.html.addCSS(this.getItemNode(target.id), "uk-active");
+		jikit.html.addCSS(this.getItemNode(target.id), "uk-active");
 	},
 	unselectAll: function() {
 		this.each(function(item) {
 			var node = this.getItemNode(item.id);
 			item.$selected = false;
-			pykit.assert(node, "Node with id " + item.id + " does not exist");
-			pykit.html.removeCSS(node, "uk-active");
+			jikit.assert(node, "Node with id " + item.id + " does not exist");
+			jikit.html.removeCSS(node, "uk-active");
 		}, this);
 	},
 	closeItem: function(item) {
@@ -2562,8 +2573,8 @@ pykit.UI.list = pykit.defUI({
     _itemHTML: function(itemConfig) {
         var itemStyle = itemConfig.$css || this._config.itemStyle;
 
-        var li = pykit.html.createElement("LI",
-            {class: pykit.stringCSS(itemStyle)
+        var li = jikit.html.createElement("LI",
+            {class: jikit.stringCSS(itemStyle)
             + (itemConfig.header ? "uk-nav-header" : "")
             + (itemConfig.divider ? "uk-nav-divider" : "")});
 
@@ -2574,7 +2585,7 @@ pykit.UI.list = pykit.defUI({
     },
 	_innerHTML: function(parentNode, config) {
 		if (config.view) {
-			var ui = pykit.UI(config);
+			var ui = jikit.UI(config);
 			this.$uis.push(ui);
 			parentNode.appendChild(ui._html);
 		}
@@ -2584,7 +2595,7 @@ pykit.UI.list = pykit.defUI({
 		else if (config.divider) {
 		}
 		else {
-			var link = new pykit.UI.link(config);
+			var link = new jikit.UI.link(config);
 			this.$uis.push(link);
 			parentNode.appendChild(link._html);
 			this._addCloseHTML(link._html, config);
@@ -2593,11 +2604,11 @@ pykit.UI.list = pykit.defUI({
 	},
 	_addCloseHTML: function(node, item) {
 		if (item.$close) {
-			var close = pykit.html.createElement("SPAN", {class: "uk-close"});
+			var close = jikit.html.createElement("SPAN", {class: "uk-close"});
 
-			pykit.event(close, "click", function(e) {
+			jikit.event(close, "click", function(e) {
 				if (item.$preventDefault !== false) {
-					pykit.html.preventEvent(e);
+					jikit.html.preventEvent(e);
 				}
 				this.closeItem(item);
 			}, this);
@@ -2606,19 +2617,19 @@ pykit.UI.list = pykit.defUI({
 		}
 	},
 	_attachNodeEvents: function(node, itemConfig) {
-		pykit.event(node, "click", function(e) {
+		jikit.event(node, "click", function(e) {
 			if (itemConfig.$preventDefault !== false && this._config.$preventDefault !== false) {
-				pykit.html.preventEvent(e);
+				jikit.html.preventEvent(e);
 			}
-            if (!pykit._dragged) {
+            if (!jikit._dragged) {
                 this.dispatch("onItemClick", [itemConfig, node, e]);
             }
 		}, this);
 
 		if (this.context && itemConfig.context !== false) {
-			pykit.event(node, "contextmenu", function (e) {
+			jikit.event(node, "contextmenu", function (e) {
 				if (itemConfig.$preventDefault !== false) {
-					pykit.html.preventEvent(e);
+					jikit.html.preventEvent(e);
 				}
 				this.dispatch("onItemContext", [itemConfig, node, e]);
 			}, this);
@@ -2633,17 +2644,17 @@ pykit.UI.list = pykit.defUI({
 		if (this.draggable && itemConfig.$draggable !== false) {
 			node.setAttribute("draggable", "false");
 
-            pykit.event(node, "dragstart", function(e) {
-                pykit.html.preventEvent(e);
+            jikit.event(node, "dragstart", function(e) {
+                jikit.html.preventEvent(e);
             }, this);
 
 			function onMouseDown(e) {
-				if (pykit.isFunction(this.draggable) && !this.draggable(e)) {
+				if (jikit.isFunction(this.draggable) && !this.draggable(e)) {
 					return;
 				}
 				var ev = e.touches && e.touches[0] || e;
 				var offset = node.getBoundingClientRect();
-				pykit._selectedForDrag = {
+				jikit._selectedForDrag = {
 					target: this,
 					config: itemConfig,
 					node: node,
@@ -2657,15 +2668,15 @@ pykit.UI.list = pykit.defUI({
 				};
 			}
 
-			if (UIkit.support.touch) pykit.event(node, "touchstart", onMouseDown, this);
-			pykit.event(node, "mousedown", onMouseDown, this);
+			if (UIkit.support.touch) jikit.event(node, "touchstart", onMouseDown, this);
+			jikit.event(node, "mousedown", onMouseDown, this);
 		}
 	}
-}, pykit.UI.stack);
+}, jikit.UI.stack);
 
 
 
-pykit.UI.tree = pykit.defUI({
+jikit.UI.tree = jikit.defUI({
 	__name__: "tree",
 	$defaults:{
 		listStyle: "side",
@@ -2705,15 +2716,15 @@ pykit.UI.tree = pykit.defUI({
 			this._showChildren(item);
 	},
 	_dragOver: function(item) {
-		if (this._droppable(item, pykit._dragged.config, pykit._dragged.node))
-			pykit.html.addCSS(this.getItemNode(item.id), "uk-active");
+		if (this._droppable(item, jikit._dragged.config, jikit._dragged.node))
+			jikit.html.addCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_dragLeave: function(item) {
-		pykit.html.removeCSS(this.getItemNode(item.id), "uk-active");
+		jikit.html.removeCSS(this.getItemNode(item.id), "uk-active");
 	},
 	_showChildren: function(item) {
 		item.$children.until(function(child, queue) {
-			pykit.html.removeCSS(this.getItemNode(child.id), "uk-hidden");
+			jikit.html.removeCSS(this.getItemNode(child.id), "uk-hidden");
 
 			if (item.$branch && !child.$closed) {
 				for (var i=0; i<child.$children.length; i++) {
@@ -2725,7 +2736,7 @@ pykit.UI.tree = pykit.defUI({
 	},
 	_hideChildren: function(item) {
 		item.$children.until(function(child, queue) {
-			pykit.html.addCSS(this.getItemNode(child.id), "uk-hidden");
+			jikit.html.addCSS(this.getItemNode(child.id), "uk-hidden");
 
 			if (item.$branch) {
 				for (var i=0; i<child.$children.length; i++) {
@@ -2737,7 +2748,7 @@ pykit.UI.tree = pykit.defUI({
 	},
 	add: function(obj) {
 		var parent = null;
-		obj.$children = pykit.list();
+		obj.$children = jikit.list();
 		obj.$branch = !!obj.$branch; // Convert to boolean
 
 		if (!obj.$parent) {
@@ -2758,10 +2769,10 @@ pykit.UI.tree = pykit.defUI({
 				this.remove(obj.$children[0]);
 			}
 		}
-		pykit.LinkedList.remove.call(this, obj);
+		jikit.LinkedList.remove.call(this, obj);
 	},
 	template: function(config) {
-		return pykit.replaceString(
+		return jikit.replaceString(
 			'<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
 			{
 				icon: config.$branch ?
@@ -2826,11 +2837,11 @@ pykit.UI.tree = pykit.defUI({
 				this.close(item);
 		}
 	}
-}, pykit.UI.list);
+}, jikit.UI.list);
 
 
 
-pykit.UI.table = pykit.defUI({
+jikit.UI.table = jikit.defUI({
 	__name__: "table",
 	$defaults: {
 		tagClass: "uk-table",
@@ -2842,9 +2853,9 @@ pykit.UI.table = pykit.defUI({
 		listStyle: ""
 	},
 	__init__: function() {
-		this.header = this._header = pykit.html.createElement("THEAD");
-		this.footer = this._footer = pykit.html.createElement("TFOOT");
-		this.body = this._body = pykit.html.createElement("TBODY");
+		this.header = this._header = jikit.html.createElement("THEAD");
+		this.footer = this._footer = jikit.html.createElement("TFOOT");
+		this.body = this._body = jikit.html.createElement("TBODY");
 
 		// Make Chrome wrapping behavior same as firefox
 		this._body.style.wordBreak = "break-word";
@@ -2853,7 +2864,7 @@ pykit.UI.table = pykit.defUI({
 		this._html.appendChild(this._footer);
 		this._html.appendChild(this._body);
 	},
-	$setters: pykit.extend(pykit.setCSS({
+	$setters: jikit.extend(jikit.setCSS({
 			tableStyle: {
 				hover: "uk-table-hover",
 				striped: "uk-table-striped",
@@ -2862,19 +2873,19 @@ pykit.UI.table = pykit.defUI({
 		}),
 		{
 			columns: function (value) {
-				pykit.assert(pykit.isArray(value), "Table 'columns' expected Array, got: " + value);
-				value = pykit.list(value);
+				jikit.assert(jikit.isArray(value), "Table 'columns' expected Array, got: " + value);
+				value = jikit.list(value);
 				value.each(function(item) {
-					if (pykit.isUndefined(item.template) && item.name) {
-						item.template = pykit.selectors.property(item.name);
+					if (jikit.isUndefined(item.template) && item.name) {
+						item.template = jikit.selectors.property(item.name);
 					}
 				});
 				return value;
 			},
 			header: function (value) {
 				if (value) {
-					if (pykit.isObject(value)) {
-						var column = pykit.ListMethods.findOne.call(this._config.columns, "name", value.name, true);
+					if (jikit.isObject(value)) {
+						var column = jikit.ListMethods.findOne.call(this._config.columns, "name", value.name, true);
 						column.header = value.header;
 					}
 					var columns = this._config.columns;
@@ -2882,7 +2893,7 @@ pykit.UI.table = pykit.defUI({
 					for (var c,i=0; i < columns.length; i++) {
 						c = columns[i];
 						headersHTML += c.align ?
-							pykit.replaceString("<th style='text-align: {align}'>{text}</th>", {align:c.align, text: c.header})
+							jikit.replaceString("<th style='text-align: {align}'>{text}</th>", {align:c.align, text: c.header})
 							: "<th>" + c.header + "</th>";
 					}
 					this._header.innerHTML = "<tr>" + headersHTML + "</tr>";
@@ -2891,17 +2902,17 @@ pykit.UI.table = pykit.defUI({
 			},
 			footer: function (value) {
 				if (value) {
-					if (pykit.isObject(value)) {
-						var column = pykit.ListMethods.findOne.call(this._config.columns, "name", value.name);
+					if (jikit.isObject(value)) {
+						var column = jikit.ListMethods.findOne.call(this._config.columns, "name", value.name);
 						column.footer = value.footer;
 					}
-					var footers = pykit.pluck(this._config.columns, "footer");
+					var footers = jikit.pluck(this._config.columns, "footer");
 					this._footer.innerHTML = "<tr><td>" + footers.join("</td><td>") + "</td></tr>";
 				}
 				return value;
 			},
 			caption: function (value) {
-				this._caption = pykit.html.createElement("CAPTION");
+				this._caption = jikit.html.createElement("CAPTION");
 				this._caption.innerHTML = value;
 				this._html.appendChild(this._caption);
 				return value;
@@ -2912,27 +2923,27 @@ pykit.UI.table = pykit.defUI({
 		var td, column;
 		for (var i=0; i<this._config.columns.length; i++) {
 			column = this._config.columns[i];
-			td = pykit.html.createElement("TD", {class: column.$css ? pykit.stringCSS(column.$css) : ""});
+			td = jikit.html.createElement("TD", {class: column.$css ? jikit.stringCSS(column.$css) : ""});
 
 			if (column.align)
 				td.style.textAlign = column.align;
 
-			pykit.template(column.template, obj, this, td);
+			jikit.template(column.template, obj, this, td);
 			node.appendChild(td);
 		}
 		this._attachNodeEvents(node, obj);
 	},
 	_itemHTML: function() {
-		return pykit.html.createElement("TR");
+		return jikit.html.createElement("TR");
 	},
 	_containerHTML: function() {
 		return this._body;
 	}
-}, pykit.UI.list);
+}, jikit.UI.list);
 
 
 
-pykit.UI.select = pykit.defUI({
+jikit.UI.select = jikit.defUI({
 	__name__: "select",
 	$defaults: {
 		tagClass: "",
@@ -2944,13 +2955,13 @@ pykit.UI.select = pykit.defUI({
 		listStyle: ""
 	},
 	__after__: function() {
-		pykit.event(this._html, "change", this._onChange, this);
+		jikit.event(this._html, "change", this._onChange, this);
 	},
 	_onChange: function() {
 		this.dispatch("onChange");
 	},
 	select: function(target) {
-		if (pykit.isString(target))
+		if (jikit.isString(target))
 			target = this.getItem(target);
 		target.$selected = true;
 		this._html.selectedIndex = this.indexOf(target);
@@ -2975,21 +2986,21 @@ pykit.UI.select = pykit.defUI({
 		if (itemConfig.selected) {
 			attrs.selected = itemConfig.selected;
 		}
-		return pykit.html.createElement("OPTION", attrs);
+		return jikit.html.createElement("OPTION", attrs);
 	}
-}, pykit.UI.list);
+}, jikit.UI.list);
 
 
 
-pykit.UI.form = pykit.defUI({
+jikit.UI.form = jikit.defUI({
 	__name__: "form",
 	$defaults:{
 		htmlTag: "FORM",
 		tagClass: "uk-form",
 		layout: "stacked"
 	},
-	$setters: pykit.extend(
-		pykit.setCSS({
+	$setters: jikit.extend(
+		jikit.setCSS({
 			layout: {
 				stacked: "uk-form-stacked",
 				horizontal: "uk-form-horizontal"
@@ -3001,7 +3012,7 @@ pykit.UI.form = pykit.defUI({
 		}),
 		{
 			fieldset: function(value) {
-				var ui = pykit.UI({
+				var ui = jikit.UI({
 					view: "fieldset",
 					margin: "",
 					layout: this._config.layout,
@@ -3014,10 +3025,10 @@ pykit.UI.form = pykit.defUI({
 			}
 		}),
 	__after__: function() {
-		pykit.event(this._html, "submit", this._onSubmit, this);
+		jikit.event(this._html, "submit", this._onSubmit, this);
 	},
 	_onSubmit: function(e) {
-		pykit.html.preventEvent(e);
+		jikit.html.preventEvent(e);
 		this.dispatch("onSubmit", [this.getValues(), this]);
 		return true;
 	},
@@ -3036,16 +3047,16 @@ pykit.UI.form = pykit.defUI({
 	setValues: function(values) {
 		return this._fieldset.setValues(values);
 	}
-}, pykit.UI.element);
+}, jikit.UI.element);
 
 
 
-pykit.UI.fieldset = pykit.defUI({
+jikit.UI.fieldset = jikit.defUI({
 	__name__: "fieldset",
 	$defaults: {
 		htmlTag: "FIELDSET"
 	},
-	$setters: pykit.setCSS({
+	$setters: jikit.setCSS({
 		layout: {
 			stacked: "uk-form-stacked",
 			horizontal: "uk-form-horizontal"
@@ -3053,12 +3064,12 @@ pykit.UI.fieldset = pykit.defUI({
 	}),
 	_itemHTML: function(itemConfig) {
 		if (itemConfig.title) {
-			return pykit.html.createElement("LEGEND",
-				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : ""});
+			return jikit.html.createElement("LEGEND",
+				{class: itemConfig.$itemCSS ?  jikit.stringCSS(itemConfig.$itemCSS) : ""});
 		}
 		else {
-			return pykit.html.createElement("DIV",
-				{class: itemConfig.$itemCSS ?  pykit.stringCSS(itemConfig.$itemCSS) : "uk-form-row"});
+			return jikit.html.createElement("DIV",
+				{class: itemConfig.$itemCSS ?  jikit.stringCSS(itemConfig.$itemCSS) : "uk-form-row"});
 		}
 	},
 	_innerHTML: function(parentNode, config) {
@@ -3067,19 +3078,19 @@ pykit.UI.fieldset = pykit.defUI({
 		}
 		else {
 			config.margin = config.margin || "";
-			var ui = pykit.UI(config);
+			var ui = jikit.UI(config);
 			this.$uis.push(ui);
 
 			if (config.formLabel) {
-				ui.label = pykit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
+				ui.label = jikit.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
 				ui.label.innerHTML = config.formLabel;
-				if (config.inline) pykit.html.addCSS(ui.label, "uk-display-inline");
+				if (config.inline) jikit.html.addCSS(ui.label, "uk-display-inline");
 				parentNode.appendChild(ui.label);
 			}
 
 			var controlContainer = parentNode;
 			if (!config.inline) {
-				controlContainer = pykit.html.createElement("DIV", {class: "uk-form-controls"});
+				controlContainer = jikit.html.createElement("DIV", {class: "uk-form-controls"});
 				parentNode.appendChild(controlContainer);
 			}
 
@@ -3127,14 +3138,14 @@ pykit.UI.fieldset = pykit.defUI({
 		return results;
 	},
 	setValues: function(config) {
-		pykit.assert(config, "fieldset setValues has recieved an invalid value.");
+		jikit.assert(config, "fieldset setValues has recieved an invalid value.");
 
 		var unprocessed = this.$uis.copy();
 
 		var ui;
 		while (unprocessed.length > 0) {
 			ui = unprocessed.pop();
-			if (ui && pykit.isDefined(config[ui.config.name])) {
+			if (ui && jikit.isDefined(config[ui.config.name])) {
 				ui.setValue(config[ui.config.name]);
 			}
 			else if (ui.$uis) {
@@ -3142,13 +3153,13 @@ pykit.UI.fieldset = pykit.defUI({
 			}
 		}
 	}
-}, pykit.UI.stack);
+}, jikit.UI.stack);
 
 
 
 if (window.UIkit) {
-	pykit.message = UIkit.notify;
-	pykit.confirm = UIkit.modal.confirm;
-	pykit.prompt = UIkit.modal.prompt;
-	pykit.alert = UIkit.modal.alert;
+	jikit.message = UIkit.notify;
+	jikit.confirm = UIkit.modal.confirm;
+	jikit.prompt = UIkit.modal.prompt;
+	jikit.alert = UIkit.modal.alert;
 }

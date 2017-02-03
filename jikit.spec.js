@@ -1,54 +1,54 @@
 describe('helper basis', function() {
     it('should detect types', function() {
-        expect(pykit.isObject({})).toBeTruthy();
-        expect(pykit.isArray([])).toBeTruthy();
-        expect(pykit.isString("")).toBeTruthy();
-        expect(pykit.isUndefined(undefined)).toBeTruthy();
-        expect(pykit.isDefined(0)).toBeTruthy();
+        expect(jikit.isObject({})).toBeTruthy();
+        expect(jikit.isArray([])).toBeTruthy();
+        expect(jikit.isString("")).toBeTruthy();
+        expect(jikit.isUndefined(undefined)).toBeTruthy();
+        expect(jikit.isDefined(0)).toBeTruthy();
     });
 
     it('should not detect types', function() {
-        expect(pykit.isObject([])).toBeFalsy();
-        expect(pykit.isArray({})).toBeFalsy();
-        expect(pykit.isString(0)).toBeFalsy();
-        expect(pykit.isFunction({})).toBeFalsy();
-        expect(pykit.isUndefined(null)).toBeFalsy();
-        expect(pykit.isDefined(undefined)).toBeFalsy();
+        expect(jikit.isObject([])).toBeFalsy();
+        expect(jikit.isArray({})).toBeFalsy();
+        expect(jikit.isString(0)).toBeFalsy();
+        expect(jikit.isFunction({})).toBeFalsy();
+        expect(jikit.isUndefined(null)).toBeFalsy();
+        expect(jikit.isDefined(undefined)).toBeFalsy();
     });
 
     it('should extend and default', function() {
         var original = {a: 1};
-        expect(pykit.defaults(original, {a: 0, b: 1})).toEqual({a:1, b:1});
+        expect(jikit.defaults(original, {a: 0, b: 1})).toEqual({a:1, b:1});
         expect(original).toEqual({a:1, b:1});
-        expect(pykit.extend(original, {a: 1, b: 2})).toEqual({a:1, b:2});
+        expect(jikit.extend(original, {a: 1, b: 2})).toEqual({a:1, b:2});
         expect(original).toEqual({a:1, b:2});
     });
 
     it('should default properly', function() {
         var original = {a: 0, b: undefined};
-        pykit.defaults(original, {a: 10, b: 11});
+        jikit.defaults(original, {a: 10, b: 11});
         expect(original).toEqual({a: 0, b:11});
     });
 
     it('should pluck values', function() {
         var original = [{a:1}, {a:2}, {a:3}];
-        expect(pykit.pluck(original, 'a')).toEqual([1, 2, 3]);
+        expect(jikit.pluck(original, 'a')).toEqual([1, 2, 3]);
     });
 
     it('should get unique id', function() {
-        expect(pykit.UI.uid()).not.toEqual(pykit.UI.uid());
-        expect(pykit.uid()).not.toEqual(pykit.uid());
+        expect(jikit.UI.uid()).not.toEqual(jikit.UI.uid());
+        expect(jikit.uid()).not.toEqual(jikit.uid());
     });
 
     it('should replace string with params', function() {
         var templateString = '{test.awesome}, {test.ride.ride}, {cool}';
-        expect(pykit.replaceString(templateString,
+        expect(jikit.replaceString(templateString,
             {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty'})).toEqual('cool, know, sixty');
     });
 });
 
 describe('dispatcher', function() {
-    var Dispatcher = pykit.class({__name__: "dispatcherTest"}, [pykit.Dispatcher]);
+    var Dispatcher = jikit.class({__name__: "dispatcherTest"}, [jikit.Dispatcher]);
     var dispatcher = new Dispatcher({});
     var handlers = {
         fireWithArgs: function() {}
@@ -79,13 +79,13 @@ describe('class system', function() {
         func1: function() {
         }
     };
-    var ebase1 = pykit.defUI({__name__: "ebase1", efunc1: function() {name: "ebase1"}}, base1);
-    var eebase1 = pykit.defUI({__name__: "eebase1", init1: 0}, ebase1);
+    var ebase1 = jikit.defUI({__name__: "ebase1", efunc1: function() {name: "ebase1"}}, base1);
+    var eebase1 = jikit.defUI({__name__: "eebase1", init1: 0}, ebase1);
 
     it('should call checks', function() {
         spyOn(base1, "__check__");
         expect(base1.__check__).not.toHaveBeenCalled();
-        var inst1 = pykit.defUI({__name__: "test"}, base1);
+        var inst1 = jikit.defUI({__name__: "test"}, base1);
         expect(base1.__check__).toHaveBeenCalled();
     });
 
@@ -107,15 +107,15 @@ describe('class system', function() {
 });
 
 describe('list', function() {
-    var master = pykit.list();
+    var master = jikit.list();
 
     it('should take arguments', function() {
-        var i = pykit.list([1, 2, 3]);
+        var i = jikit.list([1, 2, 3]);
         expect(i.length).toBe(3);
     });
 
     it('should have iter methods', function() {
-        var j = pykit.list([1,2,3]);
+        var j = jikit.list([1,2,3]);
         expect(j.each(function(v, i) {return v})).toEqual([1, 2, 3]);
         expect(j.each(function(v, i) {return this[i]})).toEqual([1, 2, 3]);
         j.remap(function(v) {return v*2});
@@ -177,7 +177,7 @@ describe('list', function() {
     });
 
     it('should iterate until', function() {
-        var list = pykit.list([1, 2, 3]);
+        var list = jikit.list([1, 2, 3]);
         var operator = {func: function() {return true;}};
         spyOn(operator, 'func').and.callThrough();
         list.until(operator.func);
@@ -188,37 +188,37 @@ describe('list', function() {
 describe('html', function() {
     var node = document.body;
     it('should add and remove css', function() {
-        pykit.html.addCSS(node, "s1");
+        jikit.html.addCSS(node, "s1");
         expect(node.className).toEqual("s1");
-        pykit.html.addCSS(node, "s1", true);
+        jikit.html.addCSS(node, "s1", true);
         expect(node.className).toEqual("s1");
-        pykit.html.addCSS(node, "s2", true);
+        jikit.html.addCSS(node, "s2", true);
         expect(node.className).toEqual("s1 s2");
-        pykit.html.removeCSS(node, "s1");
-        pykit.html.removeCSS(node, "s2");
+        jikit.html.removeCSS(node, "s1");
+        jikit.html.removeCSS(node, "s2");
         expect(node.className).toEqual("");
     })
 });
 
 describe('element', function() {
     it('should set properties', function() {
-        spyOn(pykit.UI.element.prototype.$setters, 'hidden');
-        expect(pykit.UI.element.prototype.$setters.hidden).not.toHaveBeenCalled();
-        var elem = pykit.UI({view: 'element', hidden: true});
-        expect(pykit.UI.element.prototype.$setters.hidden).toHaveBeenCalled();
+        spyOn(jikit.UI.element.prototype.$setters, 'hidden');
+        expect(jikit.UI.element.prototype.$setters.hidden).not.toHaveBeenCalled();
+        var elem = jikit.UI({view: 'element', hidden: true});
+        expect(jikit.UI.element.prototype.$setters.hidden).toHaveBeenCalled();
     });
 
     it('should not allow duplicates', function() {
-        pykit.UI({view: 'element', hidden: true, id: "repeated-id"}, document.body);
+        jikit.UI({view: 'element', hidden: true, id: "repeated-id"}, document.body);
         expect(function() {
-            pykit.UI({view: 'element', hidden: true, id: "repeated-id"});
+            jikit.UI({view: 'element', hidden: true, id: "repeated-id"});
         }).toThrow();
     });
 
     it('should dispatch render event', function() {
         var on = {onInitialized: {}};
         spyOn(on, "onInitialized");
-        var ui = pykit.UI({view: 'element', hidden: true,  on: on});
+        var ui = jikit.UI({view: 'element', hidden: true,  on: on});
         expect(ui._eventsByName.onInitialized).toBeDefined();
         expect(on.onInitialized.calls.count()).toBe(1);
     });
@@ -229,7 +229,7 @@ describe('flexgrid', function() {
 
 describe('linked-list', function() {
     var n1 = {}, n2 = {}, n3 = {};
-    var List = pykit.class({__name__: "test-linked-list"}, [pykit.LinkedList, pykit.Dispatcher]);
+    var List = jikit.class({__name__: "test-linked-list"}, [jikit.LinkedList, jikit.Dispatcher]);
     var list = new List({});
 
     function echo(obj) {
@@ -308,7 +308,7 @@ describe('linked-list', function() {
 });
 
 describe('tree', function() {
-    var elem = pykit.UI({id: "t12", view: 'tree', data: [
+    var elem = jikit.UI({id: "t12", view: 'tree', data: [
         {id:'root', label: 'Root'},
         {label:'Parent', $parent:'root', id:'parent'},
         {id:'child-a', label:'Child-A', $parent:'parent'},
@@ -355,7 +355,7 @@ describe('tree', function() {
     });
 
     it('should remove all children under branch', function() {
-        var tree = pykit.UI({
+        var tree = jikit.UI({
             id: "t1", view: 'tree', data: [
                 {id: 'root', label: 'Root'},
                 {id: 'parent', label: 'Parent', $parent: 'root'},
@@ -373,7 +373,7 @@ describe('tree', function() {
 });
 
 describe('list-ui', function() {
-    var elem = pykit.UI({id: "l12", view: 'list', data: [
+    var elem = jikit.UI({id: "l12", view: 'list', data: [
         {id:'lroot', label: 'Root'},
         {label:'Parent', $parent:'lroot', id:'lparent'},
         {label:'Child', $parent:'lparent'},
@@ -395,14 +395,14 @@ describe('list-ui', function() {
 describe('selectors', function() {
     it('should select out property', function() {
         var obj = {a: {b: {c: 1}}};
-        expect(pykit.selectors.property('a')(obj)).toEqual({b: {c: 1}});
-        expect(pykit.selectors.property('a.b')(obj)).toEqual({c: 1});
-        expect(pykit.selectors.property('a.b.c')(obj)).toEqual(1);
+        expect(jikit.selectors.property('a')(obj)).toEqual({b: {c: 1}});
+        expect(jikit.selectors.property('a.b')(obj)).toEqual({c: 1});
+        expect(jikit.selectors.property('a.b.c')(obj)).toEqual(1);
     })
 });
 
 describe('form', function() {
-    var elem = pykit.UI({
+    var elem = jikit.UI({
         view: 'form',
         fieldset: [
             {
@@ -433,7 +433,7 @@ describe('form', function() {
 
 
 describe('responsive-tabs', function() {
-    var elem = pykit.UI({
+    var elem = jikit.UI({
         id: "t31", view: 'list', tab: "responsive", data: [
             {label: 'Test 1'},
             {label: 'Test 2'},
