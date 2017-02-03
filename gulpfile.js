@@ -27,18 +27,18 @@ var files = [
     'bower_components/uikit/src/js/components/notify.js',
     'bower_components/uikit/src/js/components/search.js',
     'bower_components/uikit/src/js/components/upload.js',
-    'pykit.js'];
+    'jikit.js'];
 
-gulp.task('build-pykit', function() {
+gulp.task('build-jikit', function() {
     return gulp.src(files)
-        .pipe(concat('pykit.min.js'))
+        .pipe(concat('jikit.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('build-debug-pykit', function() {
+gulp.task('build-debug-jikit', function() {
     return gulp.src(files)
-        .pipe(concat('pykit.debug.js'))
+        .pipe(concat('jikit.debug.js'))
         .pipe(gulp.dest('.'));
 });
 
@@ -49,4 +49,4 @@ gulp.task('build-less', function () {
         .pipe(gulp.dest('css'));
 });
 
-gulp.task('default', ['build-pykit', 'build-debug-pykit', 'build-less']);
+gulp.task('default', ['build-jikit', 'build-debug-jikit', 'build-less']);

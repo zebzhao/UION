@@ -1,7 +1,11 @@
-Pykit Changelog
+JIkit Changelog
 ===============
 
-Here you can see the full list of changes between each Pykit release.
+Here you can see the full list of changes between each JIkit release.
+
+Version 0.8.0
+-----------
+- Project renamed from Pykit to JIkit
 
 Version 0.6.5
 -----------
