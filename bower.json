@@ -1,6 +1,6 @@
 {
   "name": "UION",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "homepage": "https://github.com/zebzhao/UION",
   "dependencies": {
     "uikit": "uikit/uikit#^2.26.x",
