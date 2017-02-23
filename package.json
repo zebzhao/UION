@@ -1,7 +1,7 @@
 {
-  "name": "JIkit",
-  "version": "0.6.5",
-  "description": "A JSON user interface builder based on the UIkit library.",
+  "name": "UION",
+  "version": "0.9.0",
+  "description": "UION (User Interface Object Notation) is a JSON user interface builder based on UIkit.",
   "main": "",
   "private": false,
   "dependencies": {},
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zebzhao/JIkit"
+    "url": "https://github.com/zebzhao/UION"
   },
   "author": "Zeb Zhao",
   "license": "MIT"

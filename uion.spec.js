@@ -1,54 +1,54 @@
 describe('helper basis', function() {
     it('should detect types', function() {
-        expect(jikit.isObject({})).toBeTruthy();
-        expect(jikit.isArray([])).toBeTruthy();
-        expect(jikit.isString("")).toBeTruthy();
-        expect(jikit.isUndefined(undefined)).toBeTruthy();
-        expect(jikit.isDefined(0)).toBeTruthy();
+        expect(UI.isObject({})).toBeTruthy();
+        expect(UI.isArray([])).toBeTruthy();
+        expect(UI.isString("")).toBeTruthy();
+        expect(UI.isUndefined(undefined)).toBeTruthy();
+        expect(UI.isDefined(0)).toBeTruthy();
     });
 
     it('should not detect types', function() {
-        expect(jikit.isObject([])).toBeFalsy();
-        expect(jikit.isArray({})).toBeFalsy();
-        expect(jikit.isString(0)).toBeFalsy();
-        expect(jikit.isFunction({})).toBeFalsy();
-        expect(jikit.isUndefined(null)).toBeFalsy();
-        expect(jikit.isDefined(undefined)).toBeFalsy();
+        expect(UI.isObject([])).toBeFalsy();
+        expect(UI.isArray({})).toBeFalsy();
+        expect(UI.isString(0)).toBeFalsy();
+        expect(UI.isFunction({})).toBeFalsy();
+        expect(UI.isUndefined(null)).toBeFalsy();
+        expect(UI.isDefined(undefined)).toBeFalsy();
     });
 
     it('should extend and default', function() {
         var original = {a: 1};
-        expect(jikit.defaults(original, {a: 0, b: 1})).toEqual({a:1, b:1});
+        expect(UI.defaults(original, {a: 0, b: 1})).toEqual({a:1, b:1});
         expect(original).toEqual({a:1, b:1});
-        expect(jikit.extend(original, {a: 1, b: 2})).toEqual({a:1, b:2});
+        expect(UI.extend(original, {a: 1, b: 2})).toEqual({a:1, b:2});
         expect(original).toEqual({a:1, b:2});
     });
 
     it('should default properly', function() {
         var original = {a: 0, b: undefined};
-        jikit.defaults(original, {a: 10, b: 11});
+        UI.defaults(original, {a: 10, b: 11});
         expect(original).toEqual({a: 0, b:11});
     });
 
     it('should pluck values', function() {
         var original = [{a:1}, {a:2}, {a:3}];
-        expect(jikit.pluck(original, 'a')).toEqual([1, 2, 3]);
+        expect(UI.pluck(original, 'a')).toEqual([1, 2, 3]);
     });
 
     it('should get unique id', function() {
-        expect(jikit.UI.uid()).not.toEqual(jikit.UI.uid());
-        expect(jikit.uid()).not.toEqual(jikit.uid());
+        expect(UI.new.uid()).not.toEqual(UI.new.uid());
+        expect(UI.uid()).not.toEqual(UI.uid());
     });
 
     it('should replace string with params', function() {
         var templateString = '{test.awesome}, {test.ride.ride}, {cool}';
-        expect(jikit.replaceString(templateString,
+        expect(UI.replaceString(templateString,
             {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty'})).toEqual('cool, know, sixty');
     });
 });
 
 describe('dispatcher', function() {
-    var Dispatcher = jikit.class({__name__: "dispatcherTest"}, [jikit.Dispatcher]);
+    var Dispatcher = UI.class({__name__: "dispatcherTest"}, [UI.Dispatcher]);
     var dispatcher = new Dispatcher({});
     var handlers = {
         fireWithArgs: function() {}
@@ -79,13 +79,13 @@ describe('class system', function() {
         func1: function() {
         }
     };
-    var ebase1 = jikit.defUI({__name__: "ebase1", efunc1: function() {name: "ebase1"}}, base1);
-    var eebase1 = jikit.defUI({__name__: "eebase1", init1: 0}, ebase1);
+    var ebase1 = UI.def({__name__: "ebase1", efunc1: function() {name: "ebase1"}}, base1);
+    var eebase1 = UI.def({__name__: "eebase1", init1: 0}, ebase1);
 
     it('should call checks', function() {
         spyOn(base1, "__check__");
         expect(base1.__check__).not.toHaveBeenCalled();
-        var inst1 = jikit.defUI({__name__: "test"}, base1);
+        var inst1 = UI.def({__name__: "test"}, base1);
         expect(base1.__check__).toHaveBeenCalled();
     });
 
@@ -107,15 +107,15 @@ describe('class system', function() {
 });
 
 describe('list', function() {
-    var master = jikit.list();
+    var master = UI.list();
 
     it('should take arguments', function() {
-        var i = jikit.list([1, 2, 3]);
+        var i = UI.list([1, 2, 3]);
         expect(i.length).toBe(3);
     });
 
     it('should have iter methods', function() {
-        var j = jikit.list([1,2,3]);
+        var j = UI.list([1,2,3]);
         expect(j.each(function(v, i) {return v})).toEqual([1, 2, 3]);
         expect(j.each(function(v, i) {return this[i]})).toEqual([1, 2, 3]);
         j.remap(function(v) {return v*2});
@@ -177,7 +177,7 @@ describe('list', function() {
     });
 
     it('should iterate until', function() {
-        var list = jikit.list([1, 2, 3]);
+        var list = UI.list([1, 2, 3]);
         var operator = {func: function() {return true;}};
         spyOn(operator, 'func').and.callThrough();
         list.until(operator.func);
@@ -188,37 +188,37 @@ describe('list', function() {
 describe('html', function() {
     var node = document.body;
     it('should add and remove css', function() {
-        jikit.html.addCSS(node, "s1");
+        UI.html.addCSS(node, "s1");
         expect(node.className).toEqual("s1");
-        jikit.html.addCSS(node, "s1", true);
+        UI.html.addCSS(node, "s1", true);
         expect(node.className).toEqual("s1");
-        jikit.html.addCSS(node, "s2", true);
+        UI.html.addCSS(node, "s2", true);
         expect(node.className).toEqual("s1 s2");
-        jikit.html.removeCSS(node, "s1");
-        jikit.html.removeCSS(node, "s2");
+        UI.html.removeCSS(node, "s1");
+        UI.html.removeCSS(node, "s2");
         expect(node.className).toEqual("");
     })
 });
 
 describe('element', function() {
     it('should set properties', function() {
-        spyOn(jikit.UI.element.prototype.$setters, 'hidden');
-        expect(jikit.UI.element.prototype.$setters.hidden).not.toHaveBeenCalled();
-        var elem = jikit.UI({view: 'element', hidden: true});
-        expect(jikit.UI.element.prototype.$setters.hidden).toHaveBeenCalled();
+        spyOn(UI.new.element.prototype.$setters, 'hidden');
+        expect(UI.new.element.prototype.$setters.hidden).not.toHaveBeenCalled();
+        var elem = UI.new({view: 'element', hidden: true});
+        expect(UI.new.element.prototype.$setters.hidden).toHaveBeenCalled();
     });
 
     it('should not allow duplicates', function() {
-        jikit.UI({view: 'element', hidden: true, id: "repeated-id"}, document.body);
+        UI.new({view: 'element', hidden: true, id: "repeated-id"}, document.body);
         expect(function() {
-            jikit.UI({view: 'element', hidden: true, id: "repeated-id"});
+            UI.new({view: 'element', hidden: true, id: "repeated-id"});
         }).toThrow();
     });
 
     it('should dispatch render event', function() {
         var on = {onInitialized: {}};
         spyOn(on, "onInitialized");
-        var ui = jikit.UI({view: 'element', hidden: true,  on: on});
+        var ui = UI.new({view: 'element', hidden: true,  on: on});
         expect(ui._eventsByName.onInitialized).toBeDefined();
         expect(on.onInitialized.calls.count()).toBe(1);
     });
@@ -229,7 +229,7 @@ describe('flexgrid', function() {
 
 describe('linked-list', function() {
     var n1 = {}, n2 = {}, n3 = {};
-    var List = jikit.class({__name__: "test-linked-list"}, [jikit.LinkedList, jikit.Dispatcher]);
+    var List = UI.class({__name__: "test-linked-list"}, [UI.LinkedList, UI.Dispatcher]);
     var list = new List({});
 
     function echo(obj) {
@@ -308,7 +308,7 @@ describe('linked-list', function() {
 });
 
 describe('tree', function() {
-    var elem = jikit.UI({id: "t12", view: 'tree', data: [
+    var elem = UI.new({id: "t12", view: 'tree', data: [
         {id:'root', label: 'Root'},
         {label:'Parent', $parent:'root', id:'parent'},
         {id:'child-a', label:'Child-A', $parent:'parent'},
@@ -355,7 +355,7 @@ describe('tree', function() {
     });
 
     it('should remove all children under branch', function() {
-        var tree = jikit.UI({
+        var tree = UI.new({
             id: "t1", view: 'tree', data: [
                 {id: 'root', label: 'Root'},
                 {id: 'parent', label: 'Parent', $parent: 'root'},
@@ -373,7 +373,7 @@ describe('tree', function() {
 });
 
 describe('list-ui', function() {
-    var elem = jikit.UI({id: "l12", view: 'list', data: [
+    var elem = UI.new({id: "l12", view: 'list', data: [
         {id:'lroot', label: 'Root'},
         {label:'Parent', $parent:'lroot', id:'lparent'},
         {label:'Child', $parent:'lparent'},
@@ -395,14 +395,14 @@ describe('list-ui', function() {
 describe('selectors', function() {
     it('should select out property', function() {
         var obj = {a: {b: {c: 1}}};
-        expect(jikit.selectors.property('a')(obj)).toEqual({b: {c: 1}});
-        expect(jikit.selectors.property('a.b')(obj)).toEqual({c: 1});
-        expect(jikit.selectors.property('a.b.c')(obj)).toEqual(1);
+        expect(UI.selectors.property('a')(obj)).toEqual({b: {c: 1}});
+        expect(UI.selectors.property('a.b')(obj)).toEqual({c: 1});
+        expect(UI.selectors.property('a.b.c')(obj)).toEqual(1);
     })
 });
 
 describe('form', function() {
-    var elem = jikit.UI({
+    var elem = UI.new({
         view: 'form',
         fieldset: [
             {
@@ -433,7 +433,7 @@ describe('form', function() {
 
 
 describe('responsive-tabs', function() {
-    var elem = jikit.UI({
+    var elem = UI.new({
         id: "t31", view: 'list', tab: "responsive", data: [
             {label: 'Test 1'},
             {label: 'Test 2'},

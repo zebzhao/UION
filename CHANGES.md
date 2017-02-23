@@ -3,6 +3,10 @@ JIkit Changelog
 
 Here you can see the full list of changes between each JIkit release.
 
+Version 0.9.0
+-----------
+- Project renamed from JIkit to UION
+
 Version 0.8.0
 -----------
 - Project renamed from Pykit to JIkit
