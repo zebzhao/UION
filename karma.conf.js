@@ -7,8 +7,8 @@ module.exports = function(config){
 
         files : [
             'bower_components/jquery/dist/jquery.js',
-            'jikit.debug.js',
-            'jikit.spec.js'
+            'uion.debug.js',
+            'uion.spec.js'
         ],
 
         exclude : [
@@ -17,7 +17,7 @@ module.exports = function(config){
         reporters: ['progress', 'coverage'],
 
         preprocessors: {
-            "jikit.js": ['coverage']
+            "uion.js": ['coverage']
         },
 
         autoWatch : false,
