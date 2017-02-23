@@ -48,12 +48,12 @@ For production
 
 Initializing new components can be done like so:
 ```javascript
-UI.UI({view: "button"}, document.body);
+UI.new({view: "button"}, document.body);
 ```
 
 More complex example:
 ```javascript
-UI.UI({
+UI.new({
     view: "modal",
     id: "imageViewer",
     light: "true",
@@ -83,7 +83,7 @@ Additionally, the `upload` attribute of any component also uses a UIkit componen
 
 New UI components can be defined as so:
 ```javascript
-UI.defUI({
+UI.def({
 	__name__: "canvas",
 	$defaults: {
 		htmlTag: "CANVAS"
@@ -121,16 +121,16 @@ UI.defUI({
 ## Extending components
 Any created components can inherit other components or be used to extend new components.
 ```javascript
-UI.defUI({
+UI.def({
     __name__: "toggleButton",
-}, UI.UI.button);
+}, UI.new.button);
 ```
 If multiple components are inherited, they will be extended in the order of _right_ to _left_.
 Any methods with the same name will be overwritten by the _left-most_ component in the extension list.
 ```javascript
-UI.defUI({
+UI.def({
     __name__: "toggleInput",
-}, UI.UI.input, UI.UI.button);
+}, UI.new.input, UI.new.button);
 ```
 
 ## Defining abstract extensions
@@ -164,7 +164,7 @@ ClickEvents = {
 };
 
 // They can be used to extend components
-UI.defUI({
+UI.def({
 	__name__:"button",
 	$defaults: {
 		label: "",
@@ -173,7 +173,7 @@ UI.defUI({
     template: function(config) {
 		return UI.replaceString("<span>{label}</span>", {label: config.label});
     }
-}, ClickEvents, UI.UI.element);
+}, ClickEvents, UI.new.element);
 ```
 
 ## Defining required extensions
@@ -189,12 +189,12 @@ AbstractButton = {
 }
 
 // This will throw an error
-UI.defUI({
+UI.def({
     __name__: "button",
 }, AbstractButton);
 
 // This will work
-UI.defUI({
+UI.def({
     __name__: "button",
 }, AbstractButton, AbstractClickable);
 ```
@@ -205,7 +205,7 @@ Note that inherited classes can be accessed through the `__bases__` attribute.
 Any JSON configurations that requires setters can be defined on the `$setters` object.
 To manually trigger the setter, use `this.set(propName, value)`.
 ```javascript
-UI.defUI({
+UI.def({
     __name__: "button",
     $setters: {
         css: function(value) {
@@ -218,7 +218,7 @@ UI.defUI({
 Any default configurations should be defined on the `$defaults` object.
 To access configurations, one should use `this.config.propName`.
 ```javascript
-UI.defUI({
+UI.def({
     __name__: "button",
     $defaults: {
         css: "uk-button"
@@ -237,7 +237,7 @@ UI.defUI({
 ## Initialization handling
 Initialization of components takes place in `__init__` and `__after__`.
 ```javascript
-UI.defUI({
+UI.def({
     __name__: "button",
     __init__: function() {
         // Should initialize variables used by this component here
@@ -262,7 +262,7 @@ UI.defUI({
         // Dispatch events
         this.dispatch("onCustomEvent");
     }
-}, UI.UI.element);
+}, UI.new.element);
 ```
 
 Standard components
