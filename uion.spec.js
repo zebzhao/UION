@@ -36,7 +36,7 @@ describe('helper basis', function() {
     });
 
     it('should get unique id', function() {
-        expect(UI.new.uid()).not.toEqual(UI.new.uid());
+        expect(UI.components.uid()).not.toEqual(UI.components.uid());
         expect(UI.uid()).not.toEqual(UI.uid());
     });
 
@@ -202,10 +202,10 @@ describe('html', function() {
 
 describe('element', function() {
     it('should set properties', function() {
-        spyOn(UI.new.element.prototype.$setters, 'hidden');
-        expect(UI.new.element.prototype.$setters.hidden).not.toHaveBeenCalled();
+        spyOn(UI.components.element.prototype.$setters, 'hidden');
+        expect(UI.components.element.prototype.$setters.hidden).not.toHaveBeenCalled();
         var elem = UI.new({view: 'element', hidden: true});
-        expect(UI.new.element.prototype.$setters.hidden).toHaveBeenCalled();
+        expect(UI.components.element.prototype.$setters.hidden).toHaveBeenCalled();
     });
 
     it('should not allow duplicates', function() {

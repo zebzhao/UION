@@ -3,6 +3,13 @@ JIkit Changelog
 
 Here you can see the full list of changes between each JIkit release.
 
+Version 0.9.2
+-----------
+- Moved component classes to `UI.components
+- Remove arbitrary default margins on `element`
+- Added `onClose` and `onClosed` events to `modal`
+- Restricted `layout` and `spacing` setters to `flexgrid` only
+
 Version 0.9.0
 -----------
 - Project renamed from JIkit to UION
