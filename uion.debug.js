@@ -5143,6 +5143,11 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		dispatch: function (type, params) {
+			/**
+			 * Dispatches an event to the element. This is the way user-interaction is handled.
+			 * @param type Name of the event, i.e.) onClick, onItemClicked, etc.
+			 * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event, i.e.) [config, element, event].
+			 */
 			var handlers = this._eventsByName[type];
 			if (handlers) {
 				for (var i = 0; i < handlers.length; i++) {
@@ -5151,6 +5156,13 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		addListener: function (name, func, id) {
+			/**
+			 * Adds an event handler to the component.
+			 * @param name The name or type, i.e.) onClick.
+			 * @param func The handling function.
+			 * @param id An optional event id that can be used to remove the listener.
+			 * @returns The event id, automatically generated if id is not set.
+			 */
 			exports.assert(func, "Invalid event handler for " + name);
 
 			id = id || exports.uid();
@@ -5163,6 +5175,10 @@ window.UION = window.UI = (function(exports, window) {
 			return id;
 		},
 		removeEvent: function (id) {
+			/**
+			 * Removes a listener based on the event id.
+			 * @param id Event id from adding the listener.
+			 */
 			if (!this._eventsById[id]) return;
 
 			var name = this._eventsById[id]._name;
@@ -5174,6 +5190,11 @@ window.UION = window.UI = (function(exports, window) {
 			delete this._eventsById[id];
 		},
 		hasEvent: function (type) {
+			/**
+			 * Checks if an particular event handler exists.
+			 * @param type Type of event, i.e.) onInitialized.
+			 * @returns {*}
+			 */
 			var handlers = this._eventsByName[type];
 			return handlers && handlers.length;
 		}
@@ -5182,12 +5203,22 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.ListMethods = {
 		removeAt: function (index) {
+			/**
+			 * Remove the element at an index.
+			 * @param index The non-negative index of the element. (0-based)
+			 * @returns {boolean} True if removed, false if index does not exist.
+			 */
 			if (index >= 0 && index < this.length) {
 				return this.splice(index, 1)[0];
 			}
 			return false;
 		},
 		remove: function (value, thisArg) {
+			/**
+			 * Removes a specific element.
+			 * @param value Element to remove.
+			 * @returns {boolean} True if removed, false if index does not exist.
+			 */
 			var index = (thisArg || this).indexOf(value);
 			if (index >= 0) {
 				this.splice(index, 1);
@@ -5196,12 +5227,27 @@ window.UION = window.UI = (function(exports, window) {
 			return false;
 		},
 		contains: function (value) {
+			/**
+			 * Checks if a specific element exists.
+			 * @param value Element to check for.
+			 * @returns {boolean}
+			 */
 			return this.indexOf(value) != -1;
 		},
 		replace: function (oldValue, newValue) {
+			/**
+			 * Replace an existing element in the list with another element.
+			 * @param oldValue The element to replace.
+			 * @param newValue The element to replace it with.
+			 */
 			this[this.indexOf(oldValue)] = newValue;
 		},
 		insertAt: function (index, item) {
+			/**
+			 * Inserts an element at a specific index, pushing all other elements forward.
+			 * @param index The index to insert to.
+			 * @param item The element to insert.
+			 */
 			index = index || 0;
 			this.splice(index, 0, item);
 		},
@@ -5392,13 +5438,6 @@ window.UION = window.UI = (function(exports, window) {
 			auto: "uk-flex-item-auto",
 			flex: "uk-flex-item-1"
 		},
-		layout: {
-			"": "",
-			column: "uk-flex-column",
-			row: "uk-flex-row",
-			"row-reverse": "uk-flex-row-reverse",
-			"column-reverse": "uk-flex-column-reverse"
-		},
 		align: {
 			center: "uk-flex-center",
 			right: "uk-flex-right",
@@ -5406,10 +5445,6 @@ window.UION = window.UI = (function(exports, window) {
 			middle: "uk-flex-middle",
 			bottom: "uk-flex-bottom",
 			"navbar-center": "uk-navbar-center"
-		},
-		spacing: {
-			between: "uk-flex-space-between",
-			around: "uk-flex-space-around"
 		},
 		display: {
 			block: "uk-display-block",
@@ -5677,6 +5712,11 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		set: function (name, value) {
+			/**
+			 * Sets a property of the component and invokes its $setter function.
+			 * @param name Name of the property, i.e.) 'type'
+			 * @param value Value of the property, i.e.) 'primary'
+			 */
 			if (this.$setters.hasOwnProperty(name)) {
 				exports.assert(exports.isFunction(this.$setters[name]),
 					exports.replaceString("Property setter for {name} is not a function.", {name: name}));
@@ -5709,6 +5749,13 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.AbsolutePositionMethods = {
 		positionNextTo: function (node, position, marginX, marginY) {
+			/**
+			 * Positions this element next to another element.
+			 * @param node The anchor element to position next to.
+			 * @param position Can be 1 of the following values: bottom-right, bottom-left, bottom-center, top-right, top-left, top-center, left-top, left-bottom, left-center, right-top, right-bottom, right-center.
+			 * @param marginX The amount of x-offset from the anchor element edge.
+			 * @param marginY The amount of y-offset from the anchor element edge.
+			 */
 			var origin = node.getBoundingClientRect();
 			var rect = this.getBoundingClientRect();
 			var width = rect.width,
@@ -5737,14 +5784,30 @@ window.UION = window.UI = (function(exports, window) {
 			this._html.style.position = "absolute";
 		},
 		getBoundingClientRect: function () {
+			/**
+			 * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
+			 * @returns {*|ClientRect}
+			 */
 			return this._html.getBoundingClientRect();
 		},
 		position: function (pos) {
+			/**
+			 * Sets the position of the element.
+			 * @param pos Position information, i.e.) {top: 0, left: 0}
+			 */
 			this._html.style.top = (pos.top || 0) + "px";
 			this._html.style.left = (pos.left || 0) + "px";
 			this._html.style.position = "absolute";
 		},
+
 		moveWithinBoundary: function (boundary, pivot, padding, offset) {
+			/**
+			 * Moves the element to be within the specified boundary.
+			 * @param boundary The bounding box to move the element inside of.
+			 * @param pivot Use this to override the final boundary edges and padding. i.e.) {top: 100, bottom: 100} will override the boundary and padding for the top and bottom edges.
+			 * @param padding The amount of padding to the edges of the boundary.
+			 * @param offset The amount of final offset added to the position depending on which edges are hidden. i.e.) {top: 10, left: 20, right: 30, bottom: 40} will shift the element by +10px if the top edge is hidden.
+			 */
 			padding = padding || {};
 			pivot = pivot || {};
 			boundary = boundary || {};
@@ -5801,7 +5864,7 @@ window.UION = window.UI = (function(exports, window) {
 		exports.assert(node, exports.replaceString("Unknown node view {view}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
-		exports.new.views[config.id] = node;
+		exports.components.views[config.id] = node;
 		return node;
 
 		function makeView(config) {
@@ -5811,14 +5874,15 @@ window.UION = window.UI = (function(exports, window) {
 				return new exports.new[view](config);
 			}
 			else if (config.cells)
-				return new exports.new.flexgrid(config);
+				return new exports.components.flexgrid(config);
 			else
-				return new exports.new.element(config);
+				return new exports.components.element(config);
 		}
 	};
+	
+	exports.components = {};
 
-
-	exports.new.uid = function (name) {
+	exports.components.uid = function (name) {
 		this._names = this._names || {};
 		this._names[name] = this._names[name] || 0;
 		this._names[name]++;
@@ -5826,12 +5890,12 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.views = {};
+	exports.components.views = {};
 	window.$$ = exports.$$ = function (id) {
 		if (!id)
 			return null;
-		else if (exports.new.views[id])
-			return exports.new.views[id];
+		else if (exports.components.views[id])
+			return exports.components.views[id];
 	};
 
 	exports.forIn = function (func, obj, thisArg) {
@@ -5847,7 +5911,7 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.setCSS = function (cssOptions) {
 		return exports.forIn(function (options, property) {
-			return function (value) {
+			var setter = function (value) {
 				var oldValue = this._config[property];
 				if (options[oldValue])
 					exports.html.removeCSS(this._html, options[oldValue]);
@@ -5869,7 +5933,9 @@ window.UION = window.UI = (function(exports, window) {
 				}
 
 				return value;
-			}
+			};
+			setter.options = cssOptions;
+			return setter;
 		}, cssOptions);
 	};
 
@@ -5914,7 +5980,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.element = exports.def({
+	exports.components.element = exports.def({
 		__name__: "element",
 		$defaults: {
 			tooltipPos: 'bottom',
@@ -5923,7 +5989,7 @@ window.UION = window.UI = (function(exports, window) {
 			dropdownId: undefined,
 			dropdownMarginX: 5,
 			dropdownMarginY: 5,
-			margin: "all-sm",
+			margin: "",
 			uploadOptions: {},
 			$preventDefault: true
 		},
@@ -5989,7 +6055,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__init__: function (config) {
-			if (!config.id) config.id = exports.new.uid(this.__name__);
+			if (!config.id) config.id = exports.components.uid(this.__name__);
 			var node = exports.node(config.id);
 			exports.assert(!node, exports.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
 
@@ -6009,36 +6075,74 @@ window.UION = window.UI = (function(exports, window) {
 			this.render();
 		},
 		render: function () {
+			/**
+			 * Force a rerender of the element, which runs the template function.
+			 */
 			exports.template(this.template, this._config, this, this._html);
 		},
-		template: function () {
+		template: function (config, component, parent) {
+			/**
+			 * The template function of the final HTML.
+			 * @param config The configuration JSON.
+			 * @param component The created component object with functions.
+			 * @param parent The parent HTML element.
+			 * @returns {string}
+			 */
 			return ""
 		},
 		getNode: function () {
+			/**
+			 * Function to get the underlying HTML element.
+			 */
 			return this._html;
 		},
 		isVisible: function () {
+			/**
+			 * Checks if the element is hidden. (Not to be confused with conceal/reveal.)
+			 */
 			return !exports.html.hasCSS(this._html, "uk-hidden");
 		},
 		show: function () {
+			/**
+			 * Shows the element.
+			 */
 			exports.html.removeCSS(this._html, "uk-hidden");
 		},
 		hide: function () {
+			/**
+			 * Hides the element.
+			 */
 			exports.html.addCSS(this._html, "uk-hidden");
 		},
 		conceal: function () {
+			/**
+			 * Makes the element invisible, which doesn't affect the layout.
+			 */
 			exports.html.addCSS(this._html, "uk-invisible");
 		},
 		reveal: function () {
+			/**
+			 * Makes the element visible again.
+			 */
 			exports.html.removeCSS(this._html, "uk-invisible");
 		},
 		isEnabled: function () {
+			/**
+			 * Checks if the element is enabled.
+			 * @returns {boolean}
+			 */
 			return !this._html.getAttribute('disabled');
 		},
 		disable: function () {
+			/**
+			 * Disables the element.
+			 */
 			this._html.setAttribute('disabled', "");
 		},
 		enable: function () {
+			/**
+			 * Enables the element.
+			 */
 			this._html.removeAttribute('disabled');
 		},
 		_uploadFileHTML: function () {
@@ -6061,8 +6165,24 @@ window.UION = window.UI = (function(exports, window) {
 		}
 	}, exports.Dispatcher, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$.disabled.isBoolean = true;
+		$.tooltip.isText = true;
+		$.css.isText = true;
+		$.dropdown.description = "Configuration object to show in a context menu.";
+		$._meta = {
+			dropdownEvent: "The event type to trigger a dropdown, i.e.) onClick (default), onContextMenu, etc.",
+			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'bottom-center', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
+			dropdownMarginX: "The left margin of the dropdown from anchor component.",
+			dropdownMarginY: "The top margin of the dropdown from anchor component."
+		};
+		$.inline.isBoolean = true;
+		$.uploader.isBoolean = true;
+	}(exports.components.element.prototype.$setters));
 
-	exports.new.flexgrid = exports.def({
+
+	exports.components.flexgrid = exports.def({
 		__name__: "flexgrid",
 		$defaults: {
 			layout: "row",
@@ -6070,7 +6190,19 @@ window.UION = window.UI = (function(exports, window) {
 			size: "flex",
 			singleView: false
 		},
-		$setters: {
+		$setters: exports.extend(exports.setCSS({
+			layout: {
+				"": "",
+				column: "uk-flex-column",
+				row: "uk-flex-row",
+				"row-reverse": "uk-flex-row-reverse",
+				"column-reverse": "uk-flex-column-reverse"
+			},
+			spacing: {
+				between: "uk-flex-space-between",
+				around: "uk-flex-space-around"
+			}
+		}),{
 			cells: function (value) {
 				exports.assert(exports.isArray(value), "The cells property must be an array for shell ui object.", this);
 
@@ -6089,24 +6221,45 @@ window.UION = window.UI = (function(exports, window) {
 
 				return value;
 			}
-		},
+		}),
 		render: function () {
 			// Do nothing, overwrites render function.
 		},
 		each: function (func, thisArg) {
+			/**
+			 * Invokes a function on each child of the flexgrid.
+			 * @param func The invoked function.
+			 * @param thisArg The 'this' object passed to the invoked function.
+			 * @returns Return an array containing the results of the invoked call.
+			 */
 			return this.$uis.each(func, thisArg);
 		},
 		insertChild: function (index, config) {
+			/**
+			 * Inserts a child configuration object at a particular index.
+			 * @param index Index to insert at.
+			 * @param config The configuration object representing the new child.
+			 * @returns {object} The child component
+			 */
 			var ui = config.element ? config : exports.new(config);
 			this.$uis.splice(index, 0, ui);
 			return ui;
 		},
 		addChild: function (config) {
+			/**
+			 * Adds a child to the end of the stack.
+			 * @param config Configuration of the new child.
+			 * @returns {object} The child component
+			 */
 			var ui = config.element ? config : exports.new(config);
 			this.$uis.push(ui);
 			return ui;
 		},
 		removeChild: function (id) {
+			/**
+			 * Removes a child by its id.
+			 * @param id Id of the child to remove.
+			 */
 			if (id.element) {
 				this._html.removeChild(id._html);
 				this.$uis.remove(id);
@@ -6120,20 +6273,40 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		getChild: function (id) {
+			/**
+			 * Get a child of the flexbox by id.
+			 * @param id The string id of the component.
+			 * @returns {object}
+			 */
 			return this.$uis.findOne('id', id);
 		},
 		getChildren: function () {
+			/**
+			 * Get a list of all children. Make a copy if mutating this object.
+			 */
 			return this.$uis;
 		},
 		getItems: function () {
+			/**
+			 * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
+			 */
 			return this.$uis.each(function (item) {
 				return item.config;
 			});
 		},
 		activeChild: function () {
+			/**
+			 * Returns the current active child.
+			 */
 			return this._activeChild;
 		},
+
 		setChild: function (id) {
+			/**
+			 * Makes a child visible, also makes it the active child.
+			 * @dispatch onChildChange
+			 * @param id The id of a child.
+			 */
 			this._setVisible('id', [id]);
 			var newChild = this.getChild(id);
 			this.dispatch("onChildChange", [this._activeChild, newChild]);
@@ -6141,9 +6314,12 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		showBatch: function (name, preserveOrder) {
 			/**
-			 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
-			 * However, to preserve the order of elements, will need to rerender.
+			 * Checks the batch property of all children and makes all matching batch visible.
+			 * @param name An array or a string to identify batch(es). Matching is done using indexOf.
+			 * @param preserveOrder Whether the order of child elements should not change after calling this method (slightly more expensive).
 			 */
+			// Tricky: Rendering input fields will cause problems with on-screen keyboards.
+			// However, to preserve the order of elements, will need to rerender.
 			this._setVisible('batch', exports.isArray(name) ? name : [name], preserveOrder);
 			this.batch = name;
 		},
@@ -6159,7 +6335,12 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}, this);
 		}
-	}, exports.new.element);
+	}, exports.components.element);
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$.cells.description = "A list of configuration objects.";
+	}(exports.components.flexgrid.prototype.$setters));
 
 
 	exports.ClickEvents = {
@@ -6214,7 +6395,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.modal = exports.def({
+	exports.components.modal = exports.def({
 		__name__: "modal",
 		$defaults: {
 			tagClass: "uk-modal",
@@ -6224,8 +6405,8 @@ window.UION = window.UI = (function(exports, window) {
 			keyboard: true,
 			minScrollHeight: 150,
 			closeModals: true,
-			flex: false,
 			center: true,
+			flex: false,
 			margin: "",
 			size: "",
 			layout: ""
@@ -6307,6 +6488,11 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		open: function (args) {
+			/**
+			 * Opens the modal.
+			 * @dispatch onOpen, onOpened
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
 			var config = this._config;
 			this.dispatch("onOpen", [config, this._html, args]);
 			UIkit.modal('#' + config.id, {
@@ -6318,13 +6504,40 @@ window.UION = window.UI = (function(exports, window) {
 			}).show();
 			this.dispatch("onOpened", [config, this._html, args]);
 		},
-		close: function () {
+		close: function (args) {
+			/**
+			 * Closes the modal.
+			 * @dispatch onClose, onClosed
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
+			this.dispatch("onClose", [config, this._html, args]);
 			UIkit.modal('#' + this._config.id).hide();
+			this.dispatch("onClosed", [config, this._html, args]);
 		}
-	}, exports.new.flexgrid);
+	}, exports.components.flexgrid);
 
 
-	exports.new.button = exports.def({
+	// Define setter options for auto-documentation
+	(function($) {
+		$.light.isBoolean = true;
+		$.bodyWidth.isText = true;
+		$.bodyHeight.isText = true;
+		$.closeButton.isBoolean = true;
+		$.body.description = "Configuration object to put in the modal body.";
+		$.header.description = "Configuration object to put in the modal header.";
+		$.footer.description = "Configuration object to put in the modal footer.";
+		$.caption.isText = true;
+		$._meta = {
+			bgClose: {isBoolean: true},
+			keyboard: {isBoolean: true},
+			minScrollHeight: {isNumber: true},
+			closeModals: {isBoolean: true},
+			center: {isBoolean: true}
+		}
+	}(exports.components.modal.prototype.$setters));
+
+
+	exports.components.button = exports.def({
 		__name__: "button",
 		$defaults: {
 			label: "",
@@ -6360,20 +6573,30 @@ window.UION = window.UI = (function(exports, window) {
 				return exports.replaceString("<span>{label}</span>", {label: config.label});
 		},
 		select: function () {
+			/**
+			 * Change the button state to selected.
+             */
 			this._config.$selected = true;
 			exports.html.addCSS(this._html, "uk-active");
 		},
 		isSelected: function () {
+			/**
+			 * Returns if the button is in the selected state.
+			 * @returns {boolean}
+			 */
 			return !!this._config.$selected;
 		},
 		unselect: function () {
+			/**
+			 * Change the button state to unselected.
+             */
 			this._config.$selected = false;
 			exports.html.removeCSS(this._html, "uk-active");
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.icon = exports.def({
+	exports.components.icon = exports.def({
 		__name__: "icon",
 		$defaults: {
 			htmlTag: "A",
@@ -6390,10 +6613,10 @@ window.UION = window.UI = (function(exports, window) {
 			return exports.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
 				{icon: config.icon, iconSize: config.iconSize, content: config.content});
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.label = exports.def({
+	exports.components.label = exports.def({
 		__name__: "label",
 		$defaults: {
 			label: "",
@@ -6409,16 +6632,23 @@ window.UION = window.UI = (function(exports, window) {
 			return config.label;
 		},
 		getValue: function () {
+			/**
+			 * Gets the text value (HTML accepted) of the label.
+			 */
 			return this._config.label;
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the value (HTML accepted) of the label component.
+			 * @param value
+			 */
 			this._config.label = value;
 			this.render();
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.link = exports.def({
+	exports.components.link = exports.def({
 		__name__: "link",
 		$defaults: {
 			label: "",
@@ -6429,10 +6659,10 @@ window.UION = window.UI = (function(exports, window) {
 		template: function (config) {
 			return config.label;
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.progress = exports.def({
+	exports.components.progress = exports.def({
 		__name__: "progress",
 		$defaults: {
 			htmlTag: "DIV",
@@ -6461,19 +6691,26 @@ window.UION = window.UI = (function(exports, window) {
 			this._html.appendChild(this._bar);
 		},
 		getValue: function () {
+			/**
+			 * Gets the value of the progress component.
+			 */
 			return this._progress;
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the value of the progress component.
+			 * @param value A percentage value from 0-100.
+			 */
 			exports.assert(exports.isNumber(value), "Progress value should be a number.");
 
 			var $this = this;
 			$this._bar.style.width = value + '%';
 			$this._progress = value;
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.image = exports.def({
+	exports.components.image = exports.def({
 		__name__: "image",
 		$defaults: {
 			htmlTag: "IMG",
@@ -6491,7 +6728,7 @@ window.UION = window.UI = (function(exports, window) {
 				this.dispatch("onLoad", [e])
 			}, this);
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
 	exports.FormControl = {
@@ -6557,9 +6794,16 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		),
 		getFormControl: function () {
+			/**
+			 * Get the HTML element.
+			 */
 			return this._html;
 		},
 		setClass: function (value) {
+			/**
+			 * Set the display class for the form control.
+			 * @param value One of ['success', 'danger']
+			 */
 			var formControl = this.getFormControl();
 			switch (value) {
 				case "success":
@@ -6592,24 +6836,51 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		reset: function () {
+			/**
+			 * Clear the form control.
+			 */
 			this.getFormControl().value = "";
 		},
 		enable: function () {
+			/**
+			 * Enable the form control.
+			 */
 			this.getFormControl().removeAttribute('disabled');
 		},
 		disable: function () {
+			/**
+			 * Disable the form control.
+			 */
 			this.getFormControl().setAttribute('disabled', "");
 		},
 		getValue: function () {
+			/**
+			 * Get the value of the form control.
+			 */
 			return this.getFormControl().value;
 		},
 		setValue: function (value) {
+			/**
+			 * Set the value of the form control.
+			 * @param value
+			 */
 			this.getFormControl().value = value;
 		}
 	};
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$.help.isText = true;
+		$.autocomplete.isBoolean = true;
+		$.autocapitalize.isBoolean = true;
+		$.autocorrect.isBoolean = true;
+		$.placeholder.isText = true;
+		$.type.description = "Set the type of the HTML input element.";
+		$.value.description = "Initial value of the HTML input element.";
+	}(exports.FormControl.$setters));
 
-	exports.new.toggle = exports.def({
+
+	exports.components.toggle = exports.def({
 		__name__: "toggle",
 		$defaults: {
 			htmlTag: "LABEL",
@@ -6625,25 +6896,36 @@ window.UION = window.UI = (function(exports, window) {
 			return exports.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
 				{checked: config.checked ? " checked" : ""});
 		},
+		getFormControl: function() {
+			/**
+			 * Get the HTML input element.
+			 */
+			return this._html.firstChild;
+		},
 		reset: function () {
-			this._html.firstChild.checked = false;
-		},
-		enable: function () {
-			this._html.firstChild.removeAttribute('disabled');
-		},
-		disable: function () {
-			this._html.firstChild.setAttribute('disabled', "");
+			/**
+			 * Reset the toggle.
+             */
+			this.getFormControl().checked = false;
 		},
 		getValue: function () {
-			return this._html.firstChild.checked;
+			/**
+			 * Get the value of the toggle.
+			 * @returns {boolean}
+			 */
+			return this.getFormControl().checked;
 		},
 		setValue: function (value) {
-			this._html.firstChild.checked = value;
+			/**
+			 * Set the value of the toggle.
+			 * @paramm value
+			 */
+			this.getFormControl().checked = value;
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.input = exports.def({
+	exports.components.input = exports.def({
 		__name__: "input",
 		$defaults: {
 			htmlTag: "INPUT",
@@ -6669,6 +6951,9 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		reset: function () {
+			/**
+			 * Clear the HTML input element.
+			 */
 			switch (this._config.type) {
 				case "checkbox":
 					this.getFormControl().checked = this._config.checked;
@@ -6682,31 +6967,37 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		getValue: function () {
+			/**
+			 * Get the value of the HTML input element.
+			 */
 			if (this._config.type == "checkbox") {
 				return this.getFormControl().checked;
 			}
 			else return this.getFormControl().value;
 		},
 		setValue: function (value) {
+			/**
+			 * Set the value of the HTML input element.
+			 * @param value
+			 */
 			if (this._config.type == "checkbox") {
 				this.getFormControl().checked = value;
 			}
 			else this.getFormControl().value = value;
 		}
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$.checked.isBoolean = true;
+	}(exports.components.input.prototype.$setters));
 
 
-	exports.new.password = exports.def({
+	exports.components.password = exports.def({
 		__name__: "password",
 		$defaults: {
 			tagClass: "uk-form-password",
-			inputWidth: "medium",
-			$setters: {
-				placeholder: function (value) {
-					this._html.setAttribute("placeholder", value);
-					return value;
-				}
-			}
+			inputWidth: "medium"
 		},
 		__after__: function () {
 			exports.event(this._html, "change", this._onChange, this);
@@ -6715,10 +7006,13 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange", [this.getValue()]);
 		},
 		getFormControl: function () {
+			/**
+			 * Gets the HTML input element.
+			 */
 			return this._html.firstChild;
 		},
 		template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
 
 
 	exports.def({
@@ -6766,10 +7060,21 @@ window.UION = window.UI = (function(exports, window) {
 				'<input type="text" placeholder="{placeholder}" style="width:100%">',
 				{placeholder: config.placeholder});
 		}
-	}, exports.new.password);
+	}, exports.components.password);
 
 
-	exports.new.search = exports.def({
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = {
+			caseSensitive: {isBoolean: true},
+			minLength: {isNumber: true},
+			sources: 'An array of sources for the autocomplete.',
+			autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
+		};
+	}(exports.components.input.prototype.$setters));
+
+
+	exports.components.search = exports.def({
 		__name__: "search",
 		$defaults: {
 			tagClass: "uk-search",
@@ -6785,16 +7090,19 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		getFormControl: function () {
+			/**
+			 * Gets the HTML input element.
+			 */
 			return this._html.firstChild;
 		},
 		template: function (obj) {
 			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
 				{placeholder: obj.placeholder})
 		}
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
 
 
-	exports.new.dropdown = exports.def({
+	exports.components.dropdown = exports.def({
 		__name__: "dropdown",
 		$defaults: {
 			mode: "click",
@@ -6834,9 +7142,17 @@ window.UION = window.UI = (function(exports, window) {
 			return result;
 		},
 		getBoundingClientRect: function () {
+			/**
+			 * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
+			 * @returns {*|ClientRect}
+			 */
 			return this._html.firstChild.getBoundingClientRect();
 		},
 		isOpened: function () {
+			/**
+			 * Returns if the dropdown is open.
+			 * @returns {boolean}
+			 */
 			return exports.html.hasCSS(this._html, 'uk-open');
 		},
 		open: function (config, node, parent, e) {
@@ -6864,7 +7180,7 @@ window.UION = window.UI = (function(exports, window) {
 				$this._inner.dispatch("onClosed", [master, node, $this]);
 			}, 10);
 		}
-	}, exports.new.flexgrid, exports.AbsolutePositionMethods);
+	}, exports.components.flexgrid, exports.AbsolutePositionMethods);
 
 
 	exports.LinkedList = {
@@ -6879,15 +7195,33 @@ window.UION = window.UI = (function(exports, window) {
 			this._nodeList = [];
 		},
 		id: function (data) {
-			return data.id || (data.id = exports.new.uid("data"));
+			/**
+			 * Assigns an id to an object if one doesn't exist.
+			 * @param data The object to assign an id to.
+			 * @returns {*} THe id of the object.
+			 */
+			return data.id || (data.id = exports.components.uid("data"));
 		},
 		getItem: function (id) {
+			/**
+			 * Gets an element by its id.
+			 * @param id The id of the element.
+			 * @returns {*}
+			 */
 			return this.findOne('id', id);
 		},
 		count: function () {
+			/**
+			 * Gets a count of all objects.
+			 */
 			return this._nodeList.length;
 		},
 		updateItem: function (item, update) {
+			/**
+			 * Updates an item by adding properties found on the update object.
+			 * @param item The itemt o update.
+			 * @param update An object containing properties and values to modify.
+			 */
 			exports.assert(update, exports.replaceString("Invalid update object for Id {id}", {id: item.id}));
 			var refNode = item.$tailNode;
 			this.remove(item);
@@ -6895,14 +7229,29 @@ window.UION = window.UI = (function(exports, window) {
 			this.add(item, refNode);
 		},
 		refresh: function () {
+			/**
+			 * Refresh the list.
+			 * @dispatch onRefresh
+			 */
 			this.dispatch("onRefresh");
 		},
-		pluck: function (name) {
+		pluck: function (key) {
+			/**
+			 * Plucks a property from all child objects.
+			 * @param key The key of the child objects.
+			 * @returns {array}
+			 */
 			return this.each(function (item) {
-				return item[name]
+				return item[key]
 			});
 		},
 		each: function (func, thisArg) {
+			/**
+			 * Invokes a function on each child.
+			 * @param func The invoked function.
+			 * @param thisArg The 'this' object passed to the invoked function.
+			 * @returns Return an array containing the results of the invoked call.
+			 */
 			var node = this.headNode;
 			var nextNode;
 			var results = [];
@@ -6913,47 +7262,67 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			return results;
 		},
-		add: function (obj, node) {
-			return this.insertBefore(obj, node);
+		add: function (item, node) {
+			/**
+			 * Adds an item to the end.
+			 * @param item The item to add.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
+			return this.insertBefore(item, node);
 		},
-		insertBefore: function (obj, node) {
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
-			exports.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+		insertBefore: function (item, node) {
+			/**
+			 * Add an item before another item.
+			 * @param item The item to add.
+			 * @param node The reference item to add the item before.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {item}", {item: item}));
+			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
-			obj.id = this.id(obj);
+			item.id = this.id(item);
 
 			if (!node && this.tailNode) {
 				// Insert as last node
-				return this.insertAfter(obj, this.tailNode);
+				return this.insertAfter(item, this.tailNode);
 			}
 			else {
-				this.dispatch("onAdd", [obj]);
+				this.dispatch("onAdd", [item]);
 
 				if (this.headNode == null || this.tailNode == null) {
-					this.headNode = obj;
-					this.tailNode = obj;
-					obj.$headNode = obj.$tailNode = null;
+					this.headNode = item;
+					this.tailNode = item;
+					item.$headNode = item.$tailNode = null;
 				}
 				else {
 					if (node.$headNode) {
-						node.$headNode.$tailNode = obj;
+						node.$headNode.$tailNode = item;
 					}
-					obj.$headNode = node.$headNode;
-					obj.$tailNode = node;
-					node.$headNode = obj;
+					item.$headNode = node.$headNode;
+					item.$tailNode = node;
+					node.$headNode = item;
 
 					if (node == this.headNode)
-						this.headNode = obj;
+						this.headNode = item;
 				}
 
-				this._nodeList.push(obj);
+				this._nodeList.push(item);
 
-				this.dispatch("onAdded", [obj, node]);
+				this.dispatch("onAdded", [item, node]);
 
-				return obj.id;
+				return item.id;
 			}
 		},
 		insertAfter: function (obj, node) {
+			/**
+			 * Add an item after another item.
+			 * @param item The item to add.
+			 * @param node The reference item to add the item after.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
 			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
 			exports.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
 
@@ -6990,26 +7359,35 @@ window.UION = window.UI = (function(exports, window) {
 				return obj.id;
 			}
 		},
-		remove: function (obj) {
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
+		remove: function (item) {
+			/**
+			 * Removes an item.
+			 * @param item The item to remove.
+			 * @dispatch onDelete, onDeleted
+			 * @returns The item object.
+			 */
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {item}", {item: item}));
 
-			this.dispatch("onDelete", [obj]);
+			this.dispatch("onDelete", [item]);
 
-			if (obj.$headNode) obj.$headNode.$tailNode = obj.$tailNode;
-			if (obj.$tailNode) obj.$tailNode.$headNode = obj.$headNode;
-			if (obj == this.headNode)
-				this.headNode = obj.$tailNode;
-			if (obj == this.tailNode)
-				this.tailNode = obj.$headNode;
-			obj.$tailNode = obj.$headNode = null;
+			if (item.$headNode) item.$headNode.$tailNode = item.$tailNode;
+			if (item.$tailNode) item.$tailNode.$headNode = item.$headNode;
+			if (item == this.headNode)
+				this.headNode = item.$tailNode;
+			if (item == this.tailNode)
+				this.tailNode = item.$headNode;
+			item.$tailNode = item.$headNode = null;
 
-			if (this._nodeList.indexOf(obj) != -1)
-				exports.ListMethods.remove.call(this._nodeList, obj);
+			if (this._nodeList.indexOf(item) != -1)
+				exports.ListMethods.remove.call(this._nodeList, item);
 
-			this.dispatch("onDeleted", [obj]);
-			return obj;
+			this.dispatch("onDeleted", [item]);
+			return item;
 		},
 		clearAll: function () {
+			/**
+			 * Remove all items.
+             */
 			this.headNode = null;
 			this.tailNode = null;
 			this._nodeList = [];
@@ -7021,21 +7399,38 @@ window.UION = window.UI = (function(exports, window) {
 		next: function (node) {
 			return node.$tailNode;
 		},
-		contains: function (node) {
-			return this._nodeList.indexOf(node) != -1;
+		contains: function (item) {
+			/**
+			 * Checks if an item exists.
+			 * @param item The item to check for.
+			 */
+			return this._nodeList.indexOf(item) != -1;
 		},
-		indexOf: function (matchNode, beginNode) {
+		indexOf: function (item, beginNode) {
+			/**
+			 * Gets the index of an item.
+			 * @param item The item to find the index for.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {int|undefined} The index of the item, or undefined if doesn't exist.
+			 */
 			var i = 0;
 			var node = beginNode || this.headNode;
 			while (node) {
 				// Apparently 1 == "1" in JS
-				if (node === matchNode)
+				if (node === item)
 					return i;
 				node = node.$tailNode;
 				i++;
 			}
 		},
 		findOne: function (key, value, beginNode) {
+			/**
+			 * Finds an item based on a key and value of the item.
+			 * @param key The key to look at for matching.
+			 * @param value The value of the key.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			while (node) {
 				// Apparently 1 == "1" in JS
@@ -7045,6 +7440,13 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		findFirst: function (cond, beginNode, thisArg) {
+			/**
+			 * Finds the first item which matches a condition predicate function.
+			 * @param cond The condition function.
+			 * @param beginNode An optional node which specifies the start.
+			 * @param thisArg The 'this' argument to pass to the function.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			while (node) {
 				if (cond.call(thisArg || this, node)) {
@@ -7054,6 +7456,13 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		findLast: function (cond, beginNode, thisArg) {
+			/**
+			 * Finds the last item which matches a condition predicate function.
+			 * @param cond The condition function.
+			 * @param beginNode An optional node which specifies the start.
+			 * @param thisArg The 'this' argument to pass to the function.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			var lastNode = null;
 			while (node) {
@@ -7070,7 +7479,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.stack = exports.def({
+	exports.components.stack = exports.def({
 		__name__: "stack",
 		$setters: {
 			filter: function (value) {
@@ -7115,7 +7524,7 @@ window.UION = window.UI = (function(exports, window) {
 			return exports.html.createElement("DIV");
 		},
 		_innerHTML: function () {
-			return {id: exports.new.uid("item")};
+			return {id: exports.components.uid("item")};
 		},
 		_createItem: function (obj) {
 			var item = this._itemHTML(obj);
@@ -7178,10 +7587,10 @@ window.UION = window.UI = (function(exports, window) {
 					exports.html.addCSS(this._itemNodes[item.id], "uk-hidden");
 			}, this);
 		}
-	}, exports.LinkedList, exports.ComplexDataSetter, exports.new.element);
+	}, exports.LinkedList, exports.ComplexDataSetter, exports.components.element);
 
 
-	exports.new.list = exports.def({
+	exports.components.list = exports.def({
 		__name__: "list",
 		$defaults: {
 			htmlTag: "UL",
@@ -7320,6 +7729,9 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		updateFit: function () {
+			/**
+			 * Checks if the screen is wide enough to fit all components. Used with tab mode to allow for a responsive tab menu.
+			 */
 			this.each(function (item) {
 				// Show everything for checking y-offset (keep invisible to avoid blink)
 				exports.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
@@ -7353,27 +7765,45 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		setActiveLabel: function (label) {
+			/**
+			 * Sets the active item of the list based on the item's label property. This operates as a single-selection of an item.
+			 * @param label The label value of an item.
+			 */
 			this.setActive("label", label);
 		},
 		setActive: function (key, value) {
+			/**
+			 * Set the active item of the list based on a property. This operates as a single-selection of an item.
+			 */
 			this.unselectAll();
 			var item = this.findOne(key, value);
 			exports.assert(item, exports.replaceString("Could not find {key} {value} in {id}.",
 				{key: key, value: value, id: this._config.id}));
 			this.select(item);
 		},
-		isSelected: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			return target.$selected;
+		isSelected: function (item) {
+			/**
+			 * Checks if an item is selected.
+			 * @param item An item of the component.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			return item.$selected;
 		},
-		select: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			target.$selected = true;
-			exports.html.addCSS(this.getItemNode(target.id), "uk-active");
+		select: function (item) {
+			/**
+			 * Selects an active item of the list. This method will not unselect previously selected items.
+			 * @param item The object to select in the list.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			item.$selected = true;
+			exports.html.addCSS(this.getItemNode(item.id), "uk-active");
 		},
 		unselectAll: function () {
+			/**
+			 * Unselects all items in the list, use this for single-selection lists.
+			 */
 			this.each(function (item) {
 				var node = this.getItemNode(item.id);
 				item.$selected = false;
@@ -7429,7 +7859,7 @@ window.UION = window.UI = (function(exports, window) {
 			else if (config.divider) {
 			}
 			else {
-				var link = new exports.new.link(config);
+				var link = new exports.components.link(config);
 				this.$uis.push(link);
 				parentNode.appendChild(link._html);
 				this._addCloseHTML(link._html, config);
@@ -7506,10 +7936,16 @@ window.UION = window.UI = (function(exports, window) {
 				exports.event(node, "mousedown", onMouseDown, this);
 			}
 		}
-	}, exports.new.stack);
+	}, exports.components.stack);
 
 
-	exports.new.tree = exports.def({
+	(function($) {
+		$.accordion.isBoolean = true;
+		$.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+	}(exports.components.list.prototype.$setters));
+
+
+	exports.components.tree = exports.def({
 		__name__: "tree",
 		$defaults: {
 			listStyle: "side",
@@ -7580,6 +8016,10 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		add: function (obj) {
+			/**
+			 * Add a child to the tree.
+			 * @param item A child of the tree. The parent id of the object should be specified in its $parent property.
+			 */
 			var parent = null;
 			obj.$children = exports.list();
 			obj.$branch = !!obj.$branch; // Convert to boolean
@@ -7597,6 +8037,10 @@ window.UION = window.UI = (function(exports, window) {
 			this.insertAfter(obj, refChild);
 		},
 		remove: function (obj) {
+			/**
+			 * Removes a child of the tree. If the child is branch, removes all branch children as well.
+			 * @param item A child of the tree.
+			 */
 			if (obj.$branch) {
 				while (obj.$children.length > 0) {
 					this.remove(obj.$children[0]);
@@ -7617,6 +8061,11 @@ window.UION = window.UI = (function(exports, window) {
 				})
 		},
 		open: function (item) {
+			/**
+			 * Expand a specific branch of the tree.
+			 * @param item A child branch of the tree.
+			 * @dispatch onOpen, onOpened
+			 */
 			if (!item.$branch || !item.$closed) return;
 
 			this.dispatch("onOpen", [item.id]);
@@ -7633,6 +8082,11 @@ window.UION = window.UI = (function(exports, window) {
 				this.open(item.$parent);
 		},
 		close: function (item) {
+			/**
+			 * Collapse a specific branch of the tree.
+			 * @param item A child branch of the tree.
+			 * @dispatch onClose, onClosed
+			 */
 			if (!item.$branch || item.$closed) return;
 
 			this.dispatch("onClose", [item.id]);
@@ -7646,23 +8100,40 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onClosed", [item.id]);
 		},
 		openAll: function () {
+			/**
+			 * Expand all children of the tree component.
+			 * @dispatch onOpen, onOpened
+			 */
 			this.each(function (obj) {
 				if (obj.$branch)
 					this.open(obj.id);
 			});
 		},
 		closeAll: function () {
+			/**
+			 * Collapse all children of the tree component.
+			 * @dispatch onClose, onClosed
+			 */
 			this.each(function (obj) {
 				if (obj.$branch)
 					this.close(obj.id);
 			});
 		},
 		isBranchOpen: function (item) {
+			/**
+			 * Checks if a specific branch of the tree is open.
+			 * @param item A child branch of the tree.
+			 */
 			if (item.$branch && !item.$closed)
 				return this.isBranchOpen(item.$parent);
 			return false;
 		},
 		toggle: function (item) {
+			/**
+			 * Toggles a branch child of the tree. If the child is not a branch, ignores it.
+			 * @param item A child branch of the tree.
+			 * @dispatch onClose, onClosed, onOpen, onOpened
+			 */
 			if (item.$branch) {
 				if (item.$closed)
 					this.open(item);
@@ -7670,10 +8141,21 @@ window.UION = window.UI = (function(exports, window) {
 					this.close(item);
 			}
 		}
-	}, exports.new.list);
+	}, exports.components.list);
 
 
-	exports.new.table = exports.def({
+	(function($) {
+		$._meta= {
+			indentWidth: {isNumber: true},
+			dataTransfer: 'The data representation of an item, only for FireFox.',
+			draggable: {isBoolean: true},
+			orderAfter: 'Low level function that determines ordering of tree items.',
+			droppable: 'Function that determines if an item can be dropped upon.'
+		}
+	}(exports.components.tree.prototype.$setters));
+
+
+	exports.components.table = exports.def({
 		__name__: "table",
 		$defaults: {
 			tagClass: "uk-table",
@@ -7774,10 +8256,16 @@ window.UION = window.UI = (function(exports, window) {
 		_containerHTML: function () {
 			return this._body;
 		}
-	}, exports.new.list);
+	}, exports.components.list);
+
+	(function($) {
+		$.columns.description = "A list of schema objects containing data display info, i.e.) [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
+		$.header.description = "A list of header objects containing the header and alignment info, i.e.) [{header: 'Awesome', align: 'center'}]";
+		$.footer.description = "A list of footer objects containing the footer title.";
+	}(exports.components.table.prototype.$setters));
 
 
-	exports.new.select = exports.def({
+	exports.components.select = exports.def({
 		__name__: "select",
 		$defaults: {
 			tagClass: "",
@@ -7794,19 +8282,31 @@ window.UION = window.UI = (function(exports, window) {
 		_onChange: function () {
 			this.dispatch("onChange");
 		},
-		select: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			target.$selected = true;
-			this._html.selectedIndex = this.indexOf(target);
+		select: function (item) {
+			/**
+			 * Selects an item in the select component.
+			 * @param item Object to select.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			item.$selected = true;
+			this._html.selectedIndex = this.indexOf(item);
 		},
 		unselectAll: function () {
-			// Do nothing
+			// Do nothing, invalid for select component.
 		},
 		getValue: function () {
+			/**
+			 * Get the selected value of the select component.
+			 */
 			return this._html.value;
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the selected value of the select component.
+			 * @param value
+			 * @returns {boolean} True if value exist in options, false otherwise.
+			 */
 			return this.setActive('value', value);
 		},
 		template: function (itemConfig) {
@@ -7822,10 +8322,10 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			return exports.html.createElement("OPTION", attrs);
 		}
-	}, exports.new.list);
+	}, exports.components.list);
 
 
-	exports.new.form = exports.def({
+	exports.components.form = exports.def({
 		__name__: "form",
 		$defaults: {
 			htmlTag: "FORM",
@@ -7866,24 +8366,40 @@ window.UION = window.UI = (function(exports, window) {
 			return true;
 		},
 		clear: function () {
+			/**
+			 * Clear all values from the form.
+			 */
 			this._fieldset.clear();
 		},
 		enable: function () {
+			/**
+			 * Enable the fieldset of the form.
+			 */
 			this._fieldset.enable();
 		},
 		disable: function () {
+			/**
+			 * Disable the fieldset of the form.
+			 */
 			this._fieldset.disable();
 		},
 		getValues: function () {
+			/**
+			 * Gets the values of the form's components.
+			 */
 			return this._fieldset.getValues();
 		},
+		/**
+		 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
+		 * @param values Object of names and values.
+         */
 		setValues: function (values) {
-			return this._fieldset.setValues(values);
+			this._fieldset.setValues(values);
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.fieldset = exports.def({
+	exports.components.fieldset = exports.def({
 		__name__: "fieldset",
 		$defaults: {
 			htmlTag: "FIELDSET"
@@ -7985,7 +8501,7 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		}
-	}, exports.new.stack);
+	}, exports.components.stack);
 
 
 	if (window.UIkit) {
