@@ -41,9 +41,9 @@ describe('helper basis', function() {
     });
 
     it('should replace string with params', function() {
-        var templateString = '{test.awesome}, {test.ride.ride}, {cool}';
+        var templateString = '{{test.awesome}}, {{test.ride.ride}}, {{cool}}{{cool2}}';
         expect(UI.replaceString(templateString,
-            {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty'})).toEqual('cool, know, sixty');
+            {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty', cool2: '-two'})).toEqual('cool, know, sixty-two');
     });
 });
 
