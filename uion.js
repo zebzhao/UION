@@ -47,9 +47,9 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 	exports.replaceString = function (str, obj) {
-		var regex = /\{[^}]*}/gi;
+		var regex = /\{\{[^\s}]*}}/gi;
 		return str.replace(regex, function (match) {
-			return exports.selectors.property(match.substring(1, match.length - 1))(obj);
+			return exports.selectors.property(match.substring(2, match.length - 2))(obj);
 		});
 	};
 
@@ -137,7 +137,7 @@ window.UION = window.UI = (function(exports, window) {
 		var baseNames = [];
 		for (var j = 0; j < bases.length; j++) {
 			exports.assert(exports.isDefined(bases[j]),
-				exports.replaceString("Invalid extension source from {name}", {name: config.__name__}));
+				exports.replaceString("Invalid extension source from {{name}}", {name: config.__name__}));
 
 			if (bases[j].__name__) {
 				baseNames.push(bases[j].__name__);
@@ -234,8 +234,8 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports._events = {};
 	exports.event = function (node, event, handler, master) {
-		exports.assert(node, exports.replaceString("Invalid node as target for {event} event", {event: event}));
-		exports.assert(handler, exports.replaceString("Invalid handler as target for {event} event", {event: event}));
+		exports.assert(node, exports.replaceString("Invalid node as target for {{event}} event", {event: event}));
+		exports.assert(handler, exports.replaceString("Invalid handler as target for {{event}} event", {event: event}));
 		node = exports.node(node);
 
 		var id = exports.uid();
@@ -253,7 +253,7 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.removeEvent = function (id) {
 		if (!id) return;
-		exports.assert(exports._events[id], exports.replaceString("Event with id {id} does not exist", {id: id}));
+		exports.assert(exports._events[id], exports.replaceString("Event with id {{id}} does not exist", {id: id}));
 
 		var e = exports._events[id];
 		e[0].removeEventListener(e[1], e[2]);
@@ -422,7 +422,7 @@ window.UION = window.UI = (function(exports, window) {
 					i += 1;
 				}
 			}
-			exports.fail(exports.replaceString("{key}: {value} cannot be removed in {array}",
+			exports.fail(exports.replaceString("{{key}}: {{value}} cannot be removed in {{array}}",
 				{key: key, value: value, array: this}));
 		},
 		indexWhere: function (key, value) {
@@ -448,7 +448,7 @@ window.UION = window.UI = (function(exports, window) {
 					return this[i];
 			}
 			if (error)
-				exports.fail(exports.replaceString("{key}: {value} not found in {array}",
+				exports.fail(exports.replaceString("{{key}}: {{value}} not found in {{array}}",
 					{key: key, value: value, array: this}));
 		},
 		copy: function () {
@@ -657,6 +657,7 @@ window.UION = window.UI = (function(exports, window) {
 			"": "",
 			"all-sm": ["uk-margin-small-left", "uk-margin-small-right", "uk-margin-small-top", "uk-margin-small-bottom"],
 			"all": ["uk-margin-left", "uk-margin-right", "uk-margin-top", "uk-margin-bottom"],
+			"all-lg": ["uk-margin-large-left", "uk-margin-large-right", "uk-margin-large-top", "uk-margin-large-bottom"],
 			"lg": "uk-margin-large",
 			"sm": "uk-margin-small",
 			"top": "uk-margin-top",
@@ -844,7 +845,7 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "PropertySetter",
 		__check__: function (bases) {
 			exports.assert(bases.indexOf("PropertySetter") == bases.length - 1,
-				exports.replaceString("PropertySetter should be the last extension in {name}", {name: this.__name__}));
+				exports.replaceString("PropertySetter should be the last extension in {{name}}", {name: this.__name__}));
 		},
 		__init__: function (config) {
 			this.config = config;
@@ -867,7 +868,7 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			if (this.$setters.hasOwnProperty(name)) {
 				exports.assert(exports.isFunction(this.$setters[name]),
-					exports.replaceString("Property setter for {name} is not a function.", {name: name}));
+					exports.replaceString("Property setter for {{name}} is not a function.", {name: name}));
 				this[name] = this.$setters[name].call(this, value);
 				this._config[name] = value;
 			}
@@ -1009,7 +1010,7 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.new = function (config, parent) {
 		var node = makeView(config);
-		exports.assert(node, exports.replaceString("Unknown node view {view}.", {view: config.view}), config);
+		exports.assert(node, exports.replaceString("Unknown node view {{view}}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
 		exports.views[config.id] = node;
@@ -1069,7 +1070,7 @@ window.UION = window.UI = (function(exports, window) {
 				for (var v, i = 0; i < values.length; i++) {
 					v = values[i];
 					exports.assert(options.hasOwnProperty(v),
-						exports.replaceString("Invalid value for '{property}': '{value}'!",
+						exports.replaceString("Invalid value for '{{property}}': '{{value}}'!",
 							{property: property, value: v}));
 
 					var classes = options[v];
@@ -1157,7 +1158,7 @@ window.UION = window.UI = (function(exports, window) {
 				if (value) {
 					this._html.setAttribute("data-uk-tooltip", "");
 					this._html.setAttribute("title", value);
-					this._html.setAttribute("data-uk-tooltip", '{' + exports.replaceString("pos: '{pos}'" + '}',
+					this._html.setAttribute("data-uk-tooltip", exports.replaceString("{pos: '{{pos}}'}",
 							{pos: this._config.tooltipPos}));
 				}
 				else
@@ -1205,7 +1206,7 @@ window.UION = window.UI = (function(exports, window) {
 		__init__: function (config) {
 			if (!config.id) config.id = exports.new.uid(this.__name__);
 			var node = exports.node(config.id);
-			exports.assert(!node, exports.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
+			exports.assert(!node, exports.replaceString("Node with id '{{id}}' already exists", {id: config.id}), config);
 
 			this.$uis = exports.list();
 			this.element = this._html = exports.html.createElement(config.htmlTag || "DIV", {id: config.id});
@@ -1715,10 +1716,10 @@ window.UION = window.UI = (function(exports, window) {
 		}),
 		template: function (config) {
 			if (config.type == "icon")
-				return exports.replaceString("<i class='{icon} uk-icon-{iconSize}'></i><span>{label}</span>",
+				return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'></i><span>{{label}}</span>",
 					{icon: config.icon, label: config.label, iconSize: config.iconSize});
 			else
-				return exports.replaceString("<span>{label}</span>", {label: config.label});
+				return exports.replaceString("<span>{{label}}</span>", {label: config.label});
 		},
 		select: function () {
 			/**
@@ -1758,7 +1759,7 @@ window.UION = window.UI = (function(exports, window) {
 				config.tagClass = "uk-icon-button";
 		},
 		template: function (config) {
-			return exports.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
+			return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'>{{content}}</i>",
 				{icon: config.icon, iconSize: config.iconSize, content: config.content});
 		}
 	}, exports.ClickEvents, exports.components.element);
@@ -2041,7 +2042,7 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		template: function (config) {
-			return exports.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
+			return exports.replaceString('<input type="checkbox"{{checked}}><div class="uk-toggle-slider"></div>',
 				{checked: config.checked ? " checked" : ""});
 		},
 		getFormControl: function() {
@@ -2205,7 +2206,7 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		template: function (config) {
 			return exports.replaceString(
-				'<input type="text" placeholder="{placeholder}" style="width:100%">',
+				'<input type="text" placeholder="{{placeholder}}" style="width:100%">',
 				{placeholder: config.placeholder});
 		}
 	}, exports.components.password);
@@ -2244,7 +2245,7 @@ window.UION = window.UI = (function(exports, window) {
 			return this._html.firstChild;
 		},
 		template: function (obj) {
-			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
+			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{{placeholder}}">',
 				{placeholder: obj.placeholder})
 		}
 	}, exports.FormControl, exports.components.element);
@@ -2370,7 +2371,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param item The itemt o update.
 			 * @param update An object containing properties and values to modify.
 			 */
-			exports.assert(update, exports.replaceString("Invalid update object for Id {id}", {id: item.id}));
+			exports.assert(update, exports.replaceString("Invalid update object for Id {{id}}", {id: item.id}));
 			var refNode = item.$tailNode;
 			this.remove(item);
 			exports.extend(item, update, true);
@@ -2427,7 +2428,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onAdd, onAdded
 			 * @returns The object id after adding.
 			 */
-			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {item}", {item: item}));
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
 			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
 			item.id = this.id(item);
@@ -2463,7 +2464,7 @@ window.UION = window.UI = (function(exports, window) {
 				return item.id;
 			}
 		},
-		insertAfter: function (obj, node) {
+		insertAfter: function (item, node) {
 			/**
 			 * Add an item after another item.
 			 * @param item The item to add.
@@ -2471,40 +2472,40 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onAdd, onAdded
 			 * @returns The object id after adding.
 			 */
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
-			exports.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
+			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
-			obj.id = this.id(obj);
+			item.id = this.id(item);
 
 			if (!node && this.headNode) {
 				// Insert as first node
-				return this.insertBefore(obj, this.headNode);
+				return this.insertBefore(item, this.headNode);
 			}
 			else {
-				this.dispatch("onAdd", [obj]);
+				this.dispatch("onAdd", [item]);
 
 				if (this.headNode == null || this.tailNode == null) {
-					this.headNode = obj;
-					this.tailNode = obj;
-					obj.$headNode = obj.$tailNode = null;
+					this.headNode = item;
+					this.tailNode = item;
+					item.$headNode = item.$tailNode = null;
 				}
 				else {
 					if (node.$tailNode) {
-						node.$tailNode.$headNode = obj;
+						node.$tailNode.$headNode = item;
 					}
-					obj.$tailNode = node.$tailNode;
-					obj.$headNode = node;
-					node.$tailNode = obj;
+					item.$tailNode = node.$tailNode;
+					item.$headNode = node;
+					node.$tailNode = item;
 
 					if (node == this.tailNode)
-						this.tailNode = obj;
+						this.tailNode = item;
 				}
 
-				this._nodeList.push(obj);
+				this._nodeList.push(item);
 
-				this.dispatch("onAdded", [obj]);
+				this.dispatch("onAdded", [item]);
 
-				return obj.id;
+				return item.id;
 			}
 		},
 		remove: function (item) {
@@ -2514,7 +2515,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onDelete, onDeleted
 			 * @returns The item object.
 			 */
-			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {item}", {item: item}));
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
 
 			this.dispatch("onDelete", [item]);
 
@@ -2929,7 +2930,7 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			this.unselectAll();
 			var item = this.findOne(key, value);
-			exports.assert(item, exports.replaceString("Could not find {key} {value} in {id}.",
+			exports.assert(item, exports.replaceString("Could not find {{key}} {{value}} in {{id}}.",
 				{key: key, value: value, id: this._config.id}));
 			this.select(item);
 		},
@@ -3202,13 +3203,14 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		template: function (config) {
 			return exports.replaceString(
-				'<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
+				'<a><i class="uk-icon-{{icon}}" style="margin-left: {{margin}}px"></i><span class="uk-margin-small-left">{{label}}</span></a>',
 				{
 					icon: config.$branch ?
 						(config.$children.length ?
 							"folder" :
 							"folder-o") :
-						"file-o", label: config.label,
+						"file-o",
+					label: config.label,
 					margin: config.$depth * this.indentWidth
 				})
 		},
@@ -3359,7 +3361,7 @@ window.UION = window.UI = (function(exports, window) {
 						for (var c, i = 0; i < columns.length; i++) {
 							c = columns[i];
 							headersHTML += c.align ?
-								exports.replaceString("<th style='text-align: {align}'>{text}</th>", {
+								exports.replaceString("<th style='text-align: {{align}}'>{{text}}</th>", {
 									align: c.align,
 									text: c.header
 								})
