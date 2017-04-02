@@ -4933,10 +4933,12 @@ window.UION = window.UI = (function(exports, window) {
 		return result;
 	};
 
+	exports.classes = {};
+
 	exports.def = function (config) {
 		var bases = Array.prototype.slice.call(arguments, 1);
 		var cls = exports.class(config, bases);
-		exports.new[config.__name__] = cls;
+		exports.classes[config.__name__] = cls;
 		return cls;
 	};
 
@@ -5737,7 +5739,7 @@ window.UION = window.UI = (function(exports, window) {
 			exports.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
 			exports.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
 		},
-		parse: function (value) {
+		setData: function (value) {
 			exports.assert(exports.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
 			this.clearAll();
 			for (var i = 0; i < value.length; i++) {
@@ -5864,14 +5866,14 @@ window.UION = window.UI = (function(exports, window) {
 		exports.assert(node, exports.replaceString("Unknown node view {view}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
-		exports.components.views[config.id] = node;
+		exports.views[config.id] = node;
 		return node;
 
 		function makeView(config) {
 			if (config.view) {
 				var view = config.view;
-				exports.assert(exports.new[view], "unknown view:" + view);
-				return new exports.new[view](config);
+				exports.assert(exports.components[view], "unknown view:" + view);
+				return new exports.components[view](config);
 			}
 			else if (config.cells)
 				return new exports.components.flexgrid(config);
@@ -5882,7 +5884,7 @@ window.UION = window.UI = (function(exports, window) {
 	
 	exports.components = {};
 
-	exports.components.uid = function (name) {
+	exports.new.uid = function (name) {
 		this._names = this._names || {};
 		this._names[name] = this._names[name] || 0;
 		this._names[name]++;
@@ -5890,12 +5892,12 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.components.views = {};
+	exports.views = {};
 	window.$$ = exports.$$ = function (id) {
 		if (!id)
 			return null;
-		else if (exports.components.views[id])
-			return exports.components.views[id];
+		else if (exports.views[id])
+			return exports.views[id];
 	};
 
 	exports.forIn = function (func, obj, thisArg) {
@@ -6055,7 +6057,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__init__: function (config) {
-			if (!config.id) config.id = exports.components.uid(this.__name__);
+			if (!config.id) config.id = exports.new.uid(this.__name__);
 			var node = exports.node(config.id);
 			exports.assert(!node, exports.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
 
@@ -7015,7 +7017,7 @@ window.UION = window.UI = (function(exports, window) {
 	}, exports.FormControl, exports.components.element);
 
 
-	exports.def({
+	exports.components.autocomplete = exports.def({
 		__name__: "autocomplete",
 		$defaults: {
 			tagClass: "uk-autocomplete",
@@ -7200,7 +7202,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param data The object to assign an id to.
 			 * @returns {*} THe id of the object.
 			 */
-			return data.id || (data.id = exports.components.uid("data"));
+			return data.id || (data.id = exports.new.uid("data"));
 		},
 		getItem: function (id) {
 			/**
@@ -7479,7 +7481,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.components.stack = exports.def({
+	exports.stack = exports.def({
 		__name__: "stack",
 		$setters: {
 			filter: function (value) {
@@ -7491,6 +7493,9 @@ window.UION = window.UI = (function(exports, window) {
 				if (exports.isFunction(value))
 					this._droppable = value;
 				return value;
+			},
+			data: function(value) {
+
 			}
 		},
 		__after__: function (config) {
@@ -7498,8 +7503,9 @@ window.UION = window.UI = (function(exports, window) {
 			this.addListener("onDeleted", this._onDeleted);
 			this.addListener("onRefresh", this._onRefresh);
 			this.addListener("onClearAll", this._onClearAll);
+
 			if (config.data) {
-				this.parse(config.data);
+				this.setData(config.data);
 			}
 		},
 		__init__: function () {
@@ -7524,7 +7530,7 @@ window.UION = window.UI = (function(exports, window) {
 			return exports.html.createElement("DIV");
 		},
 		_innerHTML: function () {
-			return {id: exports.components.uid("item")};
+			return {id: exports.new.uid("item")};
 		},
 		_createItem: function (obj) {
 			var item = this._itemHTML(obj);
@@ -7936,7 +7942,7 @@ window.UION = window.UI = (function(exports, window) {
 				exports.event(node, "mousedown", onMouseDown, this);
 			}
 		}
-	}, exports.components.stack);
+	}, exports.stack);
 
 
 	(function($) {
@@ -8501,7 +8507,7 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		}
-	}, exports.components.stack);
+	}, exports.stack);
 
 
 	if (window.UIkit) {

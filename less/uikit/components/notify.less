@@ -24,27 +24,28 @@
 // ========================================================================
 
 @notify-position:                               10px;
-@notify-z-index:                                1040;
+@notify-z-index:                                @global-z-index + 40;
 @notify-width:                                  350px;
 
 @notify-message-margin-bottom:                  10px;
 @notify-message-padding:                        15px;
 @notify-message-background:                     #444;
 @notify-message-color:                          #fff;
-@notify-message-font-size:                      16px;
-@notify-message-line-height:                    22px;
+
+@notify-message-font-size:                      round((@global-font-size * 1.14)); // 16px / 18px
+@notify-message-line-height:                    round((@notify-message-font-size * 1.36)); // 22px / 24px
 
 @notify-message-primary-background:             #ebf7fd;
-@notify-message-primary-color:                  #2d7091;
+@notify-message-primary-color:                  @global-primary-background;
 
 @notify-message-success-background:             #f2fae3;
-@notify-message-success-color:                  #659f13;
+@notify-message-success-color:                  @global-success-background;
 
 @notify-message-warning-background:             #fffceb;
-@notify-message-warning-color:                  #e28327;
+@notify-message-warning-color:                  @global-warning-background;
 
 @notify-message-danger-background:              #fff1f0;
-@notify-message-danger-color:                   #d85030;
+@notify-message-danger-color:                   @global-danger-background;
 
 
 /* ========================================================================

@@ -40,62 +40,69 @@
 // Variables
 // ========================================================================
 
-@button-height:                                 30px;
-@button-mini-height:                            20px;
-@button-small-height:                           25px;
-@button-large-height:                           40px;
+@button-height:                                 @global-height;
+@button-mini-height:                            @global-height-mini;
+@button-small-height:                           @global-height-small;
+@button-large-height:                           @global-height-large;
 
-@button-line-height:                            30px;
-@button-mini-line-height:                       20px;
-@button-small-line-height:                      25px;
-@button-large-line-height:                      40px;
+@button-line-height:                            @global-height - 2;
+@button-mini-line-height:                       @global-height-mini - 2;
+@button-small-line-height:                      @global-height-small - 2;
+@button-large-line-height:                      @global-height-large - 2;
 
-@button-mini-font-size:                         11px;
-@button-small-font-size:                        12px;
-@button-large-font-size:                        16px;
+@button-font-size:                              @global-font-size;
+@button-mini-font-size:                         round((@global-font-size * 0.78)); // 11px / 12px
+@button-small-font-size:                        round((@global-font-size * 0.85)); // 12px / 14px
+@button-large-font-size:                        round((@global-font-size * 1.14)); // 16px / 18px
 
 @button-padding-horizontal:                     12px;
 @button-mini-padding-horizontal:                6px;
 @button-small-padding-horizontal:               10px;
 @button-large-padding-horizontal:               15px;
 
-@button-font-size:                              1rem;
-@button-background:                             #eee;
-@button-color:                                  #444;
-@button-hover-background:                       #f5f5f5;
-@button-hover-color:                            #444;
-@button-active-background:                      #ddd;
-@button-active-color:                           #444;
+@button-background:                             @global-default-background;
+@button-color:                                  @global-color;
+@button-hover-background:                       @global-default-hover-background;
+@button-hover-color:                            @global-color;
+@button-active-background:                      @global-default-active-background;
+@button-active-color:                           @global-color;
 
-@button-primary-background:                     #00a8e6;
-@button-primary-color:                          #fff;
-@button-primary-hover-background:               #35b3ee;
-@button-primary-hover-color:                    #fff;
-@button-primary-active-background:              #0091ca;
-@button-primary-active-color:                   #fff;
+@button-primary-background:                     @global-primary-background;
+@button-primary-color:                          @global-contrast-color;
+@button-primary-hover-background:               lighten(@global-primary-background, 5%);
+@button-primary-hover-color:                    @global-contrast-color;
+@button-primary-active-background:              darken(@global-primary-background, 5%);
+@button-primary-active-color:                   @global-contrast-color;
 
-@button-success-background:                     #8cc14c;
-@button-success-color:                          #fff;
-@button-success-hover-background:               #8ec73b;
-@button-success-hover-color:                    #fff;
-@button-success-active-background:              #72ae41;
-@button-success-active-color:                   #fff;
+@button-success-background:                     @global-success-background;
+@button-success-color:                          @global-contrast-color;
+@button-success-hover-background:               lighten(@global-success-background, 5%);
+@button-success-hover-color:                    @global-contrast-color;
+@button-success-active-background:              darken(@global-success-background, 5%);
+@button-success-active-color:                   @global-contrast-color;
 
-@button-danger-background:                      #da314b;
-@button-danger-color:                           #fff;
-@button-danger-hover-background:                #e4354f;
-@button-danger-hover-color:                     #fff;
-@button-danger-active-background:               #c91032;
-@button-danger-active-color:                    #fff;
+@button-danger-background:                      @global-danger-background;
+@button-danger-color:                           @global-contrast-color;
+@button-danger-hover-background:                lighten(@global-danger-background, 5%);
+@button-danger-hover-color:                     @global-contrast-color;
+@button-danger-active-background:               darken(@global-danger-background, 5%);
+@button-danger-active-color:                    @global-contrast-color;
 
-@button-disabled-background:                    #f5f5f5;
-@button-disabled-color:                         #999;
+@button-disabled-background:                    @global-muted-color;
+@button-disabled-color:                         lighten(@global-color, 10%);
 
 @button-link-color:                             #07D;
 @button-link-hover-color:                       #059;
 @button-link-hover-text-decoration:             underline;
-@button-link-disabled-color:                    #999;
+@button-link-disabled-color:                    lighten(@global-color, 10%);
 
+@button-border:                                 @global-border;
+@button-hover-border:                           darken(@global-border, 10%);
+@button-text-shadow:                            @global-text-shadow;
+@button-contrast-text-shadow:                   @global-contrast-text-shadow;
+@button-contrast-hover-border:                  transparent;
+
+@button-group-border:                           transparent;
 
 /* ========================================================================
    Component: Button
@@ -165,15 +172,17 @@
  * 3. Required for `a` elements
  */
 
-.uk-button:hover,
-.uk-button:focus { // 1
-    background-color: @button-hover-background;
-    color: @button-hover-color;
-    /* 2 */
-    outline: none;
-    /* 3 */
-    text-decoration: none;
-    .hook-button-hover;
+@media (min-width: @breakpoint-small) {
+    .uk-button:hover,
+    .uk-button:focus { // 1
+        background-color: @button-hover-background;
+        color: @button-hover-color;
+        /* 2 */
+        outline: none;
+        /* 3 */
+        text-decoration: none;
+        .hook-button-hover;
+    }
 }
 
 /* Active */
@@ -199,11 +208,13 @@
 }
 
 /* Hover */
-.uk-button-primary:hover,
-.uk-button-primary:focus {
-    background-color: @button-primary-hover-background;
-    color: @button-primary-hover-color;
-    .hook-button-primary-hover;
+@media (min-width: @breakpoint-small) {
+    .uk-button-primary:hover,
+    .uk-button-primary:focus {
+        background-color: @button-primary-hover-background;
+        color: @button-primary-hover-color;
+        .hook-button-primary-hover;
+    }
 }
 
 /* Active */
@@ -225,11 +236,13 @@
 }
 
 /* Hover */
-.uk-button-success:hover,
-.uk-button-success:focus {
-    background-color: @button-success-hover-background;
-    color: @button-success-hover-color;
-    .hook-button-success-hover;
+@media (min-width: @breakpoint-small) {
+    .uk-button-success:hover,
+    .uk-button-success:focus {
+        background-color: @button-success-hover-background;
+        color: @button-success-hover-color;
+        .hook-button-success-hover;
+    }
 }
 
 /* Active */
@@ -251,11 +264,13 @@
 }
 
 /* Hover */
-.uk-button-danger:hover,
-.uk-button-danger:focus {
-    background-color: @button-danger-hover-background;
-    color: @button-danger-hover-color;
-    .hook-button-danger-hover;
+@media (min-width: @breakpoint-small) {
+    .uk-button-danger:hover,
+    .uk-button-danger:focus {
+        background-color: @button-danger-hover-background;
+        color: @button-danger-hover-color;
+        .hook-button-danger-hover;
+    }
 }
 
 /* Active */
@@ -386,10 +401,11 @@
 // Hooks
 // ========================================================================
 
-.hook-button-misc;
+.hook-button() {
+    border: 1px solid @button-border;
+}
 
-.hook-button() {}
-.hook-button-hover() {}
+.hook-button-hover() { border-color: @button-hover-border; }
 .hook-button-active() {}
 .hook-button-primary() {}
 .hook-button-primary-hover() {}

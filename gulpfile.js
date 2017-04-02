@@ -27,7 +27,7 @@ gulp.task('build-debug', function() {
 });
 
 gulp.task('build-less', function () {
-    return gulp.src(['less/**/uikit.less', '!less/uikit/uikit.less'])
+    return gulp.src(['less/**/uikit.less'])
         .pipe(less())
         .pipe(minifyCSS({"source-map": 1}))
         .pipe(gulp.dest('css'));

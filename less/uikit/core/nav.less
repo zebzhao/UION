@@ -39,6 +39,7 @@
 
 @nav-padding-vertical:                          5px;
 @nav-padding-horizontal:                        15px;
+@nav-side-font-size:                                 12px;
 
 @nav-header-padding-vertical:                   @nav-padding-vertical;
 @nav-header-padding-horizontal:                 @nav-padding-horizontal;
@@ -65,34 +66,34 @@
 @nav-parent-icon-width:                         20px;
 @nav-parent-icon-margin-right:                  -10px;
 
-@nav-side-color:                                #444;
+@nav-side-color:                                @global-color;
 @nav-side-hover-background:                     rgba(0,0,0,0.05);
-@nav-side-hover-color:                          #444;
-@nav-side-active-background:                    #00a8e6;
-@nav-side-active-color:                         #fff;
-@nav-side-header-color:                         #444;
-@nav-side-divider-border:                       #ddd;
+@nav-side-hover-color:                          @global-color;
+@nav-side-active-background:                    @global-primary-background;
+@nav-side-active-color:                         @global-contrast-color;
+@nav-side-header-color:                         @global-color;
+@nav-side-divider-border:                       @global-border;
 @nav-side-divider-border-width:                 1px;
-@nav-side-nested-color:                         #07D;
-@nav-side-nested-hover-color:                   #059;
+@nav-side-nested-color:                         @global-link-color;
+@nav-side-nested-hover-color:                   @global-link-hover-color;
 
-@nav-dropdown-color:                            #444;
-@nav-dropdown-hover-background:                 #00a8e6;
-@nav-dropdown-hover-color:                      #fff;
+@nav-dropdown-color:                            @global-color;
+@nav-dropdown-hover-background:                 @global-primary-background;
+@nav-dropdown-hover-color:                      @global-contrast-color;
 @nav-dropdown-header-color:                     #999;
-@nav-dropdown-divider-border:                   #ddd;
+@nav-dropdown-divider-border:                   @global-border;
 @nav-dropdown-divider-border-width:             1px;
-@nav-dropdown-nested-color:                     #07D;
-@nav-dropdown-nested-hover-color:               #059;
+@nav-dropdown-nested-color:                     @global-link-color;
+@nav-dropdown-nested-hover-color:               @global-link-hover-color;
 
-@nav-navbar-color:                              #444;
-@nav-navbar-hover-background:                   #00a8e6;
-@nav-navbar-hover-color:                        #fff;
+@nav-navbar-color:                              @global-color;
+@nav-navbar-hover-background:                   @global-primary-background;
+@nav-navbar-hover-color:                        @global-contrast-color;
 @nav-navbar-header-color:                       #999;
-@nav-navbar-divider-border:                     #ddd;
+@nav-navbar-divider-border:                     @global-border;
 @nav-navbar-divider-border-width:               1px;
-@nav-navbar-nested-color:                       #07D;
-@nav-navbar-nested-hover-color:                 #059;
+@nav-navbar-nested-color:                       @global-link-color;
+@nav-navbar-nested-hover-color:                 @global-link-hover-color;
 
 @nav-offcanvas-padding-vertical:                10px;
 @nav-offcanvas-padding-horizontal:              15px;
@@ -134,7 +135,9 @@
  * Nested items
  */
 
-.uk-nav ul { padding-left: @nav-nested-padding-left; }
+.uk-nav ul {
+    padding-left: @nav-nested-padding-left;
+}
 
 .uk-nav ul a { padding: @nav-nested-padding-vertical @nav-nested-padding-horizontal; }
 
@@ -443,7 +446,9 @@ html:not(.uk-touch) .uk-nav-offcanvas ul a:hover { color: @nav-offcanvas-nested-
 .hook-nav-sub() {}
 .hook-nav-parent-icon() {}
 
-.hook-nav-side() {}
+.hook-nav-side() {
+    font-size: @nav-side-font-size;
+}
 .hook-nav-side-hover() {}
 .hook-nav-side-active() {}
 .hook-nav-side-header() {}

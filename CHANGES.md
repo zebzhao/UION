@@ -9,6 +9,7 @@ Version 0.9.2
 - Remove arbitrary default margins on `element`
 - Added `onClose` and `onClosed` events to `modal`
 - Restricted `layout` and `spacing` setters to `flexgrid` only
+- Overhauled css style, default theme is now material-design based
 
 Version 0.9.0
 -----------

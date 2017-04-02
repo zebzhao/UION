@@ -38,15 +38,16 @@
 @dropdown-width:                                200px;
 @dropdown-margin-top:                           5px;
 @dropdown-padding:                              15px;
-@dropdown-background:                           #f5f5f5;
-@dropdown-color:                                #444;
+@dropdown-background:                           @global-background;
+@dropdown-color:                                @global-color;
 @dropdown-font-size:                            1rem;
 @dropdown-animation:                            uk-fade;
 
+@dropdown-border:                               @global-border;
 @dropdown-divider-border-width:                 1px;
-@dropdown-divider-border:                       #ddd;
+@dropdown-divider-border:                       @global-border;
 
-@dropdown-small-padding:                        5px;
+@dropdown-small-horizontal-padding:             5px;
 
 @dropdown-navbar-margin:                        0;
 @dropdown-navbar-background:                    #f5f5f5;
@@ -54,6 +55,7 @@
 @dropdown-navbar-animation:                     uk-slide-top-fixed;
 
 @dropdown-scrollable-height:                    200px;
+@dropdown-box-shadow:                           0 5px 15px rgba(0, 0, 0, 0.08);
 
 
 /* ========================================================================
@@ -220,7 +222,7 @@
 .uk-dropdown-small {
     min-width: 150px;
     width: auto;
-    padding: @dropdown-small-padding;
+    padding: 0 @dropdown-small-horizontal-padding 0;
     white-space: nowrap;
 }
 
@@ -228,7 +230,7 @@
  * Nav in dropdown
  */
 
-.uk-dropdown-small .uk-nav { margin: 0 (-@dropdown-small-padding); }
+.uk-dropdown-small .uk-nav { margin: 0 (-@dropdown-small-horizontal-padding); }
 
 
 /* Modifier: `uk-dropdown-navbar`
@@ -274,7 +276,10 @@
 
 .hook-dropdown-misc;
 
-.hook-dropdown() {}
+.hook-dropdown() {
+    box-shadow: @dropdown-box-shadow;
+    border: 1px solid @dropdown-border;
+}
 .hook-dropdown-navbar() {}
 .hook-dropdown-overlay() {}
 .hook-dropdown-misc() {}
