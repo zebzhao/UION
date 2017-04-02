@@ -36,7 +36,7 @@ describe('helper basis', function() {
     });
 
     it('should get unique id', function() {
-        expect(UI.components.uid()).not.toEqual(UI.components.uid());
+        expect(UI.new.uid()).not.toEqual(UI.new.uid());
         expect(UI.uid()).not.toEqual(UI.uid());
     });
 

@@ -8,19 +8,15 @@
 // States:          `uk-active`
 //
 // ========================================================================
-
-
 // Variables
 // ========================================================================
 
-// Nav modifier
-@nav-autocomplete-color:                        #444;
-@nav-autocomplete-active-background:            #00a8e6;
-@nav-autocomplete-active-color:                 #fff;
-@nav-autocomplete-header-color:                 #999;
-@nav-autocomplete-divider-border:               #ddd;
-@nav-autocomplete-divider-border-width:         1px;
-
+@nav-autocomplete-color:                            @global-color;
+@nav-autocomplete-active-background:                @global-primary-background;
+@nav-autocomplete-active-color:                     @global-contrast-color;
+@nav-autocomplete-header-color:                     @global-muted-color;
+@nav-autocomplete-divider-border:                   @global-border;
+@nav-autocomplete-divider-border-width:             1px;
 
 /* ========================================================================
    Component: Autocomplete
@@ -92,11 +88,9 @@
 // Hooks
 // ========================================================================
 
-.hook-autocomplete-misc;
+.hook-autocomplete-misc() {};
 
 .hook-nav-autocomplete() {}
 .hook-nav-autocomplete-active() {}
 .hook-nav-autocomplete-header() {}
 .hook-nav-autocomplete-divider() {}
-
-.hook-autocomplete-misc() {}

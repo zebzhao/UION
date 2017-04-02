@@ -17,8 +17,13 @@
 // ========================================================================
 
 @table-margin-vertical:                         15px;
+@table-gutter:                                  20px;
 @table-padding-vertical:                        8px;
 @table-padding-horizontal:                      8px;
+
+@table-heading-color:                           #999;
+@table-heading-font-size:                       12px;
+@table-heading-font-weight:                     normal;
 
 @table-caption-color:                           #999;
 @table-caption-font-size:                       12px;
@@ -32,6 +37,7 @@
 
 @table-active-background:                       @table-hover-background;
 
+@table-border:                                  @global-border;
 
 /* ========================================================================
    Component: Table
@@ -61,8 +67,21 @@
 
 .uk-table th,
 .uk-table td {
-    padding: @table-padding-vertical @table-padding-horizontal;
+    padding: @table-padding-vertical @table-padding-horizontal ;
+    border-bottom: 1px solid @table-border;
     .hook-table;
+}
+
+/*
+ * Header
+ */
+
+.uk-table th {
+    font-size: @table-heading-font-size;
+    font-weight: @table-heading-font-weight;
+    color: @table-heading-color;
+    text-transform: uppercase;
+    .hook-table-th;
 }
 
 /*
@@ -73,6 +92,16 @@
 .uk-table td { vertical-align: middle; }
 
 .uk-table thead th { vertical-align: bottom; }
+
+.uk-table {
+    tr td:first-child, thead th:first-child {
+        padding-left: @table-gutter;
+    }
+
+    tr td:last-child, thead th:last-child {
+        padding-right: @table-gutter;
+    }
+}
 
 /*
  * Caption and footer
@@ -139,6 +168,7 @@
 
 .hook-table-misc;
 
+.hook-table-th() {}
 .hook-table() {}
 .hook-table-active() {}
 .hook-table-striped() {}

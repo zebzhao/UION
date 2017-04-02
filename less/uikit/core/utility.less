@@ -36,14 +36,14 @@
 @utility-container-large-max-width:             1200px;
 @utility-container-large-padding-horizontal:    35px;
 
-@utility-align-horizontal:                      15px;
-@utility-align-vertical:                        15px;
+@utility-align-horizontal:                      0px;
+@utility-align-vertical:                        0px;
 
 @utility-height-viewport-min-height:            600px;
 
 @utility-margin:                                15px;
 @utility-margin-small:                          5px;
-@utility-margin-large:                          50px;
+@utility-margin-large:                          40px;
 
 @utility-border-rounded:                        5px;
 
@@ -315,13 +315,57 @@
  * Larger margins
  */
 
-.uk-margin-large { margin-bottom: @utility-margin-large; }
-* + .uk-margin-large { margin-top: @utility-margin-large; }
+@media (max-width: @breakpoint-mini-max) {
+    .uk-margin-large {
+        margin-bottom: @utility-margin-large*0.5;
+    }
 
-.uk-margin-large-top { margin-top: @utility-margin-large !important; }
-.uk-margin-large-bottom { margin-bottom: @utility-margin-large !important; }
-.uk-margin-large-left { margin-left: @utility-margin-large !important; }
-.uk-margin-large-right { margin-right: @utility-margin-large !important; }
+    * + .uk-margin-large {
+        margin-top: @utility-margin-large*0.5;
+    }
+
+    .uk-margin-large-top {
+        margin-top: @utility-margin-large*0.5 !important;
+    }
+
+    .uk-margin-large-bottom {
+        margin-bottom: @utility-margin-large*0.5 !important;
+    }
+
+    .uk-margin-large-left {
+        margin-left: @utility-margin-large*0.5 !important;
+    }
+
+    .uk-margin-large-right {
+        margin-right: @utility-margin-large*0.5 !important;
+    }
+}
+
+@media (min-width: @breakpoint-small) {
+    .uk-margin-large {
+        margin-bottom: @utility-margin-large;
+    }
+
+    * + .uk-margin-large {
+        margin-top: @utility-margin-large;
+    }
+
+    .uk-margin-large-top {
+        margin-top: @utility-margin-large !important;
+    }
+
+    .uk-margin-large-bottom {
+        margin-bottom: @utility-margin-large !important;
+    }
+
+    .uk-margin-large-left {
+        margin-left: @utility-margin-large !important;
+    }
+
+    .uk-margin-large-right {
+        margin-right: @utility-margin-large !important;
+    }
+}
 
 /*
  * Smaller margins

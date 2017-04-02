@@ -12,7 +12,7 @@
 // ========================================================================
 
 @base-body-background:                          #fff;
-@base-body-font-family:                         "Helvetica Neue", Helvetica, Arial, sans-serif;
+@base-body-font-family:                         Ubuntu,-apple-system,BlinkMacSystemFont,Lato,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 @base-body-font-weight:                         normal;
 @base-body-font-size:                           14px;
 @base-body-line-height:                         20px;
@@ -21,7 +21,7 @@
 @base-link-color:                               #07D;
 @base-link-text-decoration:                     none;
 @base-link-hover-color:                         #059;
-@base-link-hover-text-decoration:               underline;
+@base-link-hover-text-decoration:               none;
 
 @base-code-color:                               #D05;
 @base-code-font-size:                           12px;
@@ -39,7 +39,7 @@
 @base-heading-font-weight:                      normal;
 @base-heading-color:                            #444;
 @base-heading-text-transform:                   none;
-@base-heading-margin-top:                       25px;
+@base-heading-margin-top:                       15px;
 @base-h1-font-size:                             36px;
 @base-h1-line-height:                           42px;
 @base-h2-font-size:                             24px;
@@ -134,13 +134,14 @@ a,
     .hook-base-link;
 }
 
-a:hover,
-.uk-link:hover {
-    color: @base-link-hover-color;
-    text-decoration: @base-link-hover-text-decoration;
-    .hook-base-link-hover;
+@media (min-width: @breakpoint-small) {
+    a:hover,
+    .uk-link:hover {
+        color: @base-link-hover-color;
+        text-decoration: @base-link-hover-text-decoration;
+        .hook-base-link-hover;
+    }
 }
-
 
 /* Text-level semantics
  ========================================================================== */
@@ -289,7 +290,6 @@ figure { margin: 0; }
  */
 
 p,
-ul,
 ol,
 dl,
 blockquote,

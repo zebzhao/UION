@@ -1,7 +1,9 @@
-@toggle-background-color:                   #ccc;
-@toggle-active-background-color:            #2196F3;
+@toggle-background-color:                   darken(@global-muted-color, 10%);
+@toggle-active-background-color:            @global-primary-background;
 @toggle-width:                              41px;
 @toggle-height:                             24px;
+@toggle-button-background-color:            white;
+@toggle-button-shadow:                      0 1px 5px 0 rgba(0,0,0,0.2);
 
 
 /* The switch - the box around the slider */
@@ -10,10 +12,13 @@
   display: inline-block;
   width: @toggle-width;
   height: @toggle-height;
+  .hook-toggle;
 }
 
 /* Hide default HTML checkbox */
-.uk-toggle input {display:none;}
+.uk-toggle input {
+  display:none !important;
+}
 
 /* The slider */
 .uk-toggle-slider {
@@ -27,16 +32,18 @@
   -webkit-transition: .4s;
   transition: .4s;
   border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
 }
 
 .uk-toggle-slider:before {
   position: absolute;
   content: "";
-  height: @toggle-height - 4px;
-  width: @toggle-height - 4px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
+  height: @toggle-height - 2px;
+  width: @toggle-height - 2px;
+  left: 1px;
+  bottom: 1px;
+  background-color: @toggle-button-background-color;
+  box-shadow: @toggle-button-shadow;
   -webkit-transition: .4s;
   transition: .4s;
   border-radius: @toggle-height / 2;
@@ -56,7 +63,6 @@ input:checked + .uk-toggle-slider:before {
   transform: translateX(17px);
 }
 
-/* Rounded sliders */
-.uk-toggle-slider.round {
-
+.hook-toggle() {
+  vertical-align: middle;
 }

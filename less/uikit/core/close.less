@@ -16,7 +16,8 @@
 // Variables
 // ========================================================================
 
-@close-size:                                    20px;
+@close-size:                                    19px;
+@close-z-index:                                 @global-z-index;
 
 @close-alt-padding:                             2px;
 @close-alt-background:                          #eee;
@@ -71,14 +72,15 @@
     text-align: center;
     vertical-align: middle;
     opacity: 0.3;
+    z-index: @close-z-index;
     .hook-close;
 }
 
 /* Icon */
 .uk-close:after {
     display: block;
-    content: "\f00d";
-    font-family: FontAwesome;
+    content: "\39";
+    font-family: "dripicons-v2";
 }
 
 /*

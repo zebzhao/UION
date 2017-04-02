@@ -32,17 +32,17 @@
 
 @search-width:                                  180px;
 @search-focus-width:                            180px;
-@search-height:                                 30px;
-@search-padding:                                30px;
+@search-height:                                 @global-height;
+@search-padding:                                @global-height;
 @search-border:                                 rgba(0,0,0,0);
 @search-border-width:                           1px;
 @search-background:                             rgba(0,0,0,0);
 @search-color:                                  #444;
 @search-placeholder-color:                      #999;
 
-@search-icon:                                   "\f002";
-@search-icon-size:                              14px;
-@search-icon-color:                             rgba(0,0,0,0.2);
+@search-icon:                                   "\e041";
+@search-icon-size:                              16px;
+@search-icon-color:                             @global-color;
 
 // Dropdown modifier
 @dropdown-search-width:                         300px;
@@ -102,7 +102,7 @@
     width: @search-padding;
     line-height: @search-height;
     text-align: center;
-    font-family: FontAwesome;
+    font-family: 'dripicons-v2', monospace;
     font-size: @search-icon-size;
     color: @search-icon-color;
     .hook-search-icon;
