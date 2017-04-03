@@ -15,6 +15,7 @@ Version 0.9.2
 - Fix bug with scrolling and `AbsolutePositionMethods`
 - Moved `navbar-center` to `listStyle` of `list`
 - Renamed `align` property to `flexAlign`
+- The `select` now conforms to the `FormControl` mixin
 
 Version 0.9.0
 -----------
