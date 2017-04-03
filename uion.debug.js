@@ -5147,8 +5147,9 @@ window.UION = window.UI = (function(exports, window) {
 		dispatch: function (type, params) {
 			/**
 			 * Dispatches an event to the element. This is the way user-interaction is handled.
-			 * @param type Name of the event, i.e.) onClick, onItemClicked, etc.
-			 * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event, i.e.) [config, element, event].
+			 * @param type Name of the event.
+			 * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event.
+			 * @example dispatch('onClick', [config, element, event])
 			 */
 			var handlers = this._eventsByName[type];
 			if (handlers) {
@@ -5157,22 +5158,23 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		},
-		addListener: function (name, func, id) {
+		addListener: function (type, func, id) {
 			/**
 			 * Adds an event handler to the component.
-			 * @param name The name or type, i.e.) onClick.
+			 * @param type The type of event.
 			 * @param func The handling function.
 			 * @param id An optional event id that can be used to remove the listener.
 			 * @returns The event id, automatically generated if id is not set.
+			 * @example addListener('onClick', function(config, element, event) {})
 			 */
-			exports.assert(func, "Invalid event handler for " + name);
+			exports.assert(func, "Invalid event handler for " + type);
 
 			id = id || exports.uid();
 
-			var handlers = this._eventsByName[name] || exports.list();
+			var handlers = this._eventsByName[type] || exports.list();
 			handlers.push(func);
-			this._eventsByName[name] = handlers;
-			this._eventsById[id] = {_func: func, _name: name};
+			this._eventsByName[type] = handlers;
+			this._eventsById[id] = {_func: func, _name: type};
 
 			return id;
 		},
@@ -5194,8 +5196,9 @@ window.UION = window.UI = (function(exports, window) {
 		hasEvent: function (type) {
 			/**
 			 * Checks if an particular event handler exists.
-			 * @param type Type of event, i.e.) onInitialized.
-			 * @returns {*}
+			 * @param type Type of event.
+			 * @example hasEvent('onInitialized')
+			 * @returns {boolean}
 			 */
 			var handlers = this._eventsByName[type];
 			return handlers && handlers.length;
@@ -5411,6 +5414,7 @@ window.UION = window.UI = (function(exports, window) {
 			inline: "uk-flex-inline"
 		},
 		selectable: {
+			true: "",
 			false: "unselectable"
 		},
 		order: {
@@ -5717,8 +5721,9 @@ window.UION = window.UI = (function(exports, window) {
 		set: function (name, value) {
 			/**
 			 * Sets a property of the component and invokes its $setter function.
-			 * @param name Name of the property, i.e.) 'type'
-			 * @param value Value of the property, i.e.) 'primary'
+			 * @param name Name of the property.
+			 * @param value Value of the property.
+			 * @example set('type', 'primary')
 			 */
 			if (this.$setters.hasOwnProperty(name)) {
 				exports.assert(exports.isFunction(this.$setters[name]),
@@ -5796,7 +5801,8 @@ window.UION = window.UI = (function(exports, window) {
 		position: function (pos) {
 			/**
 			 * Sets the position of the element.
-			 * @param pos Position information, i.e.) {top: 0, left: 0}
+			 * @param pos Position information object.
+			 * @example position({top: 0, left: 0})
 			 */
 			this._html.style.top = (pos.top || 0) + "px";
 			this._html.style.left = (pos.left || 0) + "px";
@@ -5807,9 +5813,10 @@ window.UION = window.UI = (function(exports, window) {
 			/**
 			 * Moves the element to be within the specified boundary.
 			 * @param boundary The bounding box to move the element inside of.
-			 * @param pivot Use this to override the final boundary edges and padding. i.e.) {top: 100, bottom: 100} will override the boundary and padding for the top and bottom edges.
+			 * @param pivot Use this to override the final boundary edges values.
 			 * @param padding The amount of padding to the edges of the boundary.
-			 * @param offset The amount of final offset added to the position depending on which edges are hidden. i.e.) {top: 10, left: 20, right: 30, bottom: 40} will shift the element by +10px if the top edge is hidden.
+			 * @param offset The amount of final offset added to the position depending on which edges are hidden.
+			 * @example moveWithinBoundary({top: 0, bottom: 500, left: 0, right: 1000}, {top: 100, bottom: 100}, {top: 10, left: 10}, {top: 10, left: 20, right: 30, bottom: 40})
 			 */
 			padding = padding || {};
 			pivot = pivot || {};
@@ -6096,6 +6103,7 @@ window.UION = window.UI = (function(exports, window) {
 		getNode: function () {
 			/**
 			 * Function to get the underlying HTML element.
+			 * @returns {Element}
 			 */
 			return this._html;
 		},
@@ -6286,12 +6294,14 @@ window.UION = window.UI = (function(exports, window) {
 		getChildren: function () {
 			/**
 			 * Get a list of all children. Make a copy if mutating this object.
+			 * @returns {array} Array of child components.
 			 */
 			return this.$uis;
 		},
 		getItems: function () {
 			/**
 			 * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
+			 * @returns {array} Array of child components config objects.
 			 */
 			return this.$uis.each(function (item) {
 				return item.config;
@@ -6637,6 +6647,7 @@ window.UION = window.UI = (function(exports, window) {
 		getValue: function () {
 			/**
 			 * Gets the text value (HTML accepted) of the label.
+			 * @returns {string}
 			 */
 			return this._config.label;
 		},
@@ -6696,6 +6707,7 @@ window.UION = window.UI = (function(exports, window) {
 		getValue: function () {
 			/**
 			 * Gets the value of the progress component.
+			 * @returns {number}
 			 */
 			return this._progress;
 		},
@@ -6799,6 +6811,7 @@ window.UION = window.UI = (function(exports, window) {
 		getFormControl: function () {
 			/**
 			 * Get the HTML element.
+			 * @returns {Element}
 			 */
 			return this._html;
 		},
@@ -6859,6 +6872,7 @@ window.UION = window.UI = (function(exports, window) {
 		getValue: function () {
 			/**
 			 * Get the value of the form control.
+			 * @returns {*}
 			 */
 			return this.getFormControl().value;
 		},
@@ -6902,6 +6916,7 @@ window.UION = window.UI = (function(exports, window) {
 		getFormControl: function() {
 			/**
 			 * Get the HTML input element.
+			 * @returns {Element}
 			 */
 			return this._html.firstChild;
 		},
@@ -6972,6 +6987,7 @@ window.UION = window.UI = (function(exports, window) {
 		getValue: function () {
 			/**
 			 * Get the value of the HTML input element.
+			 * @returns {string|boolean}
 			 */
 			if (this._config.type == "checkbox") {
 				return this.getFormControl().checked;
@@ -7011,6 +7027,7 @@ window.UION = window.UI = (function(exports, window) {
 		getFormControl: function () {
 			/**
 			 * Gets the HTML input element.
+			 * @returns {Element}
 			 */
 			return this._html.firstChild;
 		},
@@ -7095,6 +7112,7 @@ window.UION = window.UI = (function(exports, window) {
 		getFormControl: function () {
 			/**
 			 * Gets the HTML input element.
+			 * @returns {Element}
 			 */
 			return this._html.firstChild;
 		},
@@ -7494,9 +7512,6 @@ window.UION = window.UI = (function(exports, window) {
 				if (exports.isFunction(value))
 					this._droppable = value;
 				return value;
-			},
-			data: function(value) {
-
 			}
 		},
 		__after__: function (config) {
@@ -7513,6 +7528,10 @@ window.UION = window.UI = (function(exports, window) {
 			this._itemNodes = {};
 		},
 		getItemNode: function (id) {
+			/**
+			 * Get the wrapper element that used to hold a child component with a specific id. For example, this would be an LI in a list.
+			 * @returns {Element}
+			 */
 			return this._itemNodes[id];
 		},
 		render: function () {
@@ -7586,6 +7605,11 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onDOMChanged", [null, "clear"]);
 		},
 		showBatch: function (name) {
+			/**
+			 * Show only elements with a specific 'batch' value in its configuration. Hides all other elements.
+			 * @param name An array or a delimited string with a list of batch values to filter by.
+			 * @example showBatch('icons sidebar mainWindow')
+			 */
 			this.batch = name;
 			this.each(function (item) {
 				if (name.indexOf(item.batch) != -1)
@@ -7595,6 +7619,12 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		}
 	}, exports.LinkedList, exports.ComplexDataSetter, exports.components.element);
+
+
+	(function($) {
+		$.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
+		$.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.'
+	}(exports.stack.prototype.$setters));
 
 
 	exports.components.list = exports.def({
@@ -8131,6 +8161,7 @@ window.UION = window.UI = (function(exports, window) {
 			/**
 			 * Checks if a specific branch of the tree is open.
 			 * @param item A child branch of the tree.
+			 * @returns {boolean}
 			 */
 			if (item.$branch && !item.$closed)
 				return this.isBranchOpen(item.$parent);
@@ -8306,6 +8337,7 @@ window.UION = window.UI = (function(exports, window) {
 		getValue: function () {
 			/**
 			 * Get the selected value of the select component.
+			 * @returns {string}
 			 */
 			return this._html.value;
 		},
@@ -8394,14 +8426,15 @@ window.UION = window.UI = (function(exports, window) {
 		getValues: function () {
 			/**
 			 * Gets the values of the form's components.
+			 * @returns {object} Object of key values of the form.
 			 */
 			return this._fieldset.getValues();
 		},
-		/**
-		 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
-		 * @param values Object of names and values.
-         */
 		setValues: function (values) {
+			/**
+			 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
+			 * @param values Object of names and values.
+			 */
 			this._fieldset.setValues(values);
 		}
 	}, exports.components.element);
@@ -8454,6 +8487,9 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		clear: function () {
+			/**
+			 * Clear all values from the fieldset.
+			 */
 			this.each(function (item) {
 				if (item.name) {
 					$$(item.id).reset();
@@ -8461,6 +8497,9 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		enable: function () {
+			/**
+			 * Enables the fieldset.
+			 */
 			this.each(function (item) {
 				if (item.name || item.view == "button") {
 					$$(item.id).enable();
@@ -8468,6 +8507,9 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		disable: function () {
+			/**
+			 * Disables the fieldset. (Works by disabling each child.)
+			 */
 			this.each(function (item) {
 				if (item.name || item.view == "button") {
 					$$(item.id).disable();
@@ -8475,6 +8517,10 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		getValues: function () {
+			/**
+			 * Gets the values of the form's components.
+			 * @returns {object} Object of key values of the fieldset.
+			 */
 			var results = {};
 
 			var unprocessed = this.$uis.copy();
@@ -8494,6 +8540,10 @@ window.UION = window.UI = (function(exports, window) {
 			return results;
 		},
 		setValues: function (config) {
+			/**
+			 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
+			 * @param values Object of names and values.
+			 */
 			exports.assert(config, "fieldset setValues has recieved an invalid value.");
 
 			var unprocessed = this.$uis.copy();
