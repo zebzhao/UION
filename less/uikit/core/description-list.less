@@ -16,6 +16,7 @@
 @description-list-horizontal-margin-left:       180px;
 
 @description-list-line-margin-top:              5px;
+@description-list-line-padding-vertical:        5px;
 @description-list-line-border-width:            1px;
 @description-list-line-border:                  #ddd;
 @description-list-line-color:                   #999;
@@ -37,22 +38,30 @@
     .uk-description-list-horizontal { overflow: hidden; }
 
     .uk-description-list-horizontal > dt {
+        margin-top: 0;
         width: @description-list-horizontal-width;
         float: left;
         clear: both;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        padding: @description-list-line-padding-vertical 0;
     }
 
-    .uk-description-list-horizontal > dd { margin-left: @description-list-horizontal-margin-left; }
+    .uk-description-list-horizontal > dd {
+        margin-left: @description-list-horizontal-margin-left;
+        padding: @description-list-line-padding-vertical 0;
+    }
 }
 
 
 /* Modifier: `uk-description-list-line`
  ========================================================================== */
 
-.uk-description-list-line > dt { font-weight: @description-list-line-font-weight; }
+.uk-description-list-line > dt {
+    font-weight: @description-list-line-font-weight;
+    padding: @description-list-line-padding-vertical 0;
+}
 
 .uk-description-list-line > dt:nth-child(n+2) {
     margin-top: @description-list-line-margin-top;
@@ -60,7 +69,10 @@
     border-top: @description-list-line-border-width solid @description-list-line-border;
 }
 
-.uk-description-list-line > dd { color: @description-list-line-color; }
+.uk-description-list-line > dd {
+    color: @description-list-line-color;
+    padding: @description-list-line-padding-vertical 0;
+}
 
 
 // Hooks

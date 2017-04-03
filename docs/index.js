@@ -54,18 +54,28 @@ UI.new({
             id: "methodList",
             view: "list",
             listStyle: "line",
+            selectable: true,
             parseMethods: function (component) {
                 this.setData(getComponentMethods(component).map(function(method) {
                     return {
+                        view: "element",
                         template: [
-                            method.name,
-                            '<h4>{{name}}</h4><p>{{summary}}</p>',
-                            (method.params ? '<h5>Parameters</h5>' : ''),
-                            (method.dispatch ? '<h5>Dispatch</h5>' : ''),
-                            (method.returns ? '<h5>Returns</h5>' : '')
+                            '<dl class="uk-description-list-horizontal">',
+                            '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
+                            (method.params && method.params.length ? '<dt>Parameters</dt><dd class="uk-hidden-small">&nbsp;</dd>{{parameters}}' : ''),
+                            (method.dispatch ? '<dt>Dispatch</dt><dd>{{dispatch}}</dd>' : ''),
+                            (method.returns ? '<dt>Returns</dt><dd>{{returns}}</dd>' : ''),
+                            '</dl>',
+                            (method.example ? '<strong>Example</strong><pre>{{example}}</pre>' : '')
                         ].join(''),
                         name: method.name,
-                        summary: method.summary
+                        summary: method.summary,
+                        dispatch: method.dispatch,
+                        returns: method.returns ? formatReturnsString(method.returns) : null,
+                        example: method.example,
+                        parameters: method.params.map(function(n) {
+                            return UI.replaceString('<dt class="uk-text-muted">{{name}}</dt><dd>{{description}}</dd>', n);
+                        }).join('')
                     }
                 }));
             }
@@ -73,6 +83,14 @@ UI.new({
     ]
 }, document.getElementById('main'));
 
+
+function formatReturnsString(str) {
+    var regex = /\{[^\s}]*}/;
+    var type = str.match(regex);
+    type = type ? type[0].slice(1, -1) : '';
+    return str.replace(regex, UI.replaceString(
+        '<div class="uk-badge uk-badge-notification">{{type}}</div>', {type: type}))
+}
 
 function getComponentMethods(component) {
     return Object.keys(component.prototype)
@@ -99,24 +117,29 @@ function extractDocString(name, fn) {
         }).slice(1, -1);
         var summary = '';
         var params = [];
-        var dispatch = null;
-        var returns = null;
+        var dispatch = null,
+            returns = null,
+            example = null;
+
         lines.forEach(function (l) {
             l = l.split(' ');
             switch (l[0]) {
                 case "@param":
-                    params[l[1]] = l.slice(1).join(' ');
+                    params.push({name: l[1], description: l.slice(2).join(' ')});
                     break;
                 case "@returns":
-                    returns = l.join(' ');
+                    returns = l.slice(1).join(' ');
                     break;
                 case "@dispatch":
-                    dispatch = l.join(' ');
+                    dispatch = l.slice(1).join(' ');
+                    break;
+                case "@example":
+                    example = l.slice(1).join(' ');
                     break;
                 default:
                     summary += l.join(' ');
             }
         });
-        return {name: name, summary: summary, dispatch: dispatch, returns: returns, params: params};
+        return {name: name, summary: summary, dispatch: dispatch, returns: returns, params: params, example: example};
     }
 }
