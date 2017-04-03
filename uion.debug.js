@@ -5444,13 +5444,12 @@ window.UION = window.UI = (function(exports, window) {
 			auto: "uk-flex-item-auto",
 			flex: "uk-flex-item-1"
 		},
-		align: {
+		flexAlign: {
 			center: "uk-flex-center",
 			right: "uk-flex-right",
 			top: "uk-flex-top",
 			middle: "uk-flex-middle",
-			bottom: "uk-flex-bottom",
-			"navbar-center": "uk-navbar-center"
+			bottom: "uk-flex-bottom"
 		},
 		display: {
 			block: "uk-display-block",
@@ -5508,7 +5507,6 @@ window.UION = window.UI = (function(exports, window) {
 			large: "uk-hidden-large"
 		},
 		margin: {
-			"0": "uk-margin-remove",
 			"none": "uk-margin-remove",
 			"top-rm": "uk-margin-top-remove",
 			"bottom-rm": "uk-margin-bottom-remove",
@@ -5720,7 +5718,7 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		set: function (name, value) {
 			/**
-			 * Sets a property of the component and invokes its $setter function.
+			 * Sets a property of the component and invokes its setter function.
 			 * @param name Name of the property.
 			 * @param value Value of the property.
 			 * @example set('type', 'primary')
@@ -5764,6 +5762,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param marginX The amount of x-offset from the anchor element edge.
 			 * @param marginY The amount of y-offset from the anchor element edge.
 			 */
+			var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
 			var origin = node.getBoundingClientRect();
 			var rect = this.getBoundingClientRect();
 			var width = rect.width,
@@ -5787,7 +5786,7 @@ window.UION = window.UI = (function(exports, window) {
 				"right-center": {top: origin.height / 2 - height / 2, left: origin.width + marginX}
 			};
 
-			this._html.style.top = (origin.top + variants[position].top) + "px";
+			this._html.style.top = (origin.top - bodyPos.top + variants[position].top) + "px";
 			this._html.style.left = (origin.left + variants[position].left) + "px";
 			this._html.style.position = "absolute";
 		},
@@ -5818,6 +5817,8 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param offset The amount of final offset added to the position depending on which edges are hidden.
 			 * @example moveWithinBoundary({top: 0, bottom: 500, left: 0, right: 1000}, {top: 100, bottom: 100}, {top: 10, left: 10}, {top: 10, left: 20, right: 30, bottom: 40})
 			 */
+			var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
+
 			padding = padding || {};
 			pivot = pivot || {};
 			boundary = boundary || {};
@@ -5860,10 +5861,10 @@ window.UION = window.UI = (function(exports, window) {
 			}
 
 			if (hiddenTop) {
-				this._html.style.top = (pivotTop + offsetTop) + "px";
+				this._html.style.top = (pivotTop + offsetTop - bodyPos.top) + "px";
 			}
 			else if (hiddenBottom) {
-				this._html.style.top = (pivotBottom - rect.height + offsetBottom) + "px";
+				this._html.style.top = (pivotBottom - rect.height + offsetBottom - bodyPos.top) + "px";
 			}
 		}
 	};
@@ -5944,7 +5945,7 @@ window.UION = window.UI = (function(exports, window) {
 
 				return value;
 			};
-			setter.options = cssOptions;
+			setter.options = options;
 			return setter;
 		}, cssOptions);
 	};
@@ -7300,7 +7301,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onAdd, onAdded
 			 * @returns The object id after adding.
 			 */
-			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{type}}: {{item}}", {type: typeof item, item: item}));
 			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
 			item.id = this.id(item);
@@ -7648,6 +7649,7 @@ window.UION = window.UI = (function(exports, window) {
 					"line": ["uk-list", "uk-list-line"],
 					"subnav": "uk-subnav",
 					"navbar": "uk-navbar-nav",
+					"navbar-center": "uk-navbar-center",
 					"subnav-line": ["uk-subnav", "uk-subnav-line"],
 					"subnav-pill": ["uk-subnav", "uk-subnav-pill"],
 					"list": "uk-list",
@@ -8370,7 +8372,8 @@ window.UION = window.UI = (function(exports, window) {
 		$defaults: {
 			htmlTag: "FORM",
 			tagClass: "uk-form",
-			layout: "stacked"
+			layout: "stacked",
+			fieldset: []
 		},
 		$setters: exports.extend(
 			exports.setCSS({
@@ -8436,6 +8439,13 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param values Object of names and values.
 			 */
 			this._fieldset.setValues(values);
+		},
+		getFieldset: function() {
+			/**
+			 * Retrieves the fieldset component of the form.
+			 * @returns {UI.components.fieldset}
+			 */
+			return this._fieldset;
 		}
 	}, exports.components.element);
 

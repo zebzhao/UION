@@ -57,7 +57,6 @@
     src:url("@{icon-font-path}/dripicons-v2.woff") format("woff");
     font-weight: normal;
     font-style: normal;
-
 }
 
 /*
@@ -85,7 +84,11 @@
 /* 6 */
 [class*='uk-icon-'],
 [class*='uk-icon-']:hover,
-[class*='uk-icon-']:focus { text-decoration: none; }
+[class*='uk-icon-']:focus {
+    text-decoration: none;
+    position: relative;
+    top: 2px;
+}
 
 
 /* Size modifiers

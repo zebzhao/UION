@@ -11,6 +11,10 @@ Version 0.9.2
 - Restricted `layout` and `spacing` setters to `flexgrid` only
 - Overhauled css style, default theme is now material-design based
 - Renamed `parse` to `setData` on `ComplexDataSetter`
+- Added `getFieldset` method to `form`
+- Fix bug with scrolling and `AbsolutePositionMethods`
+- Moved `navbar-center` to `listStyle` of `list`
+- Renamed `align` property to `flexAlign`
 
 Version 0.9.0
 -----------

@@ -1,41 +1,46 @@
 UI.new({
-    view: "list",
-    listStyle: "navbar offcanvas",
-    css: "uk-block-secondary",
-    fill: "width",
-    margin: "bottom-lg",
+    view: 'list',
+    listStyle: 'navbar offcanvas',
+    css: 'uk-block-secondary',
+    fill: 'width',
+    margin: 'bottom-lg',
     data: [
         {label: "Github", css: "uk-text-contrast"}
     ]
 }, document.getElementById('navbar'));
 
 UI.new({
-    view: "list",
-    listStyle: "side",
-    minWidth: "180px",
-    margin: "right-lg",
+    view: 'list',
+    listStyle: 'side',
+    minWidth: '180px',
+    margin: 'right-lg',
     data: [
-        {label: "INTRODUCTION"}, {label: "GETTING STARTED"}
+        {label: "INTRODUCTION", $css: "uk-active", link: true},
+        {label: "GETTING STARTED", link: true}
     ].concat(Object.keys(UI.components).sort().map(function (n) {
         return {label: n.toUpperCase(), value: n}
     })),
     on: {
-        onInitialized: function () {
-            this.setActiveLabel("INTRODUCTION");
-        },
         onItemClick: function (item) {
-            this.setActiveLabel(item.label);
-            $$('methodList').parseMethods(UI.components[item.value]);
+            if (!item.link) {
+                // If link is empty, assume it points to a component
+                this.setActiveLabel(item.label);
+                $$('methodList').parseMethods(UI.components[item.value]);
+                $$('cssForm').parseProperties(UI.components[item.value]);
+            }
         }
     }
 }, document.getElementById('sidebar'));
 
 UI.new({
-    layout: "column",
+    id: 'mainView',
+    layout: 'column',
+    visibleBatches: UI.list(['properties', 'tab']), // Custom field
     cells: [
         {
-            view: "list",
-            listStyle: "tab",
+            batch: 'tab',
+            view: 'list',
+            listStyle: 'tab',
             tab: true,
             data: [
                 {label: "DEMO", $css: "uk-active"},
@@ -43,22 +48,88 @@ UI.new({
             ]
         },
         {
-            view: "list",
-            listStyle: "tab",
+            batch: 'tab',
+            view: 'list',
+            listStyle: 'tab',
             tab: true,
             data: [
-                {label: "METHODS", $css: "uk-active"}
+                {label: "PROPERTIES", value: "properties", $css: "uk-active"},
+                {label: "METHODS", value: "methods"}
+            ],
+            on: {
+                onItemClick: function (item) {
+                    this.setActiveLabel(item.label);
+                    var mainView = $$('mainView');
+
+                    switch (item.value) {
+                        case 'properties':
+                            mainView.visibleBatches.replace('methods', 'properties');
+                            mainView.showBatch(mainView.visibleBatches);
+                            break;
+
+                        case 'methods':
+                            mainView.visibleBatches.replace('properties', 'methods');
+                            mainView.showBatch(mainView.visibleBatches);
+                            break;
+                    }
+                }
+            }
+        },
+        {
+            batch: 'properties',
+            layout: 'column',
+            cells: [
+                {
+                    view: 'label', margin: "top-lg", css: 'uk-alert',
+                    label:'<span class="uk-badge uk-badge-warning">NOTE</span>&nbsp;&nbsp;Changing these properties will affect the displayed component.'
+                },
+                {
+                    view: 'label', margin: "top",
+                    label: '<strong>CSS</strong>'
+                },
+                {
+                    id: 'cssForm',
+                    view: 'form',
+                    margin: "top",
+                    formStyle: 'line',
+                    layout: 'horizontal',
+                    parseProperties: function (component) {
+                        var setters = component.prototype.$setters;
+                        var defaults = component.prototype.$defaults;
+                        var properties = Object.keys(setters);
+
+                        this.getFieldset().setData(properties.sort().filter(function (n) {
+                            return setters[n].options;
+                        }).map(function(n) {
+                            return {
+                                formLabel: UI.replaceString('<code>{{name}}</code>', {name: n}),
+                                view: 'button',
+                                size: 'small',
+                                label: UI.replaceString('{{label}}&nbsp;&nbsp;<i class="uk-icon-chevron-down"></i>', {label: defaults[n] || ''}),
+                                minWidth: '100px',
+                                dropdown: {
+                                    view: 'list',
+                                    data: Object.keys(setters[n].options).sort().map(function(n) {
+                                        return {label: n || '&lt;empty&gt;'}
+                                    })
+                                }
+                            }
+                        }));
+                    }
+                },
+                {view: 'label', margin: "top-lg", label: '<strong>MISC</strong>'}
             ]
         },
         {
-            id: "methodList",
-            view: "list",
-            listStyle: "line",
+            batch: 'methods',
+            id: 'methodList',
+            view: 'list',
+            listStyle: 'line',
             selectable: true,
             parseMethods: function (component) {
-                this.setData(getComponentMethods(component).map(function(method) {
+                this.setData(getComponentMethods(component).map(function (method) {
                     return {
-                        view: "element",
+                        view: 'element',
                         template: [
                             '<dl class="uk-description-list-horizontal">',
                             '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
@@ -73,14 +144,20 @@ UI.new({
                         dispatch: method.dispatch,
                         returns: method.returns ? formatReturnsString(method.returns) : null,
                         example: method.example,
-                        parameters: method.params.map(function(n) {
-                            return UI.replaceString('<dt class="uk-text-muted">{{name}}</dt><dd>{{description}}</dd>', n);
+                        parameters: method.params.map(function (n) {
+                            return UI.replaceString(
+                                '<dt class="uk-text-muted">{{name}}</dt><dd>{{description}}</dd>', n);
                         }).join('')
                     }
                 }));
             }
         }
-    ]
+    ],
+    on: {
+        onInitialized: function () {
+            this.showBatch(this.config.visibleBatches);
+        }
+    }
 }, document.getElementById('main'));
 
 
@@ -101,7 +178,7 @@ function getComponentMethods(component) {
         .map(function (n) {
             return extractDocString(n, component.prototype[n]);
         })
-        .filter(function(n) {
+        .filter(function (n) {
             return !!n;
         });
 }
