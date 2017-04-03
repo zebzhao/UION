@@ -16,7 +16,8 @@ UI.new({
     margin: 'right-lg',
     data: [
         {label: "INTRODUCTION", $css: "uk-active", link: true},
-        {label: "GETTING STARTED", link: true}
+        {label: "GETTING STARTED", link: true},
+        {label: "COMPONENTS", header: true}
     ].concat(Object.keys(UI.components).sort().map(function (n) {
         return {label: n.toUpperCase(), value: n}
     })),
@@ -27,6 +28,7 @@ UI.new({
                 this.setActiveLabel(item.label);
                 $$('methodList').parseMethods(UI.components[item.value]);
                 $$('cssForm').parseProperties(UI.components[item.value]);
+                $$('miscForm').parseProperties(UI.components[item.value]);
             }
         }
     }
@@ -117,7 +119,56 @@ UI.new({
                         }));
                     }
                 },
-                {view: 'label', margin: "top-lg", label: '<strong>MISC</strong>'}
+                {view: 'label', margin: "top-lg", label: '<strong>MISC</strong>'},
+                {
+                    id: 'miscForm',
+                    view: 'form',
+                    margin: "top",
+                    formStyle: 'line',
+                    layout: 'horizontal',
+                    parseProperties: function (component) {
+                        var meta = UI.extend({}, component.prototype.$setters._meta);
+                        UI.extend(meta, component.prototype.$setters);
+
+                        var properties = Object.keys(meta).filter(function(n) {
+                            return n.charAt(0) != '$' && n.charAt(0) != '_';
+                        });
+
+                        this.getFieldset().setData(properties.sort().filter(function (n) {
+                            return !UI.isFunction(meta[n]) || !meta[n].options;
+                        }).map(function(n) {
+                            return UI.extend(getViewConfig(meta[n]), {
+                                formLabel: UI.replaceString('<code>{{name}}</code>', {name: n})
+                            })
+                        }));
+
+                        function getViewConfig(property) {
+                            if (UI.isString(property)) {
+                                return {view: 'label', label: property};
+                            }
+                            else if (property.description) {
+                                return {view: 'label', label: property.description};
+                            }
+                            else if (property.isText) {
+                                return {view: 'input', size: 'small'};
+                            }
+                            else if (property.isBoolean) {
+                                return {view: 'toggle'};
+                            }
+                            else if (property.options) {
+                                return {
+                                    view: 'select', size: 'small',
+                                    data: property.options.map(function(n) {
+                                        return {label: n}
+                                    })
+                                };
+                            }
+                            else {
+                                return {}
+                            }
+                        }
+                    }
+                }
             ]
         },
         {

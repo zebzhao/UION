@@ -5744,11 +5744,16 @@ window.UION = window.UI = (function(exports, window) {
 			exports.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
 		},
 		setData: function (value) {
+			/**
+			 * Sets the data for the component.
+			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
+			 */
 			exports.assert(exports.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
 			this.clearAll();
 			for (var i = 0; i < value.length; i++) {
 				this.add(value[i]);
 			}
+			this.data = value;
 		}
 	};
 
@@ -6183,14 +6188,15 @@ window.UION = window.UI = (function(exports, window) {
 		$.tooltip.isText = true;
 		$.css.isText = true;
 		$.dropdown.description = "Configuration object to show in a context menu.";
-		$._meta = {
-			dropdownEvent: "The event type to trigger a dropdown, i.e.) onClick (default), onContextMenu, etc.",
-			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'bottom-center', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
-			dropdownMarginX: "The left margin of the dropdown from anchor component.",
-			dropdownMarginY: "The top margin of the dropdown from anchor component."
-		};
 		$.inline.isBoolean = true;
 		$.uploader.isBoolean = true;
+
+		$._meta = exports.extend({
+			dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
+			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
+			dropdownMarginX: "The left margin of the dropdown from anchor component.",
+			dropdownMarginY: "The top margin of the dropdown from anchor component."
+		}, $._meta || {});
 	}(exports.components.element.prototype.$setters));
 
 
@@ -6541,13 +6547,13 @@ window.UION = window.UI = (function(exports, window) {
 		$.header.description = "Configuration object to put in the modal header.";
 		$.footer.description = "Configuration object to put in the modal footer.";
 		$.caption.isText = true;
-		$._meta = {
+		$._meta = exports.extend({
 			bgClose: {isBoolean: true},
 			keyboard: {isBoolean: true},
 			minScrollHeight: {isNumber: true},
 			closeModals: {isBoolean: true},
 			center: {isBoolean: true}
-		}
+		}, $._meta || {});
 	}(exports.components.modal.prototype.$setters));
 
 
@@ -7086,12 +7092,12 @@ window.UION = window.UI = (function(exports, window) {
 
 	// Define setter options for auto-documentation
 	(function($) {
-		$._meta = {
+		$._meta = exports.extend({
 			caseSensitive: {isBoolean: true},
 			minLength: {isNumber: true},
 			sources: 'An array of sources for the autocomplete.',
 			autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
-		};
+		}, $._meta || {});
 	}(exports.components.input.prototype.$setters));
 
 
@@ -7624,7 +7630,11 @@ window.UION = window.UI = (function(exports, window) {
 
 	(function($) {
 		$.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
-		$.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.'
+		$.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
+
+		$._meta = exports.extend({
+			data: 'An array of component objects.'
+		}, $._meta || {});
 	}(exports.stack.prototype.$setters));
 
 
@@ -8186,13 +8196,13 @@ window.UION = window.UI = (function(exports, window) {
 
 
 	(function($) {
-		$._meta= {
+		$._meta = exports.extend({
 			indentWidth: {isNumber: true},
 			dataTransfer: 'The data representation of an item, only for FireFox.',
 			draggable: {isBoolean: true},
 			orderAfter: 'Low level function that determines ordering of tree items.',
 			droppable: 'Function that determines if an item can be dropped upon.'
-		}
+		}, $._meta || {});
 	}(exports.components.tree.prototype.$setters));
 
 
@@ -8300,8 +8310,8 @@ window.UION = window.UI = (function(exports, window) {
 	}, exports.components.list);
 
 	(function($) {
-		$.columns.description = "A list of schema objects containing data display info, i.e.) [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
-		$.header.description = "A list of header objects containing the header and alignment info, i.e.) [{header: 'Awesome', align: 'center'}]";
+		$.columns.description = "A list of schema objects containing data display info. Example: [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
+		$.header.description = "A list of header objects containing the header and alignment info. Example: [{header: 'Awesome', align: 'center'}]";
 		$.footer.description = "A list of footer objects containing the footer title.";
 	}(exports.components.table.prototype.$setters));
 
@@ -8331,17 +8341,10 @@ window.UION = window.UI = (function(exports, window) {
 			if (exports.isString(item))
 				item = this.getItem(item);
 			item.$selected = true;
-			this._html.selectedIndex = this.indexOf(item);
+			this.getFormControl().selectedIndex = this.indexOf(item);
 		},
 		unselectAll: function () {
 			// Do nothing, invalid for select component.
-		},
-		getValue: function () {
-			/**
-			 * Get the selected value of the select component.
-			 * @returns {string}
-			 */
-			return this._html.value;
 		},
 		setValue: function (value) {
 			/**
@@ -8364,7 +8367,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			return exports.html.createElement("OPTION", attrs);
 		}
-	}, exports.components.list);
+	}, exports.FormControl, exports.components.list);
 
 
 	exports.components.form = exports.def({
