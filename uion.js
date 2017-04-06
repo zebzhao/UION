@@ -116,7 +116,7 @@ window.UION = window.UI = (function(exports, window) {
 		else if (exports.isObject(template)) {
 			if (!template.$ui) {
 				template.$ui = exports.new(template);
-				thisArg.$uis.push(template.$ui);
+				thisArg.$components.push(template.$ui);
 				parentNode.appendChild(template.$ui._html);
 			}
 		}
@@ -233,15 +233,15 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 	exports._events = {};
-	exports.event = function (node, event, handler, master) {
+	exports.event = function (node, event, handler, thisArg) {
 		exports.assert(node, exports.replaceString("Invalid node as target for {{event}} event", {event: event}));
 		exports.assert(handler, exports.replaceString("Invalid handler as target for {{event}} event", {event: event}));
 		node = exports.node(node);
 
 		var id = exports.uid();
 
-		if (master)
-			handler = exports.bind(handler, master);
+		if (thisArg)
+			handler = exports.bind(handler, thisArg);
 
 		exports._events[id] = [node, event, handler];	//store event info, for detaching
 
@@ -573,12 +573,15 @@ window.UION = window.UI = (function(exports, window) {
 			"first-lg": "uk-flex-order-first-large",
 			"last-lg": "uk-flex-order-last-large",
 			"first-xlg": "uk-flex-order-first-xlarge",
-			"last-xlg": "uk-flex-order-last-xlarge"
+			"last-xlg": "uk-flex-order-last-xlarge",
+			"": "",
+			$multiple: true
 		},
 		wrap: {
 			break: "uk-text-break",
 			nowrap: "uk-text-nowrap",
-			truncate: "uk-text-truncate"
+			truncate: "uk-text-truncate",
+			"": ""
 		},
 		padding: {
 			"": "",
@@ -595,24 +598,28 @@ window.UION = window.UI = (function(exports, window) {
 			right: "uk-flex-right",
 			top: "uk-flex-top",
 			middle: "uk-flex-middle",
-			bottom: "uk-flex-bottom"
+			bottom: "uk-flex-bottom",
+			"": ""
 		},
 		display: {
 			block: "uk-display-block",
 			inline: "uk-display-inline",
-			"inline-block": "uk-display-inline-block"
+			"inline-block": "uk-display-inline-block",
+			"": ""
 		},
 		halign: {
 			center: "uk-align-center",
 			left: "uk-align-left",
 			right: "uk-align-right",
 			"left-md": "uk-align-medium-left",
-			"right-md": "uk-align-medium-right"
+			"right-md": "uk-align-medium-right",
+			"": ""
 		},
 		valign: {
 			middle: "uk-vertical-align-middle",
 			parent: "uk-vertical-align",
-			bottom: "uk-vertical-align-bottom"
+			bottom: "uk-vertical-align-bottom",
+			"": ""
 		},
 		position: {
 			"top": "uk-position-top",
@@ -625,21 +632,25 @@ window.UION = window.UI = (function(exports, window) {
 			"relative": "uk-position-relative",
 			"absolute": "uk-position-absolute",
 			"z-index": "uk-position-z-index",
-			"": ""
+			"": "",
+			$multiple: true
 		},
 		fill: {
 			height: "uk-height-1-1",
 			width: "uk-width-100",
-			screen: ["uk-height-1-1", "uk-width-100"]
+			screen: ["uk-height-1-1", "uk-width-100"],
+			"": ""
 		},
 		float: {
 			left: "uk-float-left",
 			right: "uk-float-right",
-			clearfix: "uk-clearfix"
+			clearfix: "uk-clearfix",
+			"": ""
 		},
 		scroll: {
 			xy: "uk-overflow-container",
-			y: "uk-scrollable-text"
+			y: "uk-scrollable-text",
+			"": ""
 		},
 		hidden: {
 			true: "uk-hidden",
@@ -650,7 +661,8 @@ window.UION = window.UI = (function(exports, window) {
 			hover: "uk-hidden-hover",
 			small: "uk-hidden-small",
 			medium: "uk-hidden-medium",
-			large: "uk-hidden-large"
+			large: "uk-hidden-large",
+			$multiple: true
 		},
 		margin: {
 			"none": "uk-margin-remove",
@@ -673,7 +685,8 @@ window.UION = window.UI = (function(exports, window) {
 			"left-sm": "uk-margin-small-left",
 			"right": "uk-margin-right",
 			"right-lg": "uk-margin-large-right",
-			"right-sm": "uk-margin-small-right"
+			"right-sm": "uk-margin-small-right",
+			$multiple: true
 		},
 		inputWidth: {
 			"": "",
@@ -689,11 +702,14 @@ window.UION = window.UI = (function(exports, window) {
 			"large": "uk-visible-large",
 			"except-small": "uk-hidden-small",
 			"except-medium": "uk-hidden-medium",
-			"except-large": "uk-hidden-large"
+			"except-large": "uk-hidden-large",
+			"": "",
+			$multiple: true
 		},
 		device: {
 			touch: "uk-hidden-notouch",
-			notouch: "uk-hidden-touch"
+			notouch: "uk-hidden-touch",
+			"": ""
 		}
 	};
 
@@ -1073,6 +1089,9 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.setCSS = function (cssOptions) {
 		return exports.forIn(function (options, property) {
+			var multipleAllowed = options.$multiple;
+			delete options.$multiple;
+
 			var setter = function (value) {
 				var oldValue = this._config[property];
 				if (options[oldValue])
@@ -1097,6 +1116,7 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			};
 			setter.options = options;
+			setter.multipleAllowed = !!multipleAllowed;
 			return setter;
 		}, cssOptions);
 	};
@@ -1181,21 +1201,21 @@ window.UION = window.UI = (function(exports, window) {
 			},
 			dropdown: function (value) {
 				var $this = this;
-				var masterConfig = $this._config;
+				var config = $this._config;
 
 				var dropdown = {
-					id: masterConfig.dropdownId,
+					id: config.dropdownId,
 					view: "dropdown",
-					pos: masterConfig.dropdownPos,
+					pos: config.dropdownPos,
 					dropdown: value
 				};
 
 				var ui = exports.new(dropdown, document.body);
 
-				this._config.on = masterConfig.on || {};
-				this.addListener(masterConfig.dropdownEvent, function (config, node, e) {
-					ui.open(config, node, $this, e);
-					ui.positionNextTo(node, dropdown.pos, masterConfig.dropdownMarginX, masterConfig.dropdownMarginY);
+				config.on = config.on || {};
+				this.addListener(config.dropdownEvent, function (config, node) {
+					ui.open($this);
+					ui.positionNextTo(node, dropdown.pos, config.dropdownMarginX, config.dropdownMarginY);
 					ui.moveWithinBoundary();
 				});
 				$this.dropdownPopup = ui;
@@ -1221,7 +1241,7 @@ window.UION = window.UI = (function(exports, window) {
 			var node = exports.node(config.id);
 			exports.assert(!node, exports.replaceString("Node with id '{{id}}' already exists", {id: config.id}), config);
 
-			this.$uis = exports.list();
+			this.$components = exports.list();
 			this.element = this._html = exports.html.createElement(config.htmlTag || "DIV", {id: config.id});
 			if (config.tagClass)
 				this.element.setAttribute("class", config.tagClass);
@@ -1308,6 +1328,15 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			this._html.removeAttribute('disabled');
 		},
+		getComponent: function(key, value) {
+			/**
+			 * Gets a child component from a key value match.
+			 * @param key The key to look up.
+			 * @param value The compared value.
+			 * @returns {UI.components.element}
+			 */
+			return this.$components.findOne(key, value);
+		},
 		_uploadFileHTML: function () {
 			var config = this._config;
 			var self = this;
@@ -1368,16 +1397,11 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		}),{
 			cells: function (value) {
-				exports.assert(exports.isArray(value), "The cells property must be an array for shell ui object.", this);
+				exports.assert(exports.isArray(value), "The cells property must be an Array.", this);
 
 				for (var config, i = 0; i < value.length; i++) {
 					config = value[i];
-					config.margin = config.margin || "";
-
-					var ui = exports.new(config);
-					if (!this._config.singleView)
-						this._html.appendChild(ui._html);
-					this.$uis.push(ui);
+					this.addChild(config);
 				}
 
 				if (this._config.singleView && this._config.defaultView)
@@ -1396,7 +1420,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param thisArg The 'this' object passed to the invoked function.
 			 * @returns Return an array containing the results of the invoked call.
 			 */
-			return this.$uis.each(func, thisArg);
+			return this.$components.each(func, thisArg);
 		},
 		insertChild: function (index, config) {
 			/**
@@ -1406,7 +1430,17 @@ window.UION = window.UI = (function(exports, window) {
 			 * @returns {object} The child component
 			 */
 			var ui = config.element ? config : exports.new(config);
-			this.$uis.splice(index, 0, ui);
+			this.$components.splice(index, 0, ui);
+
+			if (!this._config.singleView) {
+				if (index > 0)
+					this._html.insertAfter(ui._html, this.$components[index-1]._html);
+				else if (index+1 < this.$components.length)
+					this._html.insertBefore(ui._html, this.$components[index+1]._html);
+				else
+					this._html.appendChild(ui._html)
+			}
+
 			return ui;
 		},
 		addChild: function (config) {
@@ -1416,7 +1450,11 @@ window.UION = window.UI = (function(exports, window) {
 			 * @returns {object} The child component
 			 */
 			var ui = config.element ? config : exports.new(config);
-			this.$uis.push(ui);
+			this.$components.push(ui);
+
+			if (!this._config.singleView)
+				this._html.appendChild(ui._html);
+
 			return ui;
 		},
 		removeChild: function (id) {
@@ -1426,11 +1464,11 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			if (id.element) {
 				this._html.removeChild(id._html);
-				this.$uis.remove(id);
+				this.$components.remove(id);
 			}
 			else if (exports.isString(id)) {
 				this._html.removeChild(this.getChild(id)._html);
-				this.$uis.removeWhere('id', id);
+				this.$components.removeWhere('id', id);
 			}
 			else {
 				exports.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
@@ -1438,25 +1476,25 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		getChild: function (id) {
 			/**
-			 * Get a child of the flexbox by id.
+			 * Get a child of the flexgrid by id.
 			 * @param id The string id of the component.
-			 * @returns {object}
+			 * @returns {UI.components.element}
 			 */
-			return this.$uis.findOne('id', id);
+			return this.$components.findOne('id', id);
 		},
 		getChildren: function () {
 			/**
 			 * Get a list of all children. Make a copy if mutating this object.
 			 * @returns {array} Array of child components.
 			 */
-			return this.$uis;
+			return this.$components;
 		},
 		getItems: function () {
 			/**
 			 * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
 			 * @returns {array} Array of child components config objects.
 			 */
-			return this.$uis.each(function (item) {
+			return this.$components.each(function (item) {
 				return item.config;
 			});
 		},
@@ -1478,19 +1516,18 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChildChange", [this._activeChild, newChild]);
 			this._activeChild = newChild;
 		},
-		showBatch: function (name, preserveOrder) {
+		showBatch: function (name) {
 			/**
 			 * Checks the batch property of all children and makes all matching batch visible.
 			 * @param name An array or a string to identify batch(es). Matching is done using indexOf.
-			 * @param preserveOrder Whether the order of child elements should not change after calling this method (slightly more expensive).
 			 */
 			// Tricky: Rendering input fields will cause problems with on-screen keyboards.
 			// However, to preserve the order of elements, will need to rerender.
-			this._setVisible('batch', exports.isArray(name) ? name : [name], preserveOrder);
+			this._setVisible('batch', exports.isArray(name) ? name : [name], true);
 			this.batch = name;
 		},
 		_setVisible: function (key, value, rerender) {
-			this.$uis.each(function (item) {
+			this.$components.each(function (item) {
 				if (value.indexOf(item.config[key]) != -1) {
 					if (item._html.parentNode != this._html || rerender) {
 						this._html.appendChild(item._html);
@@ -1615,11 +1652,10 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			body: function (value) {
-				value.margin = value.margin || "";
 				value.halign = value.halign || "center";
 				var innerBody = exports.new(value);
 				this.bodyContent = innerBody;
-				this.$uis.push(this.bodyContent);
+				this.$components.push(this.bodyContent);
 
 				if (this._footer.parentNode) {
 					this._body.insertBefore(innerBody._html, this._footer);
@@ -1630,19 +1666,17 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			header: function (value) {
-				value.margin = value.margin || "";
 				var innerHeader = exports.new(value);
 				this._header.appendChild(innerHeader._html);
 				this.headerContent = innerHeader;
-				this.$uis.push(this.headerContent);
+				this.$components.push(this.headerContent);
 				return value;
 			},
 			footer: function (value) {
-				value.margin = value.margin || "";
 				var innerFooter = exports.new(value);
 				this._footer.appendChild(innerFooter._html);
 				this.footerContent = innerFooter;
-				this.$uis.push(this.footerContent);
+				this.$components.push(this.footerContent);
 				return value;
 			},
 			caption: function (value) {
@@ -1834,8 +1868,7 @@ window.UION = window.UI = (function(exports, window) {
 		$defaults: {
 			htmlTag: "DIV",
 			tagClass: "uk-progress",
-			margin: "none",
-			position: "top z-index"
+			fill: "width"
 		},
 		$setters: exports.setCSS({
 			size: {
@@ -1848,7 +1881,8 @@ window.UION = window.UI = (function(exports, window) {
 				warning: "uk-progress-warning",
 				success: "uk-progress-success",
 				striped: "uk-progress-striped",
-				"": ""
+				"": "",
+				$multiple: true
 			}
 		}),
 		render: function () {
@@ -2222,6 +2256,7 @@ window.UION = window.UI = (function(exports, window) {
 				self._autocomplete = UIkit.autocomplete(self._html,
 					{source: exports.bind(value, self), minLength: self._config.minLength});
 				self._autocomplete.dropdown.attr("style", "width:100%");
+				self._autocomplete.dropdown.addClass('uk-dropdown-small');
 				self._autocomplete.on("selectitem.uk.autocomplete", function (e, obj) {
 					self.dispatch("onChange", [obj.value]);
 					self.dispatch("onAutocomplete", [obj]);
@@ -2301,7 +2336,7 @@ window.UION = window.UI = (function(exports, window) {
 				dropdown.appendChild(ui._html);
 				this._html.appendChild(dropdown);
 				this._inner = ui;
-				this.$uis.push(this._inner);
+				this.$components.push(this._inner);
 				return value;
 			}
 		},
@@ -2329,29 +2364,29 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			return exports.html.hasCSS(this._html, 'uk-open');
 		},
-		open: function (config, node, parent, e) {
-			this.dispatch("onOpen", [config, node, this]);
-			this._inner.dispatch("onOpen", [config, node, this]);
-
-			this._inner.master = node;
-			this._inner.masterConfig = config;
-			this._inner.parent = this;
-			this._inner.grandparent = parent;
+		open: function (args) {
+			/**
+			 * Opens the dropdown.
+			 * @dispatch onOpen, onOpened
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
+			args = [this._config, this._html, args];
+			this.dispatch("onOpen", args);
+			this._inner.dispatch("onOpen", args);
 			this._dropdown.show();
-
-			this.dispatch("onOpened", [config, node, this]);
-			this._inner.dispatch("onOpened", [config, node, this]);
+			this.dispatch("onOpened", args);
+			this._inner.dispatch("onOpened", args);
 		},
-		close: function (node, master) {
-			var $this = this;
-			$this.dispatch("onClose", [master, node, $this]);
-			$this._inner.dispatch("onClose", [master, node, $this]);
+		close: function (args) {
+			args = [this._config, this._html, args];
+			$this.dispatch("onClose", args);
+			$this._inner.dispatch("onClose", args);
 			// Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
 			// Adding a delay helps close dropdowns properly on Chrome (mobile)
 			setTimeout(function () {
 				exports.html.removeCSS($this._html, 'uk-open');
-				$this.dispatch("onClosed", [master, node, $this]);
-				$this._inner.dispatch("onClosed", [master, node, $this]);
+				$this.dispatch("onClosed", args);
+				$this._inner.dispatch("onClosed", args);
 			}, 10);
 		}
 	}, exports.components.flexgrid, exports.AbsolutePositionMethods);
@@ -2372,21 +2407,22 @@ window.UION = window.UI = (function(exports, window) {
 			/**
 			 * Assigns an id to an object if one doesn't exist.
 			 * @param data The object to assign an id to.
-			 * @returns {*} THe id of the object.
+			 * @returns {*|string} The id of the object.
 			 */
 			return data.id || (data.id = exports.new.uid("data"));
 		},
 		getItem: function (id) {
 			/**
-			 * Gets an element by its id.
+			 * Gets a configuration object by its id.
 			 * @param id The id of the element.
-			 * @returns {*}
+			 * @returns {object}
 			 */
 			return this.findOne('id', id);
 		},
 		count: function () {
 			/**
 			 * Gets a count of all objects.
+			 * @returns {number}
 			 */
 			return this._nodeList.length;
 		},
@@ -2596,6 +2632,24 @@ window.UION = window.UI = (function(exports, window) {
 				node = node.$tailNode;
 				i++;
 			}
+		},
+		findWhere: function (key, value, beginNode) {
+			/**
+			 * Find all items based on a key and value.
+			 * @param key The key to look at for matching.
+			 * @param value The value of the key.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
+			var result = [];
+			var node = beginNode || this.headNode;
+			while (node) {
+				// Apparently 1 == "1" in JS
+				if (node[key] === value)
+					result.push(node);
+				node = node.$tailNode;
+			}
+			return result;
 		},
 		findOne: function (key, value, beginNode) {
 			/**
@@ -2815,7 +2869,8 @@ window.UION = window.UI = (function(exports, window) {
 					"tab-center": "uk-tab-center",
 					"tab-left": "uk-tab-left",
 					"tab-right": "uk-tab-right",
-					"": ""
+					"": "",
+					$multiple: true
 				}
 			}),
 			{
@@ -3007,6 +3062,11 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		closeItem: function (item) {
+			/**
+			 * For tabs only, closes a tab item and removes it.
+			 * @param item The item to remove.
+			 * @dispatch onItemClose, onItemClosed, onItemSelectionChanged
+			 */
 			this.dispatch("onItemClose", [item]);
 
 			if (this.isSelected(item)) {
@@ -3045,7 +3105,7 @@ window.UION = window.UI = (function(exports, window) {
 		_innerHTML: function (parentNode, config) {
 			if (config.view) {
 				var ui = exports.new(config);
-				this.$uis.push(ui);
+				this.$components.push(ui);
 				parentNode.appendChild(ui._html);
 			}
 			else if (config.header) {
@@ -3055,7 +3115,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			else {
 				var link = new exports.components.link(config);
-				this.$uis.push(link);
+				this.$components.push(link);
 				parentNode.appendChild(link._html);
 				this._addCloseHTML(link._html, config);
 			}
@@ -3379,7 +3439,8 @@ window.UION = window.UI = (function(exports, window) {
 				tableStyle: {
 					hover: "uk-table-hover",
 					striped: "uk-table-striped",
-					condensed: "uk-table-condensed"
+					condensed: "uk-table-condensed",
+					$multiple: true
 				}
 			}),
 			{
@@ -3537,18 +3598,27 @@ window.UION = window.UI = (function(exports, window) {
 			}),
 			{
 				fieldset: function (value) {
-					var ui = exports.new({
+					this.set('fieldsets', [{
 						view: "fieldset",
-						margin: "",
 						layout: this._config.layout,
 						data: value
-					});
-					this._fieldset = ui;
-					this.$uis.push(this._fieldset);
-					this._html.appendChild(ui._html);
+					}]);
+				},
+				fieldsets: function (value) {
+					exports.assert(exports.isArray(value), "The fieldsets property must be an array.", this);
+
+					for (var ui, i = 0; i < value.length; i++) {
+						ui = exports.new(value[i]);
+						this.$fieldsets.push(ui);
+						this.$components.push(ui);
+						this._html.appendChild(ui._html);
+					}
 					return value;
 				}
 			}),
+		__init__: function() {
+			this.$fieldsets = UI.list();
+		},
 		__after__: function () {
 			exports.event(this._html, "submit", this._onSubmit, this);
 		},
@@ -3561,40 +3631,53 @@ window.UION = window.UI = (function(exports, window) {
 			/**
 			 * Clear all values from the form.
 			 */
-			this._fieldset.clear();
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.clear();
+			});
 		},
 		enable: function () {
 			/**
 			 * Enable the fieldset of the form.
 			 */
-			this._fieldset.enable();
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.enable();
+			});
 		},
 		disable: function () {
 			/**
 			 * Disable the fieldset of the form.
 			 */
-			this._fieldset.disable();
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.disable();
+			});
 		},
 		getValues: function () {
 			/**
 			 * Gets the values of the form's components.
 			 * @returns {object} Object of key values of the form.
 			 */
-			return this._fieldset.getValues();
+			var result = {};
+			this.$fieldsets.each(function(fieldset) {
+				UI.extend(result, fieldset.getValues());
+			});
+			return result;
 		},
 		setValues: function (values) {
 			/**
 			 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
 			 * @param values Object of names and values.
 			 */
-			this._fieldset.setValues(values);
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.setValues(values);
+			});
 		},
-		getFieldset: function() {
+		getFieldset: function(index) {
 			/**
 			 * Retrieves the fieldset component of the form.
+			 * @param index The index of the fieldset in the form, default 0.
 			 * @returns {UI.components.fieldset}
 			 */
-			return this._fieldset;
+			return this.$fieldsets[index || 0];
 		}
 	}, exports.components.element);
 
@@ -3625,9 +3708,8 @@ window.UION = window.UI = (function(exports, window) {
 				parentNode.innerHTML = config.label;
 			}
 			else {
-				config.margin = config.margin || "";
 				var ui = exports.new(config);
-				this.$uis.push(ui);
+				this.$components.push(ui);
 
 				if (config.formLabel) {
 					ui.label = exports.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
@@ -3682,7 +3764,7 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			var results = {};
 
-			var unprocessed = this.$uis.copy();
+			var unprocessed = this.$components.copy();
 
 			// Extract all children with `name` attributes, including nested flexgrid children.
 			var ui;
@@ -3691,8 +3773,8 @@ window.UION = window.UI = (function(exports, window) {
 				if (ui && ui.config.name) {
 					results[ui.config.name] = ui.getValue();
 				}
-				else if (ui.$uis) {
-					unprocessed = unprocessed.concat(ui.$uis);
+				else if (ui.$components) {
+					unprocessed = unprocessed.concat(ui.$components);
 				}
 			}
 
@@ -3705,7 +3787,7 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			exports.assert(config, "fieldset setValues has recieved an invalid value.");
 
-			var unprocessed = this.$uis.copy();
+			var unprocessed = this.$components.copy();
 
 			var ui;
 			while (unprocessed.length > 0) {
@@ -3713,8 +3795,8 @@ window.UION = window.UI = (function(exports, window) {
 				if (ui && exports.isDefined(config[ui.config.name])) {
 					ui.setValue(config[ui.config.name]);
 				}
-				else if (ui.$uis) {
-					unprocessed = unprocessed.concat(ui.$uis);
+				else if (ui.$components) {
+					unprocessed = unprocessed.concat(ui.$components);
 				}
 			}
 		}
