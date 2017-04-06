@@ -14,7 +14,25 @@ var Model = {
             return {
                 view: "button",
                 label: "Show dropdown",
+                type: "primary",
                 dropdown: dropdown.dropdown
+            }
+        },
+        modal: function(modal) {
+            return {
+                cells: [
+                    {
+                        view: "button",
+                        label: "Show modal",
+                        type: "primary",
+                        on: {
+                            onClick: function() {
+                                $$(modal.id).open();
+                            }
+                        }
+                    },
+                    modal
+                ]
             }
         }
     },
@@ -84,6 +102,7 @@ var Model = {
                 cells: [
                     {
                         view: "list",
+                        listStyle: "side",
                         data: [
                             {label: "Curl into a furry donut."},
                             {label: "Look into a furry donut."},
@@ -95,9 +114,11 @@ var Model = {
                     },
                     {
                         view: "form",
+                        margin: "left-lg",
                         fieldset: [
-                            {formLabel: "Curl", view: "input", type: "checkbox", checked: true},
-                            {formLabel: "into", view: "input", value: "a furry donut"}
+                            {formLabel: "User", view: "input", value: "Hello"},
+                            {formLabel: "Password", view: "password", placeholder: "Password"},
+                            {view: "button", type: "primary", label: "Login", inputWidth: "medium"}
                         ]
                     }
                 ]
@@ -112,7 +133,7 @@ var Model = {
         image: function () {
             return {
                 view: "image",
-                src: ""
+                src: "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'200'%20height%3D'100'%3E%3Crect%20width%3D'100%25'%20height%3D'100%25'%20fill%3D'%2323b2ff'%2F%3E%3C%2Fsvg%3E"
             }
         },
         input: function () {
@@ -150,17 +171,18 @@ var Model = {
                 view: "modal",
                 header: {
                     view: "label",
-                    tagClass: "H3",
+                    htmlTag: "H3",
                     label: "Stale coffee is exquisite!"
                 },
                 body: {
                     view: "label",
-                    label: "Curl into a furry donut."
+                    label: "Medium brewed, dripper to go filter iced kopi-luwak qui variety cortado acerbic. Plunger pot latte organic sweet single shot robust cappuccino. Plunger pot qui decaffeinated crema, variety cappuccino carajillo shop blue mountain milk. Dark single origin filter, fair trade at grounds aged caffeine froth. In pumpkin spice ristretto single shot chicory mocha kopi-luwak robusta trifecta french press dark."
                 },
                 footer: {
+                    flexAlign: "right",
                     cells: [
-                        {view: "button", label: "No way"},
-                        {view: "button", type: "primary", label: "Yup"}
+                        {view: "button", label: "No way!", margin: "right"},
+                        {view: "button", type: "primary", label: "Yup."}
                     ]
                 }
             }
@@ -201,15 +223,12 @@ var Model = {
         table: function () {
             return {
                 view: "table",
-                headers: [
-                    {label: "Action"},
-                    {label: "Preposition"},
-                    {label: "Object"}
-                ],
+                header: true,
+                footer: true,
                 columns: [
-                    {name: "action"},
-                    {name: "preposition"},
-                    {name: "directObject.object", template: "<code>{{name}}</code>"}
+                    {header: "Action", name: "action", footer: "7"},
+                    {header: "Preposition", name: "preposition", footer: "7"},
+                    {header: "Object", name: "directObject.object", footer: "14"}
                 ],
                 data: [
                     {action: "Curl", preposition: "into", directObject: {article: "a", object: "furry donut"}},
@@ -253,13 +272,25 @@ function wrapInForm(input) {
 }
 
 UI.new({
-    view: 'list',
-    listStyle: 'navbar offcanvas',
     css: 'uk-block-secondary',
-    fill: 'width',
+    size: 'none',
     margin: 'bottom-lg',
-    data: [
-        {label: "Github", css: "uk-text-contrast"}
+    spacing: 'between',
+    cells: [
+        {
+            view: 'list',
+            listStyle: 'navbar offcanvas',
+            data: [
+                {label: "UION", css: "uk-text-contrast"}
+            ]
+        },
+        {
+            view: 'list',
+            listStyle: 'navbar offcanvas',
+            data: [
+                {label: "Github", css: "uk-text-contrast"}
+            ]
+        }
     ]
 }, document.getElementById('navbar'));
 
@@ -269,22 +300,26 @@ UI.new({
     minWidth: '180px',
     margin: 'right-lg',
     data: [
-        {label: "INTRODUCTION", $css: "uk-active", link: true},
-        {label: "GETTING STARTED", link: true},
+        {label: "GETTING STARTED", $css: "uk-active", link: true},
         {divider: true}
     ].concat(Object.keys(UI.components).sort().map(function (n) {
         return {label: n.toUpperCase(), value: n}
     })),
     on: {
         onItemClick: function (item) {
+            this.setActiveLabel(item.label);
+
             if (!item.link) {
                 // If link is empty, assume it points to a component
-                this.setActiveLabel(item.label);
                 $$('methodList').parseMethods(UI.components[item.value]);
                 $$('cssForm').parseProperties(UI.components[item.value]);
                 $$('miscForm').parseProperties(UI.components[item.value]);
                 var config = $$('codeView').parseCode(item.value);
                 $$('componentView').parseConfig(config, item.value);
+                $$('mainView').show();
+            }
+            else {
+                $$('mainView').hide();
             }
         }
     }
@@ -293,6 +328,7 @@ UI.new({
 UI.new({
     id: 'mainView',
     layout: 'column',
+    hidden: true,
     visibleBatches: UI.list(['properties', 'tab', 'component']), // Custom field
     cells: [
         {

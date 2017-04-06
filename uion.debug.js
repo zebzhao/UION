@@ -5918,7 +5918,7 @@ window.UION = window.UI = (function(exports, window) {
 		this._names = this._names || {};
 		this._names[name] = this._names[name] || 0;
 		this._names[name]++;
-		return "$" + name + this._names[name];
+		return '' + name + this._names[name];
 	};
 
 
@@ -6790,11 +6790,6 @@ window.UION = window.UI = (function(exports, window) {
 	exports.FormControl = {
 		$setters: exports.extend(exports.setCSS(
 			{
-				class: {
-					success: "uk-form-success",
-					danger: "uk-form-danger",
-					"": ""
-				},
 				size: {
 					large: "uk-form-large",
 					small: "uk-form-small",
@@ -6802,6 +6797,10 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}),
 			{
+				class: function (value) {
+					this.setClass(value);
+					return value;
+				},
 				help: function (value) {
 					if (this.help && this.help.parentNode) {
 						this.help.parentNode.removeChild(this.help);
@@ -6933,6 +6932,7 @@ window.UION = window.UI = (function(exports, window) {
 		$.autocapitalize.isBoolean = true;
 		$.autocorrect.isBoolean = true;
 		$.placeholder.isText = true;
+		$.class.options = {"": "", "danger": "danger", "success": "success"};
 		$.type.description = "Set the type of the HTML input element.";
 		$.value.description = "Initial value of the HTML input element.";
 	}(exports.FormControl.$setters));
@@ -6940,6 +6940,14 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.components.toggle = exports.def({
 		__name__: "toggle",
+		$setters: exports.setCSS({
+			type: {
+				"success": "uk-toggle-success",
+				"danger": "uk-toggle-danger",
+				"warning": "uk-toggle-warning",
+				"": ""
+			}
+		}),
 		$defaults: {
 			htmlTag: "LABEL",
 			tagClass: "uk-toggle"
