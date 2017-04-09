@@ -226,9 +226,10 @@ var Model = {
                 header: true,
                 footer: true,
                 columns: [
-                    {header: "Action", name: "action", footer: "7"},
-                    {header: "Preposition", name: "preposition", footer: "7"},
-                    {header: "Object", name: "directObject.object", footer: "14"}
+                    {header: "Action", name: "action", footer: "1"},
+                    {header: "Preposition", name: "preposition", footer: "2"},
+                    {header: "Article", name: "directObject.article", footer: "3"},
+                    {header: "Object", template: "<code>{{directObject.object}}</code>",  footer: "Y"}
                 ],
                 data: [
                     {action: "Curl", preposition: "into", directObject: {article: "a", object: "furry donut"}},
@@ -288,7 +289,7 @@ UI.new({
             view: 'list',
             listStyle: 'navbar offcanvas',
             data: [
-                {label: "Github", css: "uk-text-contrast"}
+                {label: "Github", href:"https://github.com/zebzhao/UION", css: "uk-text-contrast"}
             ]
         }
     ]
@@ -299,6 +300,7 @@ UI.new({
     listStyle: 'side',
     minWidth: '180px',
     margin: 'right-lg',
+    screen: 'except-small',
     data: [
         {label: "GETTING STARTED", $css: "uk-active", link: true},
         {divider: true}
@@ -311,6 +313,7 @@ UI.new({
 
             if (!item.link) {
                 // If link is empty, assume it points to a component
+                UI.html.addCSS(document.getElementById('gettingStarted'), 'uk-hidden');
                 $$('methodList').parseMethods(UI.components[item.value]);
                 $$('cssForm').parseProperties(UI.components[item.value]);
                 $$('miscForm').parseProperties(UI.components[item.value]);
@@ -320,6 +323,7 @@ UI.new({
             }
             else {
                 $$('mainView').hide();
+                UI.html.removeCSS(document.getElementById('gettingStarted'), 'uk-hidden');
             }
         }
     }
@@ -355,6 +359,8 @@ UI.new({
                         case 'code':
                             mainView.visibleBatches.replace('component', 'code');
                             mainView.showBatch(mainView.visibleBatches);
+                            // Apply syntax highlighting
+                            highlightBlocks();
                             break;
                     }
                 }
@@ -669,3 +675,13 @@ function extractDocString(name, fn) {
         return {name: name, summary: summary, dispatch: dispatch, returns: returns, params: params, example: example};
     }
 }
+
+function highlightBlocks() {
+    $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
+}
+
+$(document).ready(function() {
+    highlightBlocks();
+});
