@@ -1048,13 +1048,13 @@ window.UION = window.UI = (function(exports, window) {
 		function makeView(config) {
 			if (config.view) {
 				var view = config.view;
-				exports.assert(exports.components[view], "unknown view:" + view);
-				return new exports.components[view](config);
+				exports.assert(exports.classes[view], "unknown view:" + view);
+				return new exports.classes[view](config);
 			}
 			else if (config.cells)
-				return new exports.components.flexgrid(config);
+				return new exports.classes.flexgrid(config);
 			else
-				return new exports.components.element(config);
+				return new exports.classes.element(config);
 		}
 	};
 	
