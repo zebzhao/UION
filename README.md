@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/zebzhao/UION.svg?branch=master)](https://travis-ci.org/zebzhao/UION)
 
-UION (User Interface Object Notation) is a JSON user interface builder based on UIkit. (Renamed from Pykit.)
+UION (User Interface Object Notation) is a JSON user interface builder based on UIkit. UION uses [Dripicons V2](https://github.com/amitjakhu/dripicons) as the default icon set.
+
+To see documentation about each component please visit the official [website](https://io.github.com/zebzhao/UION).
 
 Getting started
 ---
@@ -22,8 +24,6 @@ Table of Contents
 1. [Defining abstract extensions](#defining-abstract-extensions)
 1. [Defining required extensions](#defining-required-extensions)
 1. [Initialization handling](#initialization-handling)
-1. [Standard components](#standard-components)
-1. [Demos](#demos)
 
 Usage
 ---
@@ -32,14 +32,14 @@ Start by including the file in your main HTML file.
 
 For debugging
 ```html
-<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="css/uikit/uikit.css">
 <script src="jquery.js" type="text/javascript"></script>
 <script src="uion.debug.js" type="text/javascript"></script>
 ```
 
 For production
 ```html
-<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="css/uikit/uikit.css">
 <script src="jquery.min.js" type="text/javascript"></script>
 <script src="uion.min.js" type="text/javascript"></script>
 ```
@@ -123,14 +123,14 @@ Any created components can inherit other components or be used to extend new com
 ```javascript
 UI.def({
     __name__: "toggleButton",
-}, UI.new.button);
+}, UI.components.button);
 ```
 If multiple components are inherited, they will be extended in the order of _right_ to _left_.
 Any methods with the same name will be overwritten by the _left-most_ component in the extension list.
 ```javascript
 UI.def({
     __name__: "toggleInput",
-}, UI.new.input, UI.new.button);
+}, UI.components.input, UI.components.button);
 ```
 
 ## Defining abstract extensions
@@ -170,10 +170,8 @@ UI.def({
 		label: "",
         htmlTag: "BUTTON",
 	},
-    template: function(config) {
-		return UI.replaceString("<span>{label}</span>", {label: config.label});
-    }
-}, ClickEvents, UI.new.element);
+    template: "<span>{{label}}</span>",
+}, ClickEvents, UI.components.element);
 ```
 
 ## Defining required extensions
@@ -262,41 +260,8 @@ UI.def({
         // Dispatch events
         this.dispatch("onCustomEvent");
     }
-}, UI.new.element);
+}, UI.components.element);
 ```
-
-Standard components
----
-
-A list of standard components can be found below.
-
-* autocomplete
-* button
-* dropdown
-* element
-* fieldset
-* flexgrid
-* form
-* icon
-* image
-* input
-* label
-* link
-* list
-* modal
-* password
-* search
-* table
-* tree
-
-## Standard attributes
-
-Currently undocumented.
-
-Demos
----
-
-For a list of demos, see the `layout_tests` folder.
 
 Developers
 ---
