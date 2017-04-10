@@ -282,6 +282,15 @@ UI.new({
             view: 'list',
             listStyle: 'navbar offcanvas',
             data: [
+                {
+                    view: 'icon', icon: 'uk-icon-menu',
+                    css: 'uk-text-muted', screen: 'small',
+                    on: {
+                        onClick: function() {
+                            UIkit.offcanvas.show('#offcanvas', {mode: 'slide'});
+                        }
+                    }
+                },
                 {label: "UION", css: "uk-text-contrast"}
             ]
         },
@@ -295,39 +304,43 @@ UI.new({
     ]
 }, document.getElementById('navbar'));
 
-UI.new({
-    view: 'list',
-    listStyle: 'side',
-    minWidth: '180px',
-    margin: 'right-lg',
-    screen: 'except-small',
-    data: [
-        {label: "GETTING STARTED", $css: "uk-active", link: true},
-        {divider: true}
-    ].concat(Object.keys(UI.components).sort().map(function (n) {
-        return {label: n.toUpperCase(), value: n}
-    })),
-    on: {
-        onItemClick: function (item) {
-            this.setActiveLabel(item.label);
+function sidebarTemplate() {
+    return {
+        view: 'list',
+        listStyle: 'side',
+        minWidth: '180px',
+        margin: 'right-lg',
+        data: [
+            {label: "GETTING STARTED", $css: "uk-active", link: true},
+            {divider: true}
+        ].concat(Object.keys(UI.components).sort().map(function (n) {
+            return {label: n.toUpperCase(), value: n}
+        })),
+        on: {
+            onItemClick: function (item) {
+                this.setActiveLabel(item.label);
 
-            if (!item.link) {
-                // If link is empty, assume it points to a component
-                UI.html.addCSS(document.getElementById('gettingStarted'), 'uk-hidden');
-                $$('methodList').parseMethods(UI.components[item.value]);
-                $$('cssForm').parseProperties(UI.components[item.value]);
-                $$('miscForm').parseProperties(UI.components[item.value]);
-                var config = $$('codeView').parseCode(item.value);
-                $$('componentView').parseConfig(config, item.value);
-                $$('mainView').show();
-            }
-            else {
-                $$('mainView').hide();
-                UI.html.removeCSS(document.getElementById('gettingStarted'), 'uk-hidden');
+                if (!item.link) {
+                    // If link is empty, assume it points to a component
+                    UI.html.addCSS(document.getElementById('gettingStarted'), 'uk-hidden');
+                    $$('methodList').parseMethods(UI.components[item.value]);
+                    $$('cssForm').parseProperties(UI.components[item.value]);
+                    $$('miscForm').parseProperties(UI.components[item.value]);
+                    var config = $$('codeView').parseCode(item.value);
+                    $$('componentView').parseConfig(config, item.value);
+                    $$('mainView').show();
+                }
+                else {
+                    $$('mainView').hide();
+                    UI.html.removeCSS(document.getElementById('gettingStarted'), 'uk-hidden');
+                }
             }
         }
-    }
-}, document.getElementById('sidebar'));
+    };
+}
+
+UI.new(sidebarTemplate(), document.getElementById('sidebar'));
+UI.new(UI.extend(sidebarTemplate(), {css: ['uk-offcanvas-bar']}), document.getElementById('offcanvas'));
 
 UI.new({
     id: 'mainView',
