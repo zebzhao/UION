@@ -1,6 +1,6 @@
 {
   "name": "UION",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "homepage": "https://github.com/zebzhao/UION",
   "dependencies": {
     "uikit": "uikit/uikit#^2.26.x",
@@ -9,12 +9,10 @@
   "ignore": [
     "node_modules",
     "bower_components",
-    "less",
     "gulpfile.js",
     "karma.conf.js",
     "package.json",
-    "pykit.spec.js",
-    "bower.json",
+    "uion.spec.js",
     ".gitignore",
     ".travis.yml"
   ]

@@ -25,21 +25,22 @@
 // Variables
 // ========================================================================
 
-@progress-height:                               20px;
-@progress-mini-height:                          6px;
-@progress-small-height:                         12px;
+@progress-height:                               15px;
+@progress-mini-height:                          2px;
+@progress-small-height:                         8px;
 
-@progress-margin-vertical:                      15px;
-@progress-background:                           #eee;
+@progress-margin-vertical:                      0;
+@progress-background:                           transparent;
 
-@progress-bar-background:                       #00a8e6;
-@progress-bar-font-size:                        12px;
-@progress-bar-color:                            #fff;
+@progress-bar-background:                       @global-primary-background;
+@progress-bar-font-size:                        round((@global-font-size * 0.85)); // 12px / 14px
+@progress-bar-color:                            @global-contrast-color;
 
-@progress-bar-success-background:               #8cc14c;
-@progress-bar-warning-background:               #faa732;
-@progress-bar-danger-background:                #da314b;
+@progress-bar-success-background:               @global-success-background;
+@progress-bar-warning-background:               @global-warning-background;
+@progress-bar-danger-background:                @global-danger-background;
 
+@progress-bar-transition:                       width .3s linear;
 
 /* ========================================================================
    Component: Progress
@@ -164,7 +165,10 @@
 .hook-progress-misc;
 
 .hook-progress() {}
-.hook-progress-bar() {}
+.hook-progress-bar() {
+    -webkit-transition: @progress-bar-transition;
+    transition: @progress-bar-transition;
+}
 .hook-progress-mini() {}
 .hook-progress-small() {}
 .hook-progress-bar-success() {}

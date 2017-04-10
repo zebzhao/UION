@@ -1,7 +1,13 @@
-@toggle-background-color:                   #ccc;
-@toggle-active-background-color:            #2196F3;
+@toggle-background-color:                   darken(@global-muted-color, 10%);
+@toggle-active-background-color:            @global-primary-background;
+@toggle-success-active-background-color:    @global-success-background;
+@toggle-danger-active-background-color:     @global-danger-background;
+@toggle-warning-active-background-color:    @global-warning-background;
+@toggle-active-bg-color-lighten:            15%;
 @toggle-width:                              41px;
 @toggle-height:                             24px;
+@toggle-button-background-color:            white;
+@toggle-button-shadow:                      0 1px 5px 0 rgba(0,0,0,0.25);
 
 
 /* The switch - the box around the slider */
@@ -10,19 +16,22 @@
   display: inline-block;
   width: @toggle-width;
   height: @toggle-height;
+  .hook-toggle;
 }
 
 /* Hide default HTML checkbox */
-.uk-toggle input {display:none;}
+.uk-toggle input {
+  display:none !important;
+}
 
 /* The slider */
 .uk-toggle-slider {
   position: absolute;
   cursor: pointer;
-  top: 0;
+  top: 6px;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 6px;
   background-color: @toggle-background-color;
   -webkit-transition: .4s;
   transition: .4s;
@@ -32,22 +41,54 @@
 .uk-toggle-slider:before {
   position: absolute;
   content: "";
-  height: @toggle-height - 4px;
-  width: @toggle-height - 4px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
+  height: @toggle-height;
+  width: @toggle-height;
+  left: 0;
+  bottom: -6px;
+  background-color: @toggle-button-background-color;
+  box-shadow: @toggle-button-shadow;
   -webkit-transition: .4s;
   transition: .4s;
   border-radius: @toggle-height / 2;
+}
+
+.uk-toggle-success {
+  input:checked + .uk-toggle-slider {
+    background-color: @toggle-success-active-background-color;
+  }
+  input:checked + .uk-toggle-slider:before {
+    background-color: lighten(@toggle-success-active-background-color, @toggle-active-bg-color-lighten);
+  }
+}
+
+.uk-toggle-danger {
+  input:checked + .uk-toggle-slider {
+    background-color: @toggle-danger-active-background-color;
+  }
+  input:checked + .uk-toggle-slider:before {
+    background-color: lighten(@toggle-danger-active-background-color, @toggle-active-bg-color-lighten);
+  }
+}
+
+.uk-toggle-warning {
+  input:checked + .uk-toggle-slider {
+    background-color: @toggle-warning-active-background-color;
+  }
+  input:checked + .uk-toggle-slider:before {
+    background-color: lighten(@toggle-warning-active-background-color, @toggle-active-bg-color-lighten);
+  }
 }
 
 input:checked + .uk-toggle-slider {
   background-color: @toggle-active-background-color;
 }
 
+input:checked + .uk-toggle-slider:before {
+  background-color: lighten(@toggle-active-background-color, @toggle-active-bg-color-lighten);
+}
+
 input:focus + .uk-toggle-slider {
-  box-shadow: 0 0 1px @toggle-active-background-color;
+  box-shadow: 0 0 1px @toggle-button-shadow;
 }
 
 input:checked + .uk-toggle-slider:before {
@@ -56,7 +97,6 @@ input:checked + .uk-toggle-slider:before {
   transform: translateX(17px);
 }
 
-/* Rounded sliders */
-.uk-toggle-slider.round {
-
+.hook-toggle() {
+  vertical-align: middle;
 }

@@ -41,9 +41,9 @@ describe('helper basis', function() {
     });
 
     it('should replace string with params', function() {
-        var templateString = '{test.awesome}, {test.ride.ride}, {cool}';
+        var templateString = '{{test.awesome}}, {{test.ride.ride}}, {{cool}}{{cool2}}';
         expect(UI.replaceString(templateString,
-            {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty'})).toEqual('cool, know, sixty');
+            {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty', cool2: '-two'})).toEqual('cool, know, sixty-two');
     });
 });
 
@@ -202,10 +202,10 @@ describe('html', function() {
 
 describe('element', function() {
     it('should set properties', function() {
-        spyOn(UI.new.element.prototype.$setters, 'hidden');
-        expect(UI.new.element.prototype.$setters.hidden).not.toHaveBeenCalled();
+        spyOn(UI.components.element.prototype.$setters, 'hidden');
+        expect(UI.components.element.prototype.$setters.hidden).not.toHaveBeenCalled();
         var elem = UI.new({view: 'element', hidden: true});
-        expect(UI.new.element.prototype.$setters.hidden).toHaveBeenCalled();
+        expect(UI.components.element.prototype.$setters.hidden).toHaveBeenCalled();
     });
 
     it('should not allow duplicates', function() {

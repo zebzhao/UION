@@ -43,36 +43,37 @@
 // Variables
 // ========================================================================
 
-@form-height:                                   30px;
+
+@form-height:                                   @global-height;
 @form-padding:                                  4px 6px;
-@form-border:                                   #ddd;
+@form-border:                                   @global-border;
 @form-border-width:                             1px;
-@form-background:                               #fff;
-@form-color:                                    #444;
+@form-background:                               @global-background;
+@form-color:                                    @global-color;
 
-@form-focus-border:                             #99baca;
-@form-focus-background:                         #f5fbfe;
-@form-focus-color:                              #444;
+@form-focus-border:                             @button-primary-background;
+@form-focus-background:                         @global-default-background;
+@form-focus-color:                              @global-color;
 
-@form-disabled-border:                          #ddd;
-@form-disabled-background:                      #f5f5f5;
-@form-disabled-color:                           #999;
+@form-disabled-border:                          @global-border;
+@form-disabled-background:                      @global-muted-color;
+@form-disabled-color:                           @global-border;
 
 @form-placeholder-color:                        #999;
 
-@form-gutter:                                   15px;
+@form-gutter:                                   20px;
 
-@form-legend-border:                            #ddd;
+@form-legend-border:                            @global-border;
 @form-legend-border-width:                      1px;
-@form-legend-font-size:                         18px;
-@form-legend-line-height:                       30px;
+@form-legend-font-size:                         round((@global-font-size * 1.28)); // 18px / 20px
+@form-legend-line-height:                       round((@form-legend-font-size * 1.68)); // 30px / 34px
 
-@form-small-height:                             25px;
-@form-large-height:                             40px;
+@form-small-height:                             @global-height-small;
+@form-large-height:                             @global-height-large;
 @form-small-padding:                            3px 3px;
 @form-large-padding:                            8px 6px;
-@form-small-font-size:                          12px;
-@form-large-font-size:                          16px;
+@form-small-font-size:                          round((@global-font-size * 0.85)); // 12px / 14px
+@form-large-font-size:                          round((@global-font-size * 1.14)); // 16px / 18px
 
 @form-danger-border:                            #dc8d99;
 @form-danger-color:                             #d85030;
@@ -80,7 +81,7 @@
 @form-success-border:                           #8ec73b;
 @form-success-color:                            #659f13;
 
-@form-blank-border:                             #ddd;
+@form-blank-border:                             @global-border;
 @form-blank-border-style:                       dashed;
 
 @form-mini-width:                               40px;
@@ -94,17 +95,16 @@
 @form-controls-condensed-margin-vertical:       5px;
 
 @form-stacked-margin-bottom:                    5px;
-@form-stacked-font-weight:                      normal;
+@form-stacked-font-weight:                      500;
 
 @form-horizontal-label-width:                   200px;
-@form-horizontal-label-margin-top:              5px;
+@form-horizontal-label-margin-top:              10px;
 @form-horizontal-controls-margin-left:          215px;
 @form-horizontal-controls-text-padding-top:     5px;
 
+@form-icon-font-size:                           @global-font-size;
 @form-icon-width:                               30px;
-@form-icon-font-size:                           14px;
 @form-icon-color:                               #999;
-
 
 /* ========================================================================
    Component: Form
@@ -145,6 +145,13 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+}
+
+.uk-form select:not([multiple]):not([size]) {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%201%201%206%207%206%22%3E%3C%2Fpolygon%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%2013%201%208%207%208%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: 100% 50%;
+    padding-right: 20px;
 }
 
 /*
@@ -547,13 +554,33 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
 /* Tablet portrait and smaller */
 @media (max-width: @breakpoint-mini-max) {
 
-    /* Behave like `uk-form-stacked` */
     .uk-form-horizontal .uk-form-label {
-        display: block;
-        margin-bottom: @form-stacked-margin-bottom;
-        font-weight: @form-stacked-font-weight;
-        .hook-form-stacked-label;
+        width: @form-horizontal-label-width * 0.75;
+        margin-top: @form-horizontal-label-margin-top * 0.75;
+        float: left;
+        .hook-form-horizontal-label;
     }
+
+    .uk-form-horizontal .uk-form-controls {
+        margin-left: @form-horizontal-controls-margin-left * 0.75;
+        height: @form-height;
+        max-width: 125px;
+
+        * {
+            display: inline-block;
+        }
+
+        &::before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+        }
+    }
+
+    /* Better vertical alignment if controls are checkboxes and radio buttons with text */
+    .uk-form-horizontal .uk-form-controls-text { padding-top: @form-horizontal-controls-text-padding-top; }
+
 
 }
 
@@ -567,7 +594,21 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
         .hook-form-horizontal-label;
     }
 
-    .uk-form-horizontal .uk-form-controls { margin-left: @form-horizontal-controls-margin-left; }
+    .uk-form-horizontal .uk-form-controls {
+        margin-left: @form-horizontal-controls-margin-left;
+        height: @form-height;
+
+        * {
+            display: inline-block;
+        }
+
+        &::before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+        }
+    }
 
     /* Better vertical alignment if controls are checkboxes and radio buttons with text */
     .uk-form-horizontal .uk-form-controls-text { padding-top: @form-horizontal-controls-text-padding-top; }

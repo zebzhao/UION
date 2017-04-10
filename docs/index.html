@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UION</title>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../uion.debug.js"></script>
+    <link rel="stylesheet" href="../css/uikit/uikit.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/9.10.0/styles/default.min.css">
+    <style>
+        .uk-navbar-nav > li > a {
+            padding: 5px 25px;
+            height: 50px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .hljs {
+            background: inherit;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="uk-flex-column uk-flex">
+    <div id="navbar" class="uk-flex-item-none"></div>
+    <div class="uk-flex-row uk-flex uk-container">
+        <div id="sidebar" class="uk-flex-row uk-flex uk-flex-item-none uk-hidden-small"></div>
+        <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
+        <div id="main" class="uk-flex-row uk-flex uk-flex-item-1">
+            <div id="gettingStarted" class="uk-width-1-1">
+                <h3>Getting Started</h3>
+                <hr>
+                <p><b>UION</b> stands for <b>U</b>ser <b>I</b>nterface <b>O</b>bject <b>N</b>otation is a minimalistic user interface builder using JSON instead of HTML for declaration of UI components.</p>
+                <br>
+                <h4>UIkit</h4>
+                <hr>
+                <p><b>UION</b> uses <a href="https://getuikit.com/v2/">UIkit</a> components, so it's kind of like a wrapper on top of <b>UIkit</b> that allows JSON ot be used instead of HTML.</p>
+                <p>An example of a modal:</p>
+                <pre>
+<code class="js">var modal = UI.new({
+  "view": "modal",
+  "header": {
+    "view": "label",
+    "htmlTag": "H3",
+    "label": "Stale coffee is exquisite!"
+  },
+  "body": {
+    "view": "label",
+    "label": "Medium brewed, dripper to go filter iced..."
+  },
+  "footer": {
+    "flexAlign": "right",
+    "cells": [
+      {
+        "view": "button",
+        "label": "No way!",
+        "margin": "right"
+      },
+      {
+        "view": "button",
+        "type": "primary",
+        "label": "Yup."
+      }
+    ]
+  }
+}, document.body);
+
+// Opens the modal
+modal.open();
+</code></pre>
+                <p>If you want to see an more in-depth example, checkout the source code for this site. It's built almost entirely using UION.</p>
+                <br>
+                <h4>Usage</h4>
+                <hr>
+                <p>For release, use:</p>
+                <pre>
+<code class="html">&lt;link rel="stylesheet" href="css/uikit/uikit.css"&gt;
+&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="uion.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+                <p>For debugging, use:</p>
+                <pre>
+<code class="html">&lt;link rel="stylesheet" href="css/uikit/uikit.css"&gt;
+&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="uion.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+                <br>
+                <h4>Full control</h4>
+                <hr>
+                <p>Many paid-to-use similar frameworks such as Kendo UI or Webix do not offer the flexibility of UION.</p>
+                <p>UION allows you to control every aspect of components, allowing you to even create custom components. For examples on how to create your own components, see the documentation on <a href="https://github.com/zebzhao/UION">Github</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="index.js"></script>
+<br>
+<footer class="uk-text-center uk-block-secondary uk-text-muted" style="padding: 30px">
+    <p>UION is licensed under the MIT license. This website is licensed under CC Commons Attribution 4.0.</p>
+    <p>Copyright 2017 Zeb Zhao. Some rights reserved.</p>
+</footer>
+<script src="//cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+</body>
+</html>

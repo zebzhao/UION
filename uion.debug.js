@@ -4901,9 +4901,9 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 	exports.replaceString = function (str, obj) {
-		var regex = /\{[^}]*}/gi;
+		var regex = /\{\{[^\s}]*}}/gi;
 		return str.replace(regex, function (match) {
-			return exports.selectors.property(match.substring(1, match.length - 1))(obj);
+			return exports.selectors.property(match.substring(2, match.length - 2))(obj);
 		});
 	};
 
@@ -4933,10 +4933,12 @@ window.UION = window.UI = (function(exports, window) {
 		return result;
 	};
 
+	exports.classes = {};
+
 	exports.def = function (config) {
 		var bases = Array.prototype.slice.call(arguments, 1);
 		var cls = exports.class(config, bases);
-		exports.new[config.__name__] = cls;
+		exports.classes[config.__name__] = cls;
 		return cls;
 	};
 
@@ -4968,7 +4970,7 @@ window.UION = window.UI = (function(exports, window) {
 		else if (exports.isObject(template)) {
 			if (!template.$ui) {
 				template.$ui = exports.new(template);
-				thisArg.$uis.push(template.$ui);
+				thisArg.$components.push(template.$ui);
 				parentNode.appendChild(template.$ui._html);
 			}
 		}
@@ -4989,7 +4991,7 @@ window.UION = window.UI = (function(exports, window) {
 		var baseNames = [];
 		for (var j = 0; j < bases.length; j++) {
 			exports.assert(exports.isDefined(bases[j]),
-				exports.replaceString("Invalid extension source from {name}", {name: config.__name__}));
+				exports.replaceString("Invalid extension source from {{name}}", {name: config.__name__}));
 
 			if (bases[j].__name__) {
 				baseNames.push(bases[j].__name__);
@@ -5085,15 +5087,15 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 	exports._events = {};
-	exports.event = function (node, event, handler, master) {
-		exports.assert(node, exports.replaceString("Invalid node as target for {event} event", {event: event}));
-		exports.assert(handler, exports.replaceString("Invalid handler as target for {event} event", {event: event}));
+	exports.event = function (node, event, handler, thisArg) {
+		exports.assert(node, exports.replaceString("Invalid node as target for {{event}} event", {event: event}));
+		exports.assert(handler, exports.replaceString("Invalid handler as target for {{event}} event", {event: event}));
 		node = exports.node(node);
 
 		var id = exports.uid();
 
-		if (master)
-			handler = exports.bind(handler, master);
+		if (thisArg)
+			handler = exports.bind(handler, thisArg);
 
 		exports._events[id] = [node, event, handler];	//store event info, for detaching
 
@@ -5105,7 +5107,7 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.removeEvent = function (id) {
 		if (!id) return;
-		exports.assert(exports._events[id], exports.replaceString("Event with id {id} does not exist", {id: id}));
+		exports.assert(exports._events[id], exports.replaceString("Event with id {{id}} does not exist", {id: id}));
 
 		var e = exports._events[id];
 		e[0].removeEventListener(e[1], e[2]);
@@ -5143,6 +5145,12 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		dispatch: function (type, params) {
+			/**
+			 * Dispatches an event to the element. This is the way user-interaction is handled.
+			 * @param type Name of the event.
+			 * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event.
+			 * @example dispatch('onClick', [config, element, event])
+			 */
 			var handlers = this._eventsByName[type];
 			if (handlers) {
 				for (var i = 0; i < handlers.length; i++) {
@@ -5150,19 +5158,31 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		},
-		addListener: function (name, func, id) {
-			exports.assert(func, "Invalid event handler for " + name);
+		addListener: function (type, func, id) {
+			/**
+			 * Adds an event handler to the component.
+			 * @param type The type of event.
+			 * @param func The handling function.
+			 * @param id An optional event id that can be used to remove the listener.
+			 * @returns The event id, automatically generated if id is not set.
+			 * @example addListener('onClick', function(config, element, event) {})
+			 */
+			exports.assert(func, "Invalid event handler for " + type);
 
 			id = id || exports.uid();
 
-			var handlers = this._eventsByName[name] || exports.list();
+			var handlers = this._eventsByName[type] || exports.list();
 			handlers.push(func);
-			this._eventsByName[name] = handlers;
-			this._eventsById[id] = {_func: func, _name: name};
+			this._eventsByName[type] = handlers;
+			this._eventsById[id] = {_func: func, _name: type};
 
 			return id;
 		},
 		removeEvent: function (id) {
+			/**
+			 * Removes a listener based on the event id.
+			 * @param id Event id from adding the listener.
+			 */
 			if (!this._eventsById[id]) return;
 
 			var name = this._eventsById[id]._name;
@@ -5174,6 +5194,12 @@ window.UION = window.UI = (function(exports, window) {
 			delete this._eventsById[id];
 		},
 		hasEvent: function (type) {
+			/**
+			 * Checks if an particular event handler exists.
+			 * @param type Type of event.
+			 * @example hasEvent('onInitialized')
+			 * @returns {boolean}
+			 */
 			var handlers = this._eventsByName[type];
 			return handlers && handlers.length;
 		}
@@ -5182,12 +5208,22 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.ListMethods = {
 		removeAt: function (index) {
+			/**
+			 * Remove the element at an index.
+			 * @param index The non-negative index of the element. (0-based)
+			 * @returns {boolean} True if removed, false if index does not exist.
+			 */
 			if (index >= 0 && index < this.length) {
 				return this.splice(index, 1)[0];
 			}
 			return false;
 		},
 		remove: function (value, thisArg) {
+			/**
+			 * Removes a specific element.
+			 * @param value Element to remove.
+			 * @returns {boolean} True if removed, false if index does not exist.
+			 */
 			var index = (thisArg || this).indexOf(value);
 			if (index >= 0) {
 				this.splice(index, 1);
@@ -5196,12 +5232,27 @@ window.UION = window.UI = (function(exports, window) {
 			return false;
 		},
 		contains: function (value) {
+			/**
+			 * Checks if a specific element exists.
+			 * @param value Element to check for.
+			 * @returns {boolean}
+			 */
 			return this.indexOf(value) != -1;
 		},
 		replace: function (oldValue, newValue) {
+			/**
+			 * Replace an existing element in the list with another element.
+			 * @param oldValue The element to replace.
+			 * @param newValue The element to replace it with.
+			 */
 			this[this.indexOf(oldValue)] = newValue;
 		},
 		insertAt: function (index, item) {
+			/**
+			 * Inserts an element at a specific index, pushing all other elements forward.
+			 * @param index The index to insert to.
+			 * @param item The element to insert.
+			 */
 			index = index || 0;
 			this.splice(index, 0, item);
 		},
@@ -5228,7 +5279,7 @@ window.UION = window.UI = (function(exports, window) {
 					i += 1;
 				}
 			}
-			exports.fail(exports.replaceString("{key}: {value} cannot be removed in {array}",
+			exports.fail(exports.replaceString("{{key}}: {{value}} cannot be removed in {{array}}",
 				{key: key, value: value, array: this}));
 		},
 		indexWhere: function (key, value) {
@@ -5254,7 +5305,7 @@ window.UION = window.UI = (function(exports, window) {
 					return this[i];
 			}
 			if (error)
-				exports.fail(exports.replaceString("{key}: {value} not found in {array}",
+				exports.fail(exports.replaceString("{{key}}: {{value}} not found in {{array}}",
 					{key: key, value: value, array: this}));
 		},
 		copy: function () {
@@ -5363,6 +5414,7 @@ window.UION = window.UI = (function(exports, window) {
 			inline: "uk-flex-inline"
 		},
 		selectable: {
+			true: "",
 			false: "unselectable"
 		},
 		order: {
@@ -5375,12 +5427,15 @@ window.UION = window.UI = (function(exports, window) {
 			"first-lg": "uk-flex-order-first-large",
 			"last-lg": "uk-flex-order-last-large",
 			"first-xlg": "uk-flex-order-first-xlarge",
-			"last-xlg": "uk-flex-order-last-xlarge"
+			"last-xlg": "uk-flex-order-last-xlarge",
+			"": "",
+			$multiple: true
 		},
 		wrap: {
 			break: "uk-text-break",
 			nowrap: "uk-text-nowrap",
-			truncate: "uk-text-truncate"
+			truncate: "uk-text-truncate",
+			"": ""
 		},
 		padding: {
 			"": "",
@@ -5392,41 +5447,33 @@ window.UION = window.UI = (function(exports, window) {
 			auto: "uk-flex-item-auto",
 			flex: "uk-flex-item-1"
 		},
-		layout: {
-			"": "",
-			column: "uk-flex-column",
-			row: "uk-flex-row",
-			"row-reverse": "uk-flex-row-reverse",
-			"column-reverse": "uk-flex-column-reverse"
-		},
-		align: {
+		flexAlign: {
 			center: "uk-flex-center",
 			right: "uk-flex-right",
 			top: "uk-flex-top",
 			middle: "uk-flex-middle",
 			bottom: "uk-flex-bottom",
-			"navbar-center": "uk-navbar-center"
-		},
-		spacing: {
-			between: "uk-flex-space-between",
-			around: "uk-flex-space-around"
+			"": ""
 		},
 		display: {
 			block: "uk-display-block",
 			inline: "uk-display-inline",
-			"inline-block": "uk-display-inline-block"
+			"inline-block": "uk-display-inline-block",
+			"": ""
 		},
 		halign: {
 			center: "uk-align-center",
 			left: "uk-align-left",
 			right: "uk-align-right",
 			"left-md": "uk-align-medium-left",
-			"right-md": "uk-align-medium-right"
+			"right-md": "uk-align-medium-right",
+			"": ""
 		},
 		valign: {
 			middle: "uk-vertical-align-middle",
 			parent: "uk-vertical-align",
-			bottom: "uk-vertical-align-bottom"
+			bottom: "uk-vertical-align-bottom",
+			"": ""
 		},
 		position: {
 			"top": "uk-position-top",
@@ -5439,21 +5486,25 @@ window.UION = window.UI = (function(exports, window) {
 			"relative": "uk-position-relative",
 			"absolute": "uk-position-absolute",
 			"z-index": "uk-position-z-index",
-			"": ""
+			"": "",
+			$multiple: true
 		},
 		fill: {
 			height: "uk-height-1-1",
 			width: "uk-width-100",
-			screen: ["uk-height-1-1", "uk-width-100"]
+			screen: ["uk-height-1-1", "uk-width-100"],
+			"": ""
 		},
 		float: {
 			left: "uk-float-left",
 			right: "uk-float-right",
-			clearfix: "uk-clearfix"
+			clearfix: "uk-clearfix",
+			"": ""
 		},
 		scroll: {
 			xy: "uk-overflow-container",
-			y: "uk-scrollable-text"
+			y: "uk-scrollable-text",
+			"": ""
 		},
 		hidden: {
 			true: "uk-hidden",
@@ -5464,16 +5515,17 @@ window.UION = window.UI = (function(exports, window) {
 			hover: "uk-hidden-hover",
 			small: "uk-hidden-small",
 			medium: "uk-hidden-medium",
-			large: "uk-hidden-large"
+			large: "uk-hidden-large",
+			$multiple: true
 		},
 		margin: {
-			"0": "uk-margin-remove",
 			"none": "uk-margin-remove",
 			"top-rm": "uk-margin-top-remove",
 			"bottom-rm": "uk-margin-bottom-remove",
 			"": "",
 			"all-sm": ["uk-margin-small-left", "uk-margin-small-right", "uk-margin-small-top", "uk-margin-small-bottom"],
 			"all": ["uk-margin-left", "uk-margin-right", "uk-margin-top", "uk-margin-bottom"],
+			"all-lg": ["uk-margin-large-left", "uk-margin-large-right", "uk-margin-large-top", "uk-margin-large-bottom"],
 			"lg": "uk-margin-large",
 			"sm": "uk-margin-small",
 			"top": "uk-margin-top",
@@ -5487,7 +5539,8 @@ window.UION = window.UI = (function(exports, window) {
 			"left-sm": "uk-margin-small-left",
 			"right": "uk-margin-right",
 			"right-lg": "uk-margin-large-right",
-			"right-sm": "uk-margin-small-right"
+			"right-sm": "uk-margin-small-right",
+			$multiple: true
 		},
 		inputWidth: {
 			"": "",
@@ -5503,11 +5556,14 @@ window.UION = window.UI = (function(exports, window) {
 			"large": "uk-visible-large",
 			"except-small": "uk-hidden-small",
 			"except-medium": "uk-hidden-medium",
-			"except-large": "uk-hidden-large"
+			"except-large": "uk-hidden-large",
+			"": "",
+			$multiple: true
 		},
 		device: {
 			touch: "uk-hidden-notouch",
-			notouch: "uk-hidden-touch"
+			notouch: "uk-hidden-touch",
+			"": ""
 		}
 	};
 
@@ -5661,7 +5717,7 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "PropertySetter",
 		__check__: function (bases) {
 			exports.assert(bases.indexOf("PropertySetter") == bases.length - 1,
-				exports.replaceString("PropertySetter should be the last extension in {name}", {name: this.__name__}));
+				exports.replaceString("PropertySetter should be the last extension in {{name}}", {name: this.__name__}));
 		},
 		__init__: function (config) {
 			this.config = config;
@@ -5677,9 +5733,15 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		set: function (name, value) {
+			/**
+			 * Sets a property of the component and invokes its setter function.
+			 * @param name Name of the property.
+			 * @param value Value of the property.
+			 * @example set('type', 'primary')
+			 */
 			if (this.$setters.hasOwnProperty(name)) {
 				exports.assert(exports.isFunction(this.$setters[name]),
-					exports.replaceString("Property setter for {name} is not a function.", {name: name}));
+					exports.replaceString("Property setter for {{name}} is not a function.", {name: name}));
 				this[name] = this.$setters[name].call(this, value);
 				this._config[name] = value;
 			}
@@ -5697,18 +5759,31 @@ window.UION = window.UI = (function(exports, window) {
 			exports.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
 			exports.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
 		},
-		parse: function (value) {
+		setData: function (value) {
+			/**
+			 * Sets the data for the component.
+			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
+			 */
 			exports.assert(exports.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
 			this.clearAll();
 			for (var i = 0; i < value.length; i++) {
 				this.add(value[i]);
 			}
+			this.data = value;
 		}
 	};
 
 
 	exports.AbsolutePositionMethods = {
 		positionNextTo: function (node, position, marginX, marginY) {
+			/**
+			 * Positions this element next to another element.
+			 * @param node The anchor element to position next to.
+			 * @param position Can be 1 of the following values: bottom-right, bottom-left, bottom-center, top-right, top-left, top-center, left-top, left-bottom, left-center, right-top, right-bottom, right-center.
+			 * @param marginX The amount of x-offset from the anchor element edge.
+			 * @param marginY The amount of y-offset from the anchor element edge.
+			 */
+			var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
 			var origin = node.getBoundingClientRect();
 			var rect = this.getBoundingClientRect();
 			var width = rect.width,
@@ -5732,19 +5807,39 @@ window.UION = window.UI = (function(exports, window) {
 				"right-center": {top: origin.height / 2 - height / 2, left: origin.width + marginX}
 			};
 
-			this._html.style.top = (origin.top + variants[position].top) + "px";
+			this._html.style.top = (origin.top - bodyPos.top + variants[position].top) + "px";
 			this._html.style.left = (origin.left + variants[position].left) + "px";
 			this._html.style.position = "absolute";
 		},
 		getBoundingClientRect: function () {
+			/**
+			 * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
+			 * @returns {*|ClientRect}
+			 */
 			return this._html.getBoundingClientRect();
 		},
 		position: function (pos) {
+			/**
+			 * Sets the position of the element.
+			 * @param pos Position information object.
+			 * @example position({top: 0, left: 0})
+			 */
 			this._html.style.top = (pos.top || 0) + "px";
 			this._html.style.left = (pos.left || 0) + "px";
 			this._html.style.position = "absolute";
 		},
+
 		moveWithinBoundary: function (boundary, pivot, padding, offset) {
+			/**
+			 * Moves the element to be within the specified boundary.
+			 * @param boundary The bounding box to move the element inside of.
+			 * @param pivot Use this to override the final boundary edges values.
+			 * @param padding The amount of padding to the edges of the boundary.
+			 * @param offset The amount of final offset added to the position depending on which edges are hidden.
+			 * @example moveWithinBoundary({top: 0, bottom: 500, left: 0, right: 1000}, {top: 100, bottom: 100}, {top: 10, left: 10}, {top: 10, left: 20, right: 30, bottom: 40})
+			 */
+			var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
+
 			padding = padding || {};
 			pivot = pivot || {};
 			boundary = boundary || {};
@@ -5787,10 +5882,10 @@ window.UION = window.UI = (function(exports, window) {
 			}
 
 			if (hiddenTop) {
-				this._html.style.top = (pivotTop + offsetTop) + "px";
+				this._html.style.top = (pivotTop + offsetTop - bodyPos.top) + "px";
 			}
 			else if (hiddenBottom) {
-				this._html.style.top = (pivotBottom - rect.height + offsetBottom) + "px";
+				this._html.style.top = (pivotBottom - rect.height + offsetBottom - bodyPos.top) + "px";
 			}
 		}
 	};
@@ -5798,40 +5893,41 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.new = function (config, parent) {
 		var node = makeView(config);
-		exports.assert(node, exports.replaceString("Unknown node view {view}.", {view: config.view}), config);
+		exports.assert(node, exports.replaceString("Unknown node view {{view}}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
-		exports.new.views[config.id] = node;
+		exports.views[config.id] = node;
 		return node;
 
 		function makeView(config) {
 			if (config.view) {
 				var view = config.view;
-				exports.assert(exports.new[view], "unknown view:" + view);
-				return new exports.new[view](config);
+				exports.assert(exports.classes[view], "unknown view:" + view);
+				return new exports.classes[view](config);
 			}
 			else if (config.cells)
-				return new exports.new.flexgrid(config);
+				return new exports.classes.flexgrid(config);
 			else
-				return new exports.new.element(config);
+				return new exports.classes.element(config);
 		}
 	};
-
+	
+	exports.components = {};
 
 	exports.new.uid = function (name) {
 		this._names = this._names || {};
 		this._names[name] = this._names[name] || 0;
 		this._names[name]++;
-		return "$" + name + this._names[name];
+		return '' + name + this._names[name];
 	};
 
 
-	exports.new.views = {};
+	exports.views = {};
 	window.$$ = exports.$$ = function (id) {
 		if (!id)
 			return null;
-		else if (exports.new.views[id])
-			return exports.new.views[id];
+		else if (exports.views[id])
+			return exports.views[id];
 	};
 
 	exports.forIn = function (func, obj, thisArg) {
@@ -5847,7 +5943,10 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.setCSS = function (cssOptions) {
 		return exports.forIn(function (options, property) {
-			return function (value) {
+			var multipleAllowed = options.$multiple;
+			delete options.$multiple;
+
+			var setter = function (value) {
 				var oldValue = this._config[property];
 				if (options[oldValue])
 					exports.html.removeCSS(this._html, options[oldValue]);
@@ -5857,7 +5956,7 @@ window.UION = window.UI = (function(exports, window) {
 				for (var v, i = 0; i < values.length; i++) {
 					v = values[i];
 					exports.assert(options.hasOwnProperty(v),
-						exports.replaceString("Invalid value for '{property}': '{value}'!",
+						exports.replaceString("Invalid value for '{{property}}': '{{value}}'!",
 							{property: property, value: v}));
 
 					var classes = options[v];
@@ -5869,7 +5968,10 @@ window.UION = window.UI = (function(exports, window) {
 				}
 
 				return value;
-			}
+			};
+			setter.options = options;
+			setter.multipleAllowed = !!multipleAllowed;
+			return setter;
 		}, cssOptions);
 	};
 
@@ -5914,7 +6016,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.element = exports.def({
+	exports.components.element = exports.def({
 		__name__: "element",
 		$defaults: {
 			tooltipPos: 'bottom',
@@ -5923,7 +6025,7 @@ window.UION = window.UI = (function(exports, window) {
 			dropdownId: undefined,
 			dropdownMarginX: 5,
 			dropdownMarginY: 5,
-			margin: "all-sm",
+			margin: "",
 			uploadOptions: {},
 			$preventDefault: true
 		},
@@ -5943,7 +6045,7 @@ window.UION = window.UI = (function(exports, window) {
 				if (value) {
 					this._html.setAttribute("data-uk-tooltip", "");
 					this._html.setAttribute("title", value);
-					this._html.setAttribute("data-uk-tooltip", '{' + exports.replaceString("pos: '{pos}'" + '}',
+					this._html.setAttribute("data-uk-tooltip", exports.replaceString("{pos: '{{pos}}'}",
 							{pos: this._config.tooltipPos}));
 				}
 				else
@@ -5953,21 +6055,21 @@ window.UION = window.UI = (function(exports, window) {
 			},
 			dropdown: function (value) {
 				var $this = this;
-				var masterConfig = $this._config;
+				var config = $this._config;
 
 				var dropdown = {
-					id: masterConfig.dropdownId,
+					id: config.dropdownId,
 					view: "dropdown",
-					pos: masterConfig.dropdownPos,
+					pos: config.dropdownPos,
 					dropdown: value
 				};
 
 				var ui = exports.new(dropdown, document.body);
 
-				this._config.on = masterConfig.on || {};
-				this.addListener(masterConfig.dropdownEvent, function (config, node, e) {
-					ui.open(config, node, $this, e);
-					ui.positionNextTo(node, dropdown.pos, masterConfig.dropdownMarginX, masterConfig.dropdownMarginY);
+				config.on = config.on || {};
+				this.addListener(config.dropdownEvent, function (config, node) {
+					ui.open($this);
+					ui.positionNextTo(node, dropdown.pos, config.dropdownMarginX, config.dropdownMarginY);
 					ui.moveWithinBoundary();
 				});
 				$this.dropdownPopup = ui;
@@ -5991,9 +6093,9 @@ window.UION = window.UI = (function(exports, window) {
 		__init__: function (config) {
 			if (!config.id) config.id = exports.new.uid(this.__name__);
 			var node = exports.node(config.id);
-			exports.assert(!node, exports.replaceString("Node with id '{id}' already exists", {id: config.id}), config);
+			exports.assert(!node, exports.replaceString("Node with id '{{id}}' already exists", {id: config.id}), config);
 
-			this.$uis = exports.list();
+			this.$components = exports.list();
 			this.element = this._html = exports.html.createElement(config.htmlTag || "DIV", {id: config.id});
 			if (config.tagClass)
 				this.element.setAttribute("class", config.tagClass);
@@ -6009,37 +6111,85 @@ window.UION = window.UI = (function(exports, window) {
 			this.render();
 		},
 		render: function () {
+			/**
+			 * Force a rerender of the element, which runs the template function.
+			 */
 			exports.template(this.template, this._config, this, this._html);
 		},
-		template: function () {
+		template: function (config, component, parent) {
+			/**
+			 * The template function of the final HTML.
+			 * @param config The configuration JSON.
+			 * @param component The created component object with functions.
+			 * @param parent The parent HTML element.
+			 * @returns {string}
+			 */
 			return ""
 		},
 		getNode: function () {
+			/**
+			 * Function to get the underlying HTML element.
+			 * @returns {Element}
+			 */
 			return this._html;
 		},
 		isVisible: function () {
+			/**
+			 * Checks if the element is hidden. (Not to be confused with conceal/reveal.)
+			 */
 			return !exports.html.hasCSS(this._html, "uk-hidden");
 		},
 		show: function () {
+			/**
+			 * Shows the element.
+			 */
 			exports.html.removeCSS(this._html, "uk-hidden");
 		},
 		hide: function () {
+			/**
+			 * Hides the element.
+			 */
 			exports.html.addCSS(this._html, "uk-hidden");
 		},
 		conceal: function () {
+			/**
+			 * Makes the element invisible, which doesn't affect the layout.
+			 */
 			exports.html.addCSS(this._html, "uk-invisible");
 		},
 		reveal: function () {
+			/**
+			 * Makes the element visible again.
+			 */
 			exports.html.removeCSS(this._html, "uk-invisible");
 		},
 		isEnabled: function () {
+			/**
+			 * Checks if the element is enabled.
+			 * @returns {boolean}
+			 */
 			return !this._html.getAttribute('disabled');
 		},
 		disable: function () {
+			/**
+			 * Disables the element.
+			 */
 			this._html.setAttribute('disabled', "");
 		},
 		enable: function () {
+			/**
+			 * Enables the element.
+			 */
 			this._html.removeAttribute('disabled');
+		},
+		getComponent: function(key, value) {
+			/**
+			 * Gets a child component from a key value match.
+			 * @param key The key to look up.
+			 * @param value The compared value.
+			 * @returns {UI.components.element}
+			 */
+			return this.$components.findOne(key, value);
 		},
 		_uploadFileHTML: function () {
 			var config = this._config;
@@ -6061,8 +6211,25 @@ window.UION = window.UI = (function(exports, window) {
 		}
 	}, exports.Dispatcher, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$.disabled.isBoolean = true;
+		$.tooltip.isText = true;
+		$.css.isText = true;
+		$.dropdown.description = "Configuration object to show in a context menu.";
+		$.inline.isBoolean = true;
+		$.uploader.isBoolean = true;
 
-	exports.new.flexgrid = exports.def({
+		$._meta = exports.extend({
+			dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
+			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
+			dropdownMarginX: "The left margin of the dropdown from anchor component.",
+			dropdownMarginY: "The top margin of the dropdown from anchor component."
+		}, $._meta || {});
+	}(exports.components.element.prototype.$setters));
+
+
+	exports.components.flexgrid = exports.def({
 		__name__: "flexgrid",
 		$defaults: {
 			layout: "row",
@@ -6070,18 +6237,25 @@ window.UION = window.UI = (function(exports, window) {
 			size: "flex",
 			singleView: false
 		},
-		$setters: {
+		$setters: exports.extend(exports.setCSS({
+			layout: {
+				"": "",
+				column: "uk-flex-column",
+				row: "uk-flex-row",
+				"row-reverse": "uk-flex-row-reverse",
+				"column-reverse": "uk-flex-column-reverse"
+			},
+			spacing: {
+				between: "uk-flex-space-between",
+				around: "uk-flex-space-around"
+			}
+		}),{
 			cells: function (value) {
-				exports.assert(exports.isArray(value), "The cells property must be an array for shell ui object.", this);
+				exports.assert(exports.isArray(value), "The cells property must be an Array.", this);
 
 				for (var config, i = 0; i < value.length; i++) {
 					config = value[i];
-					config.margin = config.margin || "";
-
-					var ui = exports.new(config);
-					if (!this._config.singleView)
-						this._html.appendChild(ui._html);
-					this.$uis.push(ui);
+					this.addChild(config);
 				}
 
 				if (this._config.singleView && this._config.defaultView)
@@ -6089,66 +6263,125 @@ window.UION = window.UI = (function(exports, window) {
 
 				return value;
 			}
-		},
+		}),
 		render: function () {
 			// Do nothing, overwrites render function.
 		},
 		each: function (func, thisArg) {
-			return this.$uis.each(func, thisArg);
+			/**
+			 * Invokes a function on each child of the flexgrid.
+			 * @param func The invoked function.
+			 * @param thisArg The 'this' object passed to the invoked function.
+			 * @returns Return an array containing the results of the invoked call.
+			 */
+			return this.$components.each(func, thisArg);
 		},
 		insertChild: function (index, config) {
+			/**
+			 * Inserts a child configuration object at a particular index.
+			 * @param index Index to insert at.
+			 * @param config The configuration object representing the new child.
+			 * @returns {object} The child component
+			 */
 			var ui = config.element ? config : exports.new(config);
-			this.$uis.splice(index, 0, ui);
+			this.$components.splice(index, 0, ui);
+
+			if (!this._config.singleView) {
+				if (index > 0)
+					this._html.insertAfter(ui._html, this.$components[index-1]._html);
+				else if (index+1 < this.$components.length)
+					this._html.insertBefore(ui._html, this.$components[index+1]._html);
+				else
+					this._html.appendChild(ui._html)
+			}
+
 			return ui;
 		},
 		addChild: function (config) {
+			/**
+			 * Adds a child to the end of the stack.
+			 * @param config Configuration of the new child.
+			 * @returns {object} The child component
+			 */
 			var ui = config.element ? config : exports.new(config);
-			this.$uis.push(ui);
+			this.$components.push(ui);
+
+			if (!this._config.singleView)
+				this._html.appendChild(ui._html);
+
 			return ui;
 		},
 		removeChild: function (id) {
+			/**
+			 * Removes a child by its id.
+			 * @param id Id of the child to remove.
+			 */
 			if (id.element) {
 				this._html.removeChild(id._html);
-				this.$uis.remove(id);
+				this.$components.remove(id);
 			}
 			else if (exports.isString(id)) {
 				this._html.removeChild(this.getChild(id)._html);
-				this.$uis.removeWhere('id', id);
+				this.$components.removeWhere('id', id);
 			}
 			else {
 				exports.fail("flexgrid: unknown argument id " + id + " received in removeChild().");
 			}
 		},
 		getChild: function (id) {
-			return this.$uis.findOne('id', id);
+			/**
+			 * Get a child of the flexgrid by id.
+			 * @param id The string id of the component.
+			 * @returns {UI.components.element}
+			 */
+			return this.$components.findOne('id', id);
 		},
 		getChildren: function () {
-			return this.$uis;
+			/**
+			 * Get a list of all children. Make a copy if mutating this object.
+			 * @returns {array} Array of child components.
+			 */
+			return this.$components;
 		},
 		getItems: function () {
-			return this.$uis.each(function (item) {
+			/**
+			 * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
+			 * @returns {array} Array of child components config objects.
+			 */
+			return this.$components.each(function (item) {
 				return item.config;
 			});
 		},
 		activeChild: function () {
+			/**
+			 * Returns the current active child.
+			 */
 			return this._activeChild;
 		},
+
 		setChild: function (id) {
+			/**
+			 * Makes a child visible, also makes it the active child.
+			 * @dispatch onChildChange
+			 * @param id The id of a child.
+			 */
 			this._setVisible('id', [id]);
 			var newChild = this.getChild(id);
 			this.dispatch("onChildChange", [this._activeChild, newChild]);
 			this._activeChild = newChild;
 		},
-		showBatch: function (name, preserveOrder) {
+		showBatch: function (name) {
 			/**
-			 * Tricky: Rendering input fields will cause problems with on-screen keyboards.
-			 * However, to preserve the order of elements, will need to rerender.
+			 * Checks the batch property of all children and makes all matching batch visible.
+			 * @param name An array or a string to identify batch(es). Matching is done using indexOf.
 			 */
-			this._setVisible('batch', exports.isArray(name) ? name : [name], preserveOrder);
+			// Tricky: Rendering input fields will cause problems with on-screen keyboards.
+			// However, to preserve the order of elements, will need to rerender.
+			this._setVisible('batch', exports.isArray(name) ? name : [name], true);
 			this.batch = name;
 		},
 		_setVisible: function (key, value, rerender) {
-			this.$uis.each(function (item) {
+			this.$components.each(function (item) {
 				if (value.indexOf(item.config[key]) != -1) {
 					if (item._html.parentNode != this._html || rerender) {
 						this._html.appendChild(item._html);
@@ -6159,7 +6392,12 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}, this);
 		}
-	}, exports.new.element);
+	}, exports.components.element);
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$.cells.description = "A list of configuration objects.";
+	}(exports.components.flexgrid.prototype.$setters));
 
 
 	exports.ClickEvents = {
@@ -6214,7 +6452,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.modal = exports.def({
+	exports.components.modal = exports.def({
 		__name__: "modal",
 		$defaults: {
 			tagClass: "uk-modal",
@@ -6224,8 +6462,8 @@ window.UION = window.UI = (function(exports, window) {
 			keyboard: true,
 			minScrollHeight: 150,
 			closeModals: true,
-			flex: false,
 			center: true,
+			flex: false,
 			margin: "",
 			size: "",
 			layout: ""
@@ -6268,11 +6506,10 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			body: function (value) {
-				value.margin = value.margin || "";
 				value.halign = value.halign || "center";
 				var innerBody = exports.new(value);
 				this.bodyContent = innerBody;
-				this.$uis.push(this.bodyContent);
+				this.$components.push(this.bodyContent);
 
 				if (this._footer.parentNode) {
 					this._body.insertBefore(innerBody._html, this._footer);
@@ -6283,19 +6520,17 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			header: function (value) {
-				value.margin = value.margin || "";
 				var innerHeader = exports.new(value);
 				this._header.appendChild(innerHeader._html);
 				this.headerContent = innerHeader;
-				this.$uis.push(this.headerContent);
+				this.$components.push(this.headerContent);
 				return value;
 			},
 			footer: function (value) {
-				value.margin = value.margin || "";
 				var innerFooter = exports.new(value);
 				this._footer.appendChild(innerFooter._html);
 				this.footerContent = innerFooter;
-				this.$uis.push(this.footerContent);
+				this.$components.push(this.footerContent);
 				return value;
 			},
 			caption: function (value) {
@@ -6307,6 +6542,11 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		open: function (args) {
+			/**
+			 * Opens the modal.
+			 * @dispatch onOpen, onOpened
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
 			var config = this._config;
 			this.dispatch("onOpen", [config, this._html, args]);
 			UIkit.modal('#' + config.id, {
@@ -6318,13 +6558,40 @@ window.UION = window.UI = (function(exports, window) {
 			}).show();
 			this.dispatch("onOpened", [config, this._html, args]);
 		},
-		close: function () {
+		close: function (args) {
+			/**
+			 * Closes the modal.
+			 * @dispatch onClose, onClosed
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
+			this.dispatch("onClose", [config, this._html, args]);
 			UIkit.modal('#' + this._config.id).hide();
+			this.dispatch("onClosed", [config, this._html, args]);
 		}
-	}, exports.new.flexgrid);
+	}, exports.components.flexgrid);
 
 
-	exports.new.button = exports.def({
+	// Define setter options for auto-documentation
+	(function($) {
+		$.light.isBoolean = true;
+		$.bodyWidth.isText = true;
+		$.bodyHeight.isText = true;
+		$.closeButton.isBoolean = true;
+		$.body.description = "Configuration object to put in the modal body.";
+		$.header.description = "Configuration object to put in the modal header.";
+		$.footer.description = "Configuration object to put in the modal footer.";
+		$.caption.isText = true;
+		$._meta = exports.extend({
+			bgClose: {isBoolean: true},
+			keyboard: {isBoolean: true},
+			minScrollHeight: {isNumber: true},
+			closeModals: {isBoolean: true},
+			center: {isBoolean: true}
+		}, $._meta || {});
+	}(exports.components.modal.prototype.$setters));
+
+
+	exports.components.button = exports.def({
 		__name__: "button",
 		$defaults: {
 			label: "",
@@ -6354,26 +6621,36 @@ window.UION = window.UI = (function(exports, window) {
 		}),
 		template: function (config) {
 			if (config.type == "icon")
-				return exports.replaceString("<i class='{icon} uk-icon-{iconSize}'></i><span>{label}</span>",
+				return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'></i><span>{{label}}</span>",
 					{icon: config.icon, label: config.label, iconSize: config.iconSize});
 			else
-				return exports.replaceString("<span>{label}</span>", {label: config.label});
+				return exports.replaceString("<span>{{label}}</span>", {label: config.label});
 		},
 		select: function () {
+			/**
+			 * Change the button state to selected.
+             */
 			this._config.$selected = true;
 			exports.html.addCSS(this._html, "uk-active");
 		},
 		isSelected: function () {
+			/**
+			 * Returns if the button is in the selected state.
+			 * @returns {boolean}
+			 */
 			return !!this._config.$selected;
 		},
 		unselect: function () {
+			/**
+			 * Change the button state to unselected.
+             */
 			this._config.$selected = false;
 			exports.html.removeCSS(this._html, "uk-active");
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.icon = exports.def({
+	exports.components.icon = exports.def({
 		__name__: "icon",
 		$defaults: {
 			htmlTag: "A",
@@ -6387,13 +6664,13 @@ window.UION = window.UI = (function(exports, window) {
 				config.tagClass = "uk-icon-button";
 		},
 		template: function (config) {
-			return exports.replaceString("<i class='{icon} uk-icon-{iconSize}'>{content}</i>",
+			return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'>{{content}}</i>",
 				{icon: config.icon, iconSize: config.iconSize, content: config.content});
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.label = exports.def({
+	exports.components.label = exports.def({
 		__name__: "label",
 		$defaults: {
 			label: "",
@@ -6409,16 +6686,24 @@ window.UION = window.UI = (function(exports, window) {
 			return config.label;
 		},
 		getValue: function () {
+			/**
+			 * Gets the text value (HTML accepted) of the label.
+			 * @returns {string}
+			 */
 			return this._config.label;
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the value (HTML accepted) of the label component.
+			 * @param value
+			 */
 			this._config.label = value;
 			this.render();
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.link = exports.def({
+	exports.components.link = exports.def({
 		__name__: "link",
 		$defaults: {
 			label: "",
@@ -6429,16 +6714,15 @@ window.UION = window.UI = (function(exports, window) {
 		template: function (config) {
 			return config.label;
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
-	exports.new.progress = exports.def({
+	exports.components.progress = exports.def({
 		__name__: "progress",
 		$defaults: {
 			htmlTag: "DIV",
 			tagClass: "uk-progress",
-			margin: "none",
-			position: "top z-index"
+			fill: "width"
 		},
 		$setters: exports.setCSS({
 			size: {
@@ -6451,7 +6735,8 @@ window.UION = window.UI = (function(exports, window) {
 				warning: "uk-progress-warning",
 				success: "uk-progress-success",
 				striped: "uk-progress-striped",
-				"": ""
+				"": "",
+				$multiple: true
 			}
 		}),
 		render: function () {
@@ -6461,19 +6746,27 @@ window.UION = window.UI = (function(exports, window) {
 			this._html.appendChild(this._bar);
 		},
 		getValue: function () {
+			/**
+			 * Gets the value of the progress component.
+			 * @returns {number}
+			 */
 			return this._progress;
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the value of the progress component.
+			 * @param value A percentage value from 0-100.
+			 */
 			exports.assert(exports.isNumber(value), "Progress value should be a number.");
 
 			var $this = this;
 			$this._bar.style.width = value + '%';
 			$this._progress = value;
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.image = exports.def({
+	exports.components.image = exports.def({
 		__name__: "image",
 		$defaults: {
 			htmlTag: "IMG",
@@ -6491,17 +6784,12 @@ window.UION = window.UI = (function(exports, window) {
 				this.dispatch("onLoad", [e])
 			}, this);
 		}
-	}, exports.ClickEvents, exports.new.element);
+	}, exports.ClickEvents, exports.components.element);
 
 
 	exports.FormControl = {
 		$setters: exports.extend(exports.setCSS(
 			{
-				class: {
-					success: "uk-form-success",
-					danger: "uk-form-danger",
-					"": ""
-				},
 				size: {
 					large: "uk-form-large",
 					small: "uk-form-small",
@@ -6509,6 +6797,10 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}),
 			{
+				class: function (value) {
+					this.setClass(value);
+					return value;
+				},
 				help: function (value) {
 					if (this.help && this.help.parentNode) {
 						this.help.parentNode.removeChild(this.help);
@@ -6557,9 +6849,17 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		),
 		getFormControl: function () {
+			/**
+			 * Get the HTML element.
+			 * @returns {Element}
+			 */
 			return this._html;
 		},
 		setClass: function (value) {
+			/**
+			 * Set the display class for the form control.
+			 * @param value One of ['success', 'danger']
+			 */
 			var formControl = this.getFormControl();
 			switch (value) {
 				case "success":
@@ -6592,25 +6892,62 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		reset: function () {
+			/**
+			 * Clear the form control.
+			 */
 			this.getFormControl().value = "";
 		},
 		enable: function () {
+			/**
+			 * Enable the form control.
+			 */
 			this.getFormControl().removeAttribute('disabled');
 		},
 		disable: function () {
+			/**
+			 * Disable the form control.
+			 */
 			this.getFormControl().setAttribute('disabled', "");
 		},
 		getValue: function () {
+			/**
+			 * Get the value of the form control.
+			 * @returns {*}
+			 */
 			return this.getFormControl().value;
 		},
 		setValue: function (value) {
+			/**
+			 * Set the value of the form control.
+			 * @param value
+			 */
 			this.getFormControl().value = value;
 		}
 	};
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$.help.isText = true;
+		$.autocomplete.isBoolean = true;
+		$.autocapitalize.isBoolean = true;
+		$.autocorrect.isBoolean = true;
+		$.placeholder.isText = true;
+		$.class.options = {"": "", "danger": "danger", "success": "success"};
+		$.type.description = "Set the type of the HTML input element.";
+		$.value.description = "Initial value of the HTML input element.";
+	}(exports.FormControl.$setters));
 
-	exports.new.toggle = exports.def({
+
+	exports.components.toggle = exports.def({
 		__name__: "toggle",
+		$setters: exports.setCSS({
+			type: {
+				"success": "uk-toggle-success",
+				"danger": "uk-toggle-danger",
+				"warning": "uk-toggle-warning",
+				"": ""
+			}
+		}),
 		$defaults: {
 			htmlTag: "LABEL",
 			tagClass: "uk-toggle"
@@ -6622,28 +6959,40 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		template: function (config) {
-			return exports.replaceString('<input type="checkbox"{checked}><div class="uk-toggle-slider"></div>',
+			return exports.replaceString('<input type="checkbox"{{checked}}><div class="uk-toggle-slider"></div>',
 				{checked: config.checked ? " checked" : ""});
 		},
+		getFormControl: function() {
+			/**
+			 * Get the HTML input element.
+			 * @returns {Element}
+			 */
+			return this._html.firstChild;
+		},
 		reset: function () {
-			this._html.firstChild.checked = false;
-		},
-		enable: function () {
-			this._html.firstChild.removeAttribute('disabled');
-		},
-		disable: function () {
-			this._html.firstChild.setAttribute('disabled', "");
+			/**
+			 * Reset the toggle.
+             */
+			this.getFormControl().checked = false;
 		},
 		getValue: function () {
-			return this._html.firstChild.checked;
+			/**
+			 * Get the value of the toggle.
+			 * @returns {boolean}
+			 */
+			return this.getFormControl().checked;
 		},
 		setValue: function (value) {
-			this._html.firstChild.checked = value;
+			/**
+			 * Set the value of the toggle.
+			 * @paramm value
+			 */
+			this.getFormControl().checked = value;
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.input = exports.def({
+	exports.components.input = exports.def({
 		__name__: "input",
 		$defaults: {
 			htmlTag: "INPUT",
@@ -6669,6 +7018,9 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		reset: function () {
+			/**
+			 * Clear the HTML input element.
+			 */
 			switch (this._config.type) {
 				case "checkbox":
 					this.getFormControl().checked = this._config.checked;
@@ -6682,31 +7034,38 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		getValue: function () {
+			/**
+			 * Get the value of the HTML input element.
+			 * @returns {string|boolean}
+			 */
 			if (this._config.type == "checkbox") {
 				return this.getFormControl().checked;
 			}
 			else return this.getFormControl().value;
 		},
 		setValue: function (value) {
+			/**
+			 * Set the value of the HTML input element.
+			 * @param value
+			 */
 			if (this._config.type == "checkbox") {
 				this.getFormControl().checked = value;
 			}
 			else this.getFormControl().value = value;
 		}
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$.checked.isBoolean = true;
+	}(exports.components.input.prototype.$setters));
 
 
-	exports.new.password = exports.def({
+	exports.components.password = exports.def({
 		__name__: "password",
 		$defaults: {
 			tagClass: "uk-form-password",
-			inputWidth: "medium",
-			$setters: {
-				placeholder: function (value) {
-					this._html.setAttribute("placeholder", value);
-					return value;
-				}
-			}
+			inputWidth: "medium"
 		},
 		__after__: function () {
 			exports.event(this._html, "change", this._onChange, this);
@@ -6715,13 +7074,17 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange", [this.getValue()]);
 		},
 		getFormControl: function () {
+			/**
+			 * Gets the HTML input element.
+			 * @returns {Element}
+			 */
 			return this._html.firstChild;
 		},
 		template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
 
 
-	exports.def({
+	exports.components.autocomplete = exports.def({
 		__name__: "autocomplete",
 		$defaults: {
 			tagClass: "uk-autocomplete",
@@ -6755,6 +7118,7 @@ window.UION = window.UI = (function(exports, window) {
 				self._autocomplete = UIkit.autocomplete(self._html,
 					{source: exports.bind(value, self), minLength: self._config.minLength});
 				self._autocomplete.dropdown.attr("style", "width:100%");
+				self._autocomplete.dropdown.addClass('uk-dropdown-small');
 				self._autocomplete.on("selectitem.uk.autocomplete", function (e, obj) {
 					self.dispatch("onChange", [obj.value]);
 					self.dispatch("onAutocomplete", [obj]);
@@ -6763,13 +7127,24 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		template: function (config) {
 			return exports.replaceString(
-				'<input type="text" placeholder="{placeholder}" style="width:100%">',
+				'<input type="text" placeholder="{{placeholder}}" style="width:100%">',
 				{placeholder: config.placeholder});
 		}
-	}, exports.new.password);
+	}, exports.components.password);
 
 
-	exports.new.search = exports.def({
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = exports.extend({
+			caseSensitive: {isBoolean: true},
+			minLength: {isNumber: true},
+			sources: 'An array of sources for the autocomplete.',
+			autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
+		}, $._meta || {});
+	}(exports.components.input.prototype.$setters));
+
+
+	exports.components.search = exports.def({
 		__name__: "search",
 		$defaults: {
 			tagClass: "uk-search",
@@ -6785,16 +7160,20 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChange");
 		},
 		getFormControl: function () {
+			/**
+			 * Gets the HTML input element.
+			 * @returns {Element}
+			 */
 			return this._html.firstChild;
 		},
 		template: function (obj) {
-			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{placeholder}">',
+			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{{placeholder}}">',
 				{placeholder: obj.placeholder})
 		}
-	}, exports.FormControl, exports.new.element);
+	}, exports.FormControl, exports.components.element);
 
 
-	exports.new.dropdown = exports.def({
+	exports.components.dropdown = exports.def({
 		__name__: "dropdown",
 		$defaults: {
 			mode: "click",
@@ -6819,7 +7198,7 @@ window.UION = window.UI = (function(exports, window) {
 				dropdown.appendChild(ui._html);
 				this._html.appendChild(dropdown);
 				this._inner = ui;
-				this.$uis.push(this._inner);
+				this.$components.push(this._inner);
 				return value;
 			}
 		},
@@ -6834,37 +7213,45 @@ window.UION = window.UI = (function(exports, window) {
 			return result;
 		},
 		getBoundingClientRect: function () {
+			/**
+			 * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
+			 * @returns {*|ClientRect}
+			 */
 			return this._html.firstChild.getBoundingClientRect();
 		},
 		isOpened: function () {
+			/**
+			 * Returns if the dropdown is open.
+			 * @returns {boolean}
+			 */
 			return exports.html.hasCSS(this._html, 'uk-open');
 		},
-		open: function (config, node, parent, e) {
-			this.dispatch("onOpen", [config, node, this]);
-			this._inner.dispatch("onOpen", [config, node, this]);
-
-			this._inner.master = node;
-			this._inner.masterConfig = config;
-			this._inner.parent = this;
-			this._inner.grandparent = parent;
+		open: function (args) {
+			/**
+			 * Opens the dropdown.
+			 * @dispatch onOpen, onOpened
+			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
+			 */
+			args = [this._config, this._html, args];
+			this.dispatch("onOpen", args);
+			this._inner.dispatch("onOpen", args);
 			this._dropdown.show();
-
-			this.dispatch("onOpened", [config, node, this]);
-			this._inner.dispatch("onOpened", [config, node, this]);
+			this.dispatch("onOpened", args);
+			this._inner.dispatch("onOpened", args);
 		},
-		close: function (node, master) {
-			var $this = this;
-			$this.dispatch("onClose", [master, node, $this]);
-			$this._inner.dispatch("onClose", [master, node, $this]);
+		close: function (args) {
+			args = [this._config, this._html, args];
+			$this.dispatch("onClose", args);
+			$this._inner.dispatch("onClose", args);
 			// Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
 			// Adding a delay helps close dropdowns properly on Chrome (mobile)
 			setTimeout(function () {
 				exports.html.removeCSS($this._html, 'uk-open');
-				$this.dispatch("onClosed", [master, node, $this]);
-				$this._inner.dispatch("onClosed", [master, node, $this]);
+				$this.dispatch("onClosed", args);
+				$this._inner.dispatch("onClosed", args);
 			}, 10);
 		}
-	}, exports.new.flexgrid, exports.AbsolutePositionMethods);
+	}, exports.components.flexgrid, exports.AbsolutePositionMethods);
 
 
 	exports.LinkedList = {
@@ -6879,30 +7266,64 @@ window.UION = window.UI = (function(exports, window) {
 			this._nodeList = [];
 		},
 		id: function (data) {
+			/**
+			 * Assigns an id to an object if one doesn't exist.
+			 * @param data The object to assign an id to.
+			 * @returns {*|string} The id of the object.
+			 */
 			return data.id || (data.id = exports.new.uid("data"));
 		},
 		getItem: function (id) {
+			/**
+			 * Gets a configuration object by its id.
+			 * @param id The id of the element.
+			 * @returns {object}
+			 */
 			return this.findOne('id', id);
 		},
 		count: function () {
+			/**
+			 * Gets a count of all objects.
+			 * @returns {number}
+			 */
 			return this._nodeList.length;
 		},
 		updateItem: function (item, update) {
-			exports.assert(update, exports.replaceString("Invalid update object for Id {id}", {id: item.id}));
+			/**
+			 * Updates an item by adding properties found on the update object.
+			 * @param item The itemt o update.
+			 * @param update An object containing properties and values to modify.
+			 */
+			exports.assert(update, exports.replaceString("Invalid update object for Id {{id}}", {id: item.id}));
 			var refNode = item.$tailNode;
 			this.remove(item);
 			exports.extend(item, update, true);
 			this.add(item, refNode);
 		},
 		refresh: function () {
+			/**
+			 * Refresh the list.
+			 * @dispatch onRefresh
+			 */
 			this.dispatch("onRefresh");
 		},
-		pluck: function (name) {
+		pluck: function (key) {
+			/**
+			 * Plucks a property from all child objects.
+			 * @param key The key of the child objects.
+			 * @returns {array}
+			 */
 			return this.each(function (item) {
-				return item[name]
+				return item[key]
 			});
 		},
 		each: function (func, thisArg) {
+			/**
+			 * Invokes a function on each child.
+			 * @param func The invoked function.
+			 * @param thisArg The 'this' object passed to the invoked function.
+			 * @returns Return an array containing the results of the invoked call.
+			 */
 			var node = this.headNode;
 			var nextNode;
 			var results = [];
@@ -6913,103 +7334,132 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			return results;
 		},
-		add: function (obj, node) {
-			return this.insertBefore(obj, node);
+		add: function (item, node) {
+			/**
+			 * Adds an item to the end.
+			 * @param item The item to add.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
+			return this.insertBefore(item, node);
 		},
-		insertBefore: function (obj, node) {
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
-			exports.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+		insertBefore: function (item, node) {
+			/**
+			 * Add an item before another item.
+			 * @param item The item to add.
+			 * @param node The reference item to add the item before.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{type}}: {{item}}", {type: typeof item, item: item}));
+			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
-			obj.id = this.id(obj);
+			item.id = this.id(item);
 
 			if (!node && this.tailNode) {
 				// Insert as last node
-				return this.insertAfter(obj, this.tailNode);
+				return this.insertAfter(item, this.tailNode);
 			}
 			else {
-				this.dispatch("onAdd", [obj]);
+				this.dispatch("onAdd", [item]);
 
 				if (this.headNode == null || this.tailNode == null) {
-					this.headNode = obj;
-					this.tailNode = obj;
-					obj.$headNode = obj.$tailNode = null;
+					this.headNode = item;
+					this.tailNode = item;
+					item.$headNode = item.$tailNode = null;
 				}
 				else {
 					if (node.$headNode) {
-						node.$headNode.$tailNode = obj;
+						node.$headNode.$tailNode = item;
 					}
-					obj.$headNode = node.$headNode;
-					obj.$tailNode = node;
-					node.$headNode = obj;
+					item.$headNode = node.$headNode;
+					item.$tailNode = node;
+					node.$headNode = item;
 
 					if (node == this.headNode)
-						this.headNode = obj;
+						this.headNode = item;
 				}
 
-				this._nodeList.push(obj);
+				this._nodeList.push(item);
 
-				this.dispatch("onAdded", [obj, node]);
+				this.dispatch("onAdded", [item, node]);
 
-				return obj.id;
+				return item.id;
 			}
 		},
-		insertAfter: function (obj, node) {
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
-			exports.assert(this._nodeList.indexOf(obj) == -1, "Circular reference detected with node insert!");
+		insertAfter: function (item, node) {
+			/**
+			 * Add an item after another item.
+			 * @param item The item to add.
+			 * @param node The reference item to add the item after.
+			 * @dispatch onAdd, onAdded
+			 * @returns The object id after adding.
+			 */
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
+			exports.assert(this._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
 
-			obj.id = this.id(obj);
+			item.id = this.id(item);
 
 			if (!node && this.headNode) {
 				// Insert as first node
-				return this.insertBefore(obj, this.headNode);
+				return this.insertBefore(item, this.headNode);
 			}
 			else {
-				this.dispatch("onAdd", [obj]);
+				this.dispatch("onAdd", [item]);
 
 				if (this.headNode == null || this.tailNode == null) {
-					this.headNode = obj;
-					this.tailNode = obj;
-					obj.$headNode = obj.$tailNode = null;
+					this.headNode = item;
+					this.tailNode = item;
+					item.$headNode = item.$tailNode = null;
 				}
 				else {
 					if (node.$tailNode) {
-						node.$tailNode.$headNode = obj;
+						node.$tailNode.$headNode = item;
 					}
-					obj.$tailNode = node.$tailNode;
-					obj.$headNode = node;
-					node.$tailNode = obj;
+					item.$tailNode = node.$tailNode;
+					item.$headNode = node;
+					node.$tailNode = item;
 
 					if (node == this.tailNode)
-						this.tailNode = obj;
+						this.tailNode = item;
 				}
 
-				this._nodeList.push(obj);
+				this._nodeList.push(item);
 
-				this.dispatch("onAdded", [obj]);
+				this.dispatch("onAdded", [item]);
 
-				return obj.id;
+				return item.id;
 			}
 		},
-		remove: function (obj) {
-			exports.assert(exports.isObject(obj), exports.replaceString("Expected object, got {obj}", {obj: obj}));
+		remove: function (item) {
+			/**
+			 * Removes an item.
+			 * @param item The item to remove.
+			 * @dispatch onDelete, onDeleted
+			 * @returns The item object.
+			 */
+			exports.assert(exports.isObject(item), exports.replaceString("Expected object, got {{item}}", {item: item}));
 
-			this.dispatch("onDelete", [obj]);
+			this.dispatch("onDelete", [item]);
 
-			if (obj.$headNode) obj.$headNode.$tailNode = obj.$tailNode;
-			if (obj.$tailNode) obj.$tailNode.$headNode = obj.$headNode;
-			if (obj == this.headNode)
-				this.headNode = obj.$tailNode;
-			if (obj == this.tailNode)
-				this.tailNode = obj.$headNode;
-			obj.$tailNode = obj.$headNode = null;
+			if (item.$headNode) item.$headNode.$tailNode = item.$tailNode;
+			if (item.$tailNode) item.$tailNode.$headNode = item.$headNode;
+			if (item == this.headNode)
+				this.headNode = item.$tailNode;
+			if (item == this.tailNode)
+				this.tailNode = item.$headNode;
+			item.$tailNode = item.$headNode = null;
 
-			if (this._nodeList.indexOf(obj) != -1)
-				exports.ListMethods.remove.call(this._nodeList, obj);
+			if (this._nodeList.indexOf(item) != -1)
+				exports.ListMethods.remove.call(this._nodeList, item);
 
-			this.dispatch("onDeleted", [obj]);
-			return obj;
+			this.dispatch("onDeleted", [item]);
+			return item;
 		},
 		clearAll: function () {
+			/**
+			 * Remove all items.
+             */
 			this.headNode = null;
 			this.tailNode = null;
 			this._nodeList = [];
@@ -7021,21 +7471,56 @@ window.UION = window.UI = (function(exports, window) {
 		next: function (node) {
 			return node.$tailNode;
 		},
-		contains: function (node) {
-			return this._nodeList.indexOf(node) != -1;
+		contains: function (item) {
+			/**
+			 * Checks if an item exists.
+			 * @param item The item to check for.
+			 */
+			return this._nodeList.indexOf(item) != -1;
 		},
-		indexOf: function (matchNode, beginNode) {
+		indexOf: function (item, beginNode) {
+			/**
+			 * Gets the index of an item.
+			 * @param item The item to find the index for.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {int|undefined} The index of the item, or undefined if doesn't exist.
+			 */
 			var i = 0;
 			var node = beginNode || this.headNode;
 			while (node) {
 				// Apparently 1 == "1" in JS
-				if (node === matchNode)
+				if (node === item)
 					return i;
 				node = node.$tailNode;
 				i++;
 			}
 		},
+		findWhere: function (key, value, beginNode) {
+			/**
+			 * Find all items based on a key and value.
+			 * @param key The key to look at for matching.
+			 * @param value The value of the key.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
+			var result = [];
+			var node = beginNode || this.headNode;
+			while (node) {
+				// Apparently 1 == "1" in JS
+				if (node[key] === value)
+					result.push(node);
+				node = node.$tailNode;
+			}
+			return result;
+		},
 		findOne: function (key, value, beginNode) {
+			/**
+			 * Finds an item based on a key and value of the item.
+			 * @param key The key to look at for matching.
+			 * @param value The value of the key.
+			 * @param beginNode An optional node which specifies the start.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			while (node) {
 				// Apparently 1 == "1" in JS
@@ -7045,6 +7530,13 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		findFirst: function (cond, beginNode, thisArg) {
+			/**
+			 * Finds the first item which matches a condition predicate function.
+			 * @param cond The condition function.
+			 * @param beginNode An optional node which specifies the start.
+			 * @param thisArg The 'this' argument to pass to the function.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			while (node) {
 				if (cond.call(thisArg || this, node)) {
@@ -7054,6 +7546,13 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		findLast: function (cond, beginNode, thisArg) {
+			/**
+			 * Finds the last item which matches a condition predicate function.
+			 * @param cond The condition function.
+			 * @param beginNode An optional node which specifies the start.
+			 * @param thisArg The 'this' argument to pass to the function.
+			 * @returns {object} The item if found, undefined otherwise.
+			 */
 			var node = beginNode || this.headNode;
 			var lastNode = null;
 			while (node) {
@@ -7070,7 +7569,7 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.new.stack = exports.def({
+	exports.stack = exports.def({
 		__name__: "stack",
 		$setters: {
 			filter: function (value) {
@@ -7089,14 +7588,19 @@ window.UION = window.UI = (function(exports, window) {
 			this.addListener("onDeleted", this._onDeleted);
 			this.addListener("onRefresh", this._onRefresh);
 			this.addListener("onClearAll", this._onClearAll);
+
 			if (config.data) {
-				this.parse(config.data);
+				this.setData(config.data);
 			}
 		},
 		__init__: function () {
 			this._itemNodes = {};
 		},
 		getItemNode: function (id) {
+			/**
+			 * Get the wrapper element that used to hold a child component with a specific id. For example, this would be an LI in a list.
+			 * @returns {Element}
+			 */
 			return this._itemNodes[id];
 		},
 		render: function () {
@@ -7170,6 +7674,11 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onDOMChanged", [null, "clear"]);
 		},
 		showBatch: function (name) {
+			/**
+			 * Show only elements with a specific 'batch' value in its configuration. Hides all other elements.
+			 * @param name An array or a delimited string with a list of batch values to filter by.
+			 * @example showBatch('icons sidebar mainWindow')
+			 */
 			this.batch = name;
 			this.each(function (item) {
 				if (name.indexOf(item.batch) != -1)
@@ -7178,10 +7687,20 @@ window.UION = window.UI = (function(exports, window) {
 					exports.html.addCSS(this._itemNodes[item.id], "uk-hidden");
 			}, this);
 		}
-	}, exports.LinkedList, exports.ComplexDataSetter, exports.new.element);
+	}, exports.LinkedList, exports.ComplexDataSetter, exports.components.element);
 
 
-	exports.new.list = exports.def({
+	(function($) {
+		$.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
+		$.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
+
+		$._meta = exports.extend({
+			data: 'An array of component objects.'
+		}, $._meta || {});
+	}(exports.stack.prototype.$setters));
+
+
+	exports.components.list = exports.def({
 		__name__: "list",
 		$defaults: {
 			htmlTag: "UL",
@@ -7202,6 +7721,7 @@ window.UION = window.UI = (function(exports, window) {
 					"line": ["uk-list", "uk-list-line"],
 					"subnav": "uk-subnav",
 					"navbar": "uk-navbar-nav",
+					"navbar-center": "uk-navbar-center",
 					"subnav-line": ["uk-subnav", "uk-subnav-line"],
 					"subnav-pill": ["uk-subnav", "uk-subnav-pill"],
 					"list": "uk-list",
@@ -7211,7 +7731,8 @@ window.UION = window.UI = (function(exports, window) {
 					"tab-center": "uk-tab-center",
 					"tab-left": "uk-tab-left",
 					"tab-right": "uk-tab-right",
-					"": ""
+					"": "",
+					$multiple: true
 				}
 			}),
 			{
@@ -7320,6 +7841,9 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		updateFit: function () {
+			/**
+			 * Checks if the screen is wide enough to fit all components. Used with tab mode to allow for a responsive tab menu.
+			 */
 			this.each(function (item) {
 				// Show everything for checking y-offset (keep invisible to avoid blink)
 				exports.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
@@ -7353,27 +7877,45 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		setActiveLabel: function (label) {
+			/**
+			 * Sets the active item of the list based on the item's label property. This operates as a single-selection of an item.
+			 * @param label The label value of an item.
+			 */
 			this.setActive("label", label);
 		},
 		setActive: function (key, value) {
+			/**
+			 * Set the active item of the list based on a property. This operates as a single-selection of an item.
+			 */
 			this.unselectAll();
 			var item = this.findOne(key, value);
-			exports.assert(item, exports.replaceString("Could not find {key} {value} in {id}.",
+			exports.assert(item, exports.replaceString("Could not find {{key}} {{value}} in {{id}}.",
 				{key: key, value: value, id: this._config.id}));
 			this.select(item);
 		},
-		isSelected: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			return target.$selected;
+		isSelected: function (item) {
+			/**
+			 * Checks if an item is selected.
+			 * @param item An item of the component.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			return item.$selected;
 		},
-		select: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			target.$selected = true;
-			exports.html.addCSS(this.getItemNode(target.id), "uk-active");
+		select: function (item) {
+			/**
+			 * Selects an active item of the list. This method will not unselect previously selected items.
+			 * @param item The object to select in the list.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			item.$selected = true;
+			exports.html.addCSS(this.getItemNode(item.id), "uk-active");
 		},
 		unselectAll: function () {
+			/**
+			 * Unselects all items in the list, use this for single-selection lists.
+			 */
 			this.each(function (item) {
 				var node = this.getItemNode(item.id);
 				item.$selected = false;
@@ -7382,6 +7924,11 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		closeItem: function (item) {
+			/**
+			 * For tabs only, closes a tab item and removes it.
+			 * @param item The item to remove.
+			 * @dispatch onItemClose, onItemClosed, onItemSelectionChanged
+			 */
 			this.dispatch("onItemClose", [item]);
 
 			if (this.isSelected(item)) {
@@ -7420,7 +7967,7 @@ window.UION = window.UI = (function(exports, window) {
 		_innerHTML: function (parentNode, config) {
 			if (config.view) {
 				var ui = exports.new(config);
-				this.$uis.push(ui);
+				this.$components.push(ui);
 				parentNode.appendChild(ui._html);
 			}
 			else if (config.header) {
@@ -7429,8 +7976,8 @@ window.UION = window.UI = (function(exports, window) {
 			else if (config.divider) {
 			}
 			else {
-				var link = new exports.new.link(config);
-				this.$uis.push(link);
+				var link = new exports.components.link(config);
+				this.$components.push(link);
 				parentNode.appendChild(link._html);
 				this._addCloseHTML(link._html, config);
 			}
@@ -7506,10 +8053,16 @@ window.UION = window.UI = (function(exports, window) {
 				exports.event(node, "mousedown", onMouseDown, this);
 			}
 		}
-	}, exports.new.stack);
+	}, exports.stack);
 
 
-	exports.new.tree = exports.def({
+	(function($) {
+		$.accordion.isBoolean = true;
+		$.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+	}(exports.components.list.prototype.$setters));
+
+
+	exports.components.tree = exports.def({
 		__name__: "tree",
 		$defaults: {
 			listStyle: "side",
@@ -7580,6 +8133,10 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		add: function (obj) {
+			/**
+			 * Add a child to the tree.
+			 * @param item A child of the tree. The parent id of the object should be specified in its $parent property.
+			 */
 			var parent = null;
 			obj.$children = exports.list();
 			obj.$branch = !!obj.$branch; // Convert to boolean
@@ -7597,6 +8154,10 @@ window.UION = window.UI = (function(exports, window) {
 			this.insertAfter(obj, refChild);
 		},
 		remove: function (obj) {
+			/**
+			 * Removes a child of the tree. If the child is branch, removes all branch children as well.
+			 * @param item A child of the tree.
+			 */
 			if (obj.$branch) {
 				while (obj.$children.length > 0) {
 					this.remove(obj.$children[0]);
@@ -7606,17 +8167,23 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		template: function (config) {
 			return exports.replaceString(
-				'<a><i class="uk-icon-{icon}" style="margin-left: {margin}px"></i><span class="uk-margin-small-left">{label}</span></a>',
+				'<a><i class="uk-icon-{{icon}}" style="margin-left: {{margin}}px"></i><span class="uk-margin-small-left">{{label}}</span></a>',
 				{
 					icon: config.$branch ?
 						(config.$children.length ?
 							"folder" :
 							"folder-o") :
-						"file-o", label: config.label,
+						"file-o",
+					label: config.label,
 					margin: config.$depth * this.indentWidth
 				})
 		},
 		open: function (item) {
+			/**
+			 * Expand a specific branch of the tree.
+			 * @param item A child branch of the tree.
+			 * @dispatch onOpen, onOpened
+			 */
 			if (!item.$branch || !item.$closed) return;
 
 			this.dispatch("onOpen", [item.id]);
@@ -7633,6 +8200,11 @@ window.UION = window.UI = (function(exports, window) {
 				this.open(item.$parent);
 		},
 		close: function (item) {
+			/**
+			 * Collapse a specific branch of the tree.
+			 * @param item A child branch of the tree.
+			 * @dispatch onClose, onClosed
+			 */
 			if (!item.$branch || item.$closed) return;
 
 			this.dispatch("onClose", [item.id]);
@@ -7646,23 +8218,41 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onClosed", [item.id]);
 		},
 		openAll: function () {
+			/**
+			 * Expand all children of the tree component.
+			 * @dispatch onOpen, onOpened
+			 */
 			this.each(function (obj) {
 				if (obj.$branch)
 					this.open(obj.id);
 			});
 		},
 		closeAll: function () {
+			/**
+			 * Collapse all children of the tree component.
+			 * @dispatch onClose, onClosed
+			 */
 			this.each(function (obj) {
 				if (obj.$branch)
 					this.close(obj.id);
 			});
 		},
 		isBranchOpen: function (item) {
+			/**
+			 * Checks if a specific branch of the tree is open.
+			 * @param item A child branch of the tree.
+			 * @returns {boolean}
+			 */
 			if (item.$branch && !item.$closed)
 				return this.isBranchOpen(item.$parent);
 			return false;
 		},
 		toggle: function (item) {
+			/**
+			 * Toggles a branch child of the tree. If the child is not a branch, ignores it.
+			 * @param item A child branch of the tree.
+			 * @dispatch onClose, onClosed, onOpen, onOpened
+			 */
 			if (item.$branch) {
 				if (item.$closed)
 					this.open(item);
@@ -7670,10 +8260,21 @@ window.UION = window.UI = (function(exports, window) {
 					this.close(item);
 			}
 		}
-	}, exports.new.list);
+	}, exports.components.list);
 
 
-	exports.new.table = exports.def({
+	(function($) {
+		$._meta = exports.extend({
+			indentWidth: {isNumber: true},
+			dataTransfer: 'The data representation of an item, only for FireFox.',
+			draggable: {isBoolean: true},
+			orderAfter: 'Low level function that determines ordering of tree items.',
+			droppable: 'Function that determines if an item can be dropped upon.'
+		}, $._meta || {});
+	}(exports.components.tree.prototype.$setters));
+
+
+	exports.components.table = exports.def({
 		__name__: "table",
 		$defaults: {
 			tagClass: "uk-table",
@@ -7700,7 +8301,8 @@ window.UION = window.UI = (function(exports, window) {
 				tableStyle: {
 					hover: "uk-table-hover",
 					striped: "uk-table-striped",
-					condensed: "uk-table-condensed"
+					condensed: "uk-table-condensed",
+					$multiple: true
 				}
 			}),
 			{
@@ -7725,7 +8327,7 @@ window.UION = window.UI = (function(exports, window) {
 						for (var c, i = 0; i < columns.length; i++) {
 							c = columns[i];
 							headersHTML += c.align ?
-								exports.replaceString("<th style='text-align: {align}'>{text}</th>", {
+								exports.replaceString("<th style='text-align: {{align}}'>{{text}}</th>", {
 									align: c.align,
 									text: c.header
 								})
@@ -7774,10 +8376,16 @@ window.UION = window.UI = (function(exports, window) {
 		_containerHTML: function () {
 			return this._body;
 		}
-	}, exports.new.list);
+	}, exports.components.list);
+
+	(function($) {
+		$.columns.description = "A list of schema objects containing data display info. Example: [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
+		$.header.description = "A list of header objects containing the header and alignment info. Example: [{header: 'Awesome', align: 'center'}]";
+		$.footer.description = "A list of footer objects containing the footer title.";
+	}(exports.components.table.prototype.$setters));
 
 
-	exports.new.select = exports.def({
+	exports.components.select = exports.def({
 		__name__: "select",
 		$defaults: {
 			tagClass: "",
@@ -7794,19 +8402,25 @@ window.UION = window.UI = (function(exports, window) {
 		_onChange: function () {
 			this.dispatch("onChange");
 		},
-		select: function (target) {
-			if (exports.isString(target))
-				target = this.getItem(target);
-			target.$selected = true;
-			this._html.selectedIndex = this.indexOf(target);
+		select: function (item) {
+			/**
+			 * Selects an item in the select component.
+			 * @param item Object to select.
+			 */
+			if (exports.isString(item))
+				item = this.getItem(item);
+			item.$selected = true;
+			this.getFormControl().selectedIndex = this.indexOf(item);
 		},
 		unselectAll: function () {
-			// Do nothing
-		},
-		getValue: function () {
-			return this._html.value;
+			// Do nothing, invalid for select component.
 		},
 		setValue: function (value) {
+			/**
+			 * Sets the selected value of the select component.
+			 * @param value
+			 * @returns {boolean} True if value exist in options, false otherwise.
+			 */
 			return this.setActive('value', value);
 		},
 		template: function (itemConfig) {
@@ -7822,15 +8436,16 @@ window.UION = window.UI = (function(exports, window) {
 			}
 			return exports.html.createElement("OPTION", attrs);
 		}
-	}, exports.new.list);
+	}, exports.FormControl, exports.components.list);
 
 
-	exports.new.form = exports.def({
+	exports.components.form = exports.def({
 		__name__: "form",
 		$defaults: {
 			htmlTag: "FORM",
 			tagClass: "uk-form",
-			layout: "stacked"
+			layout: "stacked",
+			fieldset: []
 		},
 		$setters: exports.extend(
 			exports.setCSS({
@@ -7845,18 +8460,27 @@ window.UION = window.UI = (function(exports, window) {
 			}),
 			{
 				fieldset: function (value) {
-					var ui = exports.new({
+					this.set('fieldsets', [{
 						view: "fieldset",
-						margin: "",
 						layout: this._config.layout,
 						data: value
-					});
-					this._fieldset = ui;
-					this.$uis.push(this._fieldset);
-					this._html.appendChild(ui._html);
+					}]);
+				},
+				fieldsets: function (value) {
+					exports.assert(exports.isArray(value), "The fieldsets property must be an array.", this);
+
+					for (var ui, i = 0; i < value.length; i++) {
+						ui = exports.new(value[i]);
+						this.$fieldsets.push(ui);
+						this.$components.push(ui);
+						this._html.appendChild(ui._html);
+					}
 					return value;
 				}
 			}),
+		__init__: function() {
+			this.$fieldsets = UI.list();
+		},
 		__after__: function () {
 			exports.event(this._html, "submit", this._onSubmit, this);
 		},
@@ -7866,24 +8490,61 @@ window.UION = window.UI = (function(exports, window) {
 			return true;
 		},
 		clear: function () {
-			this._fieldset.clear();
+			/**
+			 * Clear all values from the form.
+			 */
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.clear();
+			});
 		},
 		enable: function () {
-			this._fieldset.enable();
+			/**
+			 * Enable the fieldset of the form.
+			 */
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.enable();
+			});
 		},
 		disable: function () {
-			this._fieldset.disable();
+			/**
+			 * Disable the fieldset of the form.
+			 */
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.disable();
+			});
 		},
 		getValues: function () {
-			return this._fieldset.getValues();
+			/**
+			 * Gets the values of the form's components.
+			 * @returns {object} Object of key values of the form.
+			 */
+			var result = {};
+			this.$fieldsets.each(function(fieldset) {
+				UI.extend(result, fieldset.getValues());
+			});
+			return result;
 		},
 		setValues: function (values) {
-			return this._fieldset.setValues(values);
+			/**
+			 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
+			 * @param values Object of names and values.
+			 */
+			this.$fieldsets.each(function(fieldset) {
+				fieldset.setValues(values);
+			});
+		},
+		getFieldset: function(index) {
+			/**
+			 * Retrieves the fieldset component of the form.
+			 * @param index The index of the fieldset in the form, default 0.
+			 * @returns {UI.components.fieldset}
+			 */
+			return this.$fieldsets[index || 0];
 		}
-	}, exports.new.element);
+	}, exports.components.element);
 
 
-	exports.new.fieldset = exports.def({
+	exports.components.fieldset = exports.def({
 		__name__: "fieldset",
 		$defaults: {
 			htmlTag: "FIELDSET"
@@ -7909,9 +8570,8 @@ window.UION = window.UI = (function(exports, window) {
 				parentNode.innerHTML = config.label;
 			}
 			else {
-				config.margin = config.margin || "";
 				var ui = exports.new(config);
-				this.$uis.push(ui);
+				this.$components.push(ui);
 
 				if (config.formLabel) {
 					ui.label = exports.html.createElement("LABEL", {class: "uk-form-label", for: config.id});
@@ -7930,6 +8590,9 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		clear: function () {
+			/**
+			 * Clear all values from the fieldset.
+			 */
 			this.each(function (item) {
 				if (item.name) {
 					$$(item.id).reset();
@@ -7937,6 +8600,9 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		enable: function () {
+			/**
+			 * Enables the fieldset.
+			 */
 			this.each(function (item) {
 				if (item.name || item.view == "button") {
 					$$(item.id).enable();
@@ -7944,6 +8610,9 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		disable: function () {
+			/**
+			 * Disables the fieldset. (Works by disabling each child.)
+			 */
 			this.each(function (item) {
 				if (item.name || item.view == "button") {
 					$$(item.id).disable();
@@ -7951,9 +8620,13 @@ window.UION = window.UI = (function(exports, window) {
 			});
 		},
 		getValues: function () {
+			/**
+			 * Gets the values of the form's components.
+			 * @returns {object} Object of key values of the fieldset.
+			 */
 			var results = {};
 
-			var unprocessed = this.$uis.copy();
+			var unprocessed = this.$components.copy();
 
 			// Extract all children with `name` attributes, including nested flexgrid children.
 			var ui;
@@ -7962,17 +8635,21 @@ window.UION = window.UI = (function(exports, window) {
 				if (ui && ui.config.name) {
 					results[ui.config.name] = ui.getValue();
 				}
-				else if (ui.$uis) {
-					unprocessed = unprocessed.concat(ui.$uis);
+				else if (ui.$components) {
+					unprocessed = unprocessed.concat(ui.$components);
 				}
 			}
 
 			return results;
 		},
 		setValues: function (config) {
+			/**
+			 * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
+			 * @param values Object of names and values.
+			 */
 			exports.assert(config, "fieldset setValues has recieved an invalid value.");
 
-			var unprocessed = this.$uis.copy();
+			var unprocessed = this.$components.copy();
 
 			var ui;
 			while (unprocessed.length > 0) {
@@ -7980,12 +8657,12 @@ window.UION = window.UI = (function(exports, window) {
 				if (ui && exports.isDefined(config[ui.config.name])) {
 					ui.setValue(config[ui.config.name]);
 				}
-				else if (ui.$uis) {
-					unprocessed = unprocessed.concat(ui.$uis);
+				else if (ui.$components) {
+					unprocessed = unprocessed.concat(ui.$components);
 				}
 			}
 		}
-	}, exports.new.stack);
+	}, exports.stack);
 
 
 	if (window.UIkit) {

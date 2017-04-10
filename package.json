@@ -1,6 +1,6 @@
 {
   "name": "UION",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "UION (User Interface Object Notation) is a JSON user interface builder based on UIkit.",
   "main": "",
   "private": false,
