@@ -544,6 +544,8 @@ UI.new({
                     layout: 'horizontal',
                     parseProperties: function (component) {
                         var meta = UI.extend({}, component.prototype.$setters._meta);
+                        var name = component.prototype.__name__;
+                        var model = Model.properties[name];
                         UI.extend(meta, component.prototype.$setters);
 
                         var properties = Object.keys(meta).filter(function(n) {
@@ -553,12 +555,12 @@ UI.new({
                         this.getFieldset().setData(properties.sort().filter(function (n) {
                             return !UI.isFunction(meta[n]) || !meta[n].options;
                         }).map(function(n) {
-                            return UI.extend(getViewConfig(meta[n]), {
+                            return UI.extend(getViewConfig(meta[n], n), {
                                 formLabel: UI.replaceString('<code>{{name}}</code>', {name: n})
                             })
                         }));
 
-                        function getViewConfig(property) {
+                        function getViewConfig(property, propName) {
                             if (UI.isString(property)) {
                                 return {view: 'label', label: property};
                             }
@@ -566,17 +568,44 @@ UI.new({
                                 return {view: 'label', label: property.description};
                             }
                             else if (property.isText) {
-                                return {view: 'input', size: 'small'};
+                                return {
+                                    view: 'input', size: 'small',
+                                    value: model[propName],
+                                    on: {
+                                        onChange: function() {
+                                            model[propName] = this.getValue();
+                                            var config = $$('codeView').parseCode(name);
+                                            $$('componentView').parseConfig(config, name);
+                                        }
+                                    }
+                                };
                             }
                             else if (property.isBoolean) {
-                                return {view: 'toggle'};
+                                return {
+                                    view: 'toggle',
+                                    checked: model[propName],
+                                    on: {
+                                        onClick: function() {
+                                            model[propName] = this.getValue();
+                                            var config = $$('codeView').parseCode(name);
+                                            $$('componentView').parseConfig(config, name);
+                                        }
+                                    }
+                                };
                             }
                             else if (property.options) {
                                 return {
                                     view: 'select', size: 'small',
                                     data: property.options.map(function(n) {
-                                        return {label: n}
-                                    })
+                                        return {label: n, value: n}
+                                    }),
+                                    on: {
+                                        onChange: function() {
+                                            model[propName] = this.getValue();
+                                            var config = $$('codeView').parseCode(name);
+                                            $$('componentView').parseConfig(config, name);
+                                        }
+                                    }
                                 };
                             }
                             else {

@@ -17,7 +17,8 @@ gulp.task('build', function() {
     return gulp.src(files)
         .pipe(concat('uion.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('.'));
+        .pipe(gulp.dest('.'))
+        .pipe(gulp.dest('./docs'));
 });
 
 gulp.task('build-debug', function() {
@@ -30,7 +31,8 @@ gulp.task('build-less', function () {
     return gulp.src(['less/**/uikit.less'])
         .pipe(less())
         .pipe(minifyCSS({"source-map": 1}))
-        .pipe(gulp.dest('css'));
+        .pipe(gulp.dest('css'))
+        .pipe(gulp.dest('docs/css'));
 });
 
 gulp.task('default', ['build', 'build-debug', 'build-less']);
