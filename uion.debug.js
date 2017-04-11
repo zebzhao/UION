@@ -6100,13 +6100,7 @@ window.UION = window.UI = (function(exports, window) {
 			if (config.tagClass)
 				this.element.setAttribute("class", config.tagClass);
 
-			exports.extend(this._html.style, {
-				top: config.top, bottom: config.bottom, left: config.left, right: config.right,
-				width: config.width, height: config.height, minHeight: config.minHeight, maxHeight: config.maxHeight,
-				minWidth: config.minWidth, maxWidth: config.maxWidth,
-				marginBottom: config.marginBottom, marginTop: config.marginTop,
-				marginLeft: config.marginLeft, marginRight: config.marginRight
-			});
+			exports.extend(this._html.style, config.style || {});
 
 			this.render();
 		},
@@ -6224,7 +6218,9 @@ window.UION = window.UI = (function(exports, window) {
 			dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
 			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
 			dropdownMarginX: "The left margin of the dropdown from anchor component.",
-			dropdownMarginY: "The top margin of the dropdown from anchor component."
+			dropdownMarginY: "The top margin of the dropdown from anchor component.",
+			template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
+			style: "A object containing properties to feed into the style attribute of the element"
 		}, $._meta || {});
 	}(exports.components.element.prototype.$setters));
 
@@ -6466,12 +6462,20 @@ window.UION = window.UI = (function(exports, window) {
 			flex: false,
 			margin: "",
 			size: "",
-			layout: ""
+			layout: "",
+			dialogClass: "",
+			headerClass: "",
+			footerClass: ""
 		},
 		__init__: function (config) {
 			this.header = this._header = exports.html.createElement("DIV", {class: "uk-modal-header"});
 			this.footer = this._footer = exports.html.createElement("DIV", {class: "uk-modal-footer"});
 			this.body = this._body = exports.html.createElement("DIV", {class: "uk-modal-dialog"});
+
+			if (config.headerClass) exports.html.addCSS(this._header, config.headerClass);
+			if (config.dialogClass) exports.html.addCSS(this._body, config.dialogClass);
+			if (config.footerClass) exports.html.addCSS(this._footer, config.footerClass);
+
 			this._html.appendChild(this._body);
 			if (config.header) this._body.appendChild(this._header);
 			if (config.footer) this._body.appendChild(this._footer);
@@ -6586,7 +6590,8 @@ window.UION = window.UI = (function(exports, window) {
 			keyboard: {isBoolean: true},
 			minScrollHeight: {isNumber: true},
 			closeModals: {isBoolean: true},
-			center: {isBoolean: true}
+			center: {isBoolean: true},
+			dialogClass: {options: ['', 'uk-modal-dialog-blank', 'uk-modal-dialog-full']}
 		}, $._meta || {});
 	}(exports.components.modal.prototype.$setters));
 
@@ -7148,7 +7153,8 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "search",
 		$defaults: {
 			tagClass: "uk-search",
-			placeholder: "search..."
+			placeholder: "Search...",
+			iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>"
 		},
 		__after__: function () {
 			exports.event(this._html, "change", this._onChange, this);
@@ -7164,12 +7170,9 @@ window.UION = window.UI = (function(exports, window) {
 			 * Gets the HTML input element.
 			 * @returns {Element}
 			 */
-			return this._html.firstChild;
+			return this._html.lastChild;
 		},
-		template: function (obj) {
-			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{{placeholder}}">',
-				{placeholder: obj.placeholder})
-		}
+		template: '{{iconTemplate}}<input class="uk-search-field" type="search" placeholder="{{placeholder}}">'
 	}, exports.FormControl, exports.components.element);
 
 
