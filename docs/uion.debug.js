@@ -6511,7 +6511,6 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			body: function (value) {
-				value.halign = value.halign || "center";
 				var innerBody = exports.new(value);
 				this.bodyContent = innerBody;
 				this.$components.push(this.bodyContent);
