@@ -46,9 +46,9 @@
 @modal-dialog-large-width:                      930px;
 @modal-dialog-large-width-large:                1130px;
 
-@modal-header-margin-bottom:                    15px;
+@modal-header-margin-bottom:                    0;
 
-@modal-footer-margin-top:                       15px;
+@modal-footer-margin-top:                       0;
 
 @modal-caption-margin-bottom:                   -10px;
 @modal-caption-color:                           #fff;
@@ -86,8 +86,8 @@
     background: @modal-background;
     /* 5 */
     opacity: 0;
-    -webkit-transition: opacity 0.15s linear;
-    transition: opacity 0.15s linear;
+    -webkit-transition: opacity 0.3s linear;
+    transition: opacity 0.3s linear;
     /* 6 */
     touch-action: cross-slide-y pinch-zoom double-tap-zoom;
     /* 7 */
@@ -155,6 +155,7 @@
     .uk-modal-dialog.uk-modal-dialog-full {
         max-width: 100%;
         margin: 0 auto;
+        max-height: 100vh;
         height: 100vh;
     }
 

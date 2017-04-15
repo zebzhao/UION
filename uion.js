@@ -108,9 +108,9 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.template = function (template, config, thisArg, parentNode) {
 		if (exports.isFunction(template)) {
-			parentNode.innerHTML = template.call(thisArg, config);
+			template = template.call(thisArg, config);
 		}
-		else if (exports.isString(template)) {
+		if (exports.isString(template)) {
 			parentNode.innerHTML = exports.stringTemplate(template, config);
 		}
 		else if (exports.isObject(template)) {
@@ -1714,9 +1714,9 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onClose, onClosed
 			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
 			 */
-			this.dispatch("onClose", [config, this._html, args]);
+			this.dispatch("onClose", [this._config, this._html, args]);
 			UIkit.modal('#' + this._config.id).hide();
-			this.dispatch("onClosed", [config, this._html, args]);
+			this.dispatch("onClosed", [this._config, this._html, args]);
 		}
 	}, exports.components.flexgrid);
 
@@ -3208,6 +3208,10 @@ window.UION = window.UI = (function(exports, window) {
 	(function($) {
 		$.accordion.isBoolean = true;
 		$.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+		$._meta = exports.extend({
+			selectable: {isBoolean: true},
+			itemStyle: {isText: true}
+		}, $._meta || {});
 	}(exports.components.list.prototype.$setters));
 
 
@@ -3732,6 +3736,7 @@ window.UION = window.UI = (function(exports, window) {
 				var controlContainer = parentNode;
 				if (!config.inline) {
 					controlContainer = exports.html.createElement("DIV", {class: "uk-form-controls"});
+					exports.html.addCSS(controlContainer, config.$css);
 					parentNode.appendChild(controlContainer);
 				}
 
