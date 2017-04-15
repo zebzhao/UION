@@ -649,7 +649,8 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		scroll: {
 			xy: "uk-overflow-container",
-			y: "uk-scrollable-text",
+			y: "uk-overflow-ycontainer",
+			text: "uk-scrollable-text",
 			"": ""
 		},
 		hidden: {
@@ -2853,9 +2854,10 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "list",
 		$defaults: {
 			htmlTag: "UL",
+			itemTag: "LI",
 			selectable: false,
 			listStyle: "list",
-			itemStyle: "",
+			itemClass: "",
 			margin: "",
 			dropdownEvent: "onItemClick"
 		},
@@ -3099,13 +3101,13 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onItemClosed", [item]);
 		},
 		_itemHTML: function (itemConfig) {
-			var itemStyle = itemConfig.$css || this._config.itemStyle;
+			var itemClass = itemConfig.$css || this._config.itemClass;
 
-			var li = exports.html.createElement("LI",
+			var li = exports.html.createElement(this._config.itemTag,
 				{
-					class: exports.stringCSS(itemStyle)
-					+ (itemConfig.header ? "uk-nav-header" : "")
-					+ (itemConfig.divider ? "uk-nav-divider" : "")
+					class: exports.stringCSS(itemClass)
+					+ (!itemConfig.view && itemConfig.header ? "uk-nav-header" : "")
+					+ (!itemConfig.view && itemConfig.divider ? "uk-nav-divider" : "")
 				});
 
 			if (!itemConfig.header && !itemConfig.divider) {
@@ -3210,7 +3212,7 @@ window.UION = window.UI = (function(exports, window) {
 		$.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
 		$._meta = exports.extend({
 			selectable: {isBoolean: true},
-			itemStyle: {isText: true}
+			itemClass: {isText: true}
 		}, $._meta || {});
 	}(exports.components.list.prototype.$setters));
 
