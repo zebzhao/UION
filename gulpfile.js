@@ -17,14 +17,15 @@ gulp.task('build', function() {
     return gulp.src(files)
         .pipe(concat('uion.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('.'))
-        .pipe(gulp.dest('./docs'));
+        .pipe(gulp.dest('.'));
+
 });
 
 gulp.task('build-debug', function() {
     return gulp.src(files)
         .pipe(concat('uion.debug.js'))
-        .pipe(gulp.dest('.'));
+        .pipe(gulp.dest('.'))
+        .pipe(gulp.dest('./docs'));
 });
 
 gulp.task('build-less', function () {
