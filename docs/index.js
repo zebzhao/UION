@@ -499,8 +499,8 @@ UI.new({
                                         }
                                     }),
                                     on: {
-                                        onOpen: function(config, node, master) {
-                                            this.masterComponent = master;
+                                        onOpen: function(config, node, masterConfig) {
+                                            this.masterComponent = $$(masterConfig.id);
                                         },
                                         onClosed: function() {
                                             this.masterComponent = null;

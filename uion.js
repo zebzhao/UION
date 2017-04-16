@@ -1208,14 +1208,15 @@ window.UION = window.UI = (function(exports, window) {
 					id: config.dropdownId,
 					view: "dropdown",
 					pos: config.dropdownPos,
-					dropdown: value
+					dropdown: value,
+					dropdownCSS: config.dropdownCSS
 				};
 
 				var ui = exports.new(dropdown, document.body);
 
 				config.on = config.on || {};
 				this.addListener(config.dropdownEvent, function (config, node) {
-					ui.open($this);
+					ui.open(config);
 					ui.positionNextTo(node, dropdown.pos, config.dropdownMarginX, config.dropdownMarginY);
 					ui.moveWithinBoundary();
 				});
@@ -1604,7 +1605,7 @@ window.UION = window.UI = (function(exports, window) {
 			bgClose: true,
 			keyboard: true,
 			minScrollHeight: 150,
-			closeModals: true,
+			closeModals: false,
 			center: true,
 			flex: false,
 			margin: "",
@@ -1748,7 +1749,7 @@ window.UION = window.UI = (function(exports, window) {
 			label: "",
 			htmlTag: "BUTTON",
 			tagClass: "uk-button",
-			iconSize: "small"
+			iconClass: "uk-icon-small"
 		},
 		$setters: exports.setCSS({
 			type: {
@@ -1772,10 +1773,9 @@ window.UION = window.UI = (function(exports, window) {
 		}),
 		template: function (config) {
 			if (config.type == "icon")
-				return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'></i><span>{{label}}</span>",
-					{icon: config.icon, label: config.label, iconSize: config.iconSize});
+				return "<i class='{{icon}} {{iconClass}}'></i><span>{{label}}</span>";
 			else
-				return exports.replaceString("<span>{{label}}</span>", {label: config.label});
+				return "<span>{{label}}</span>";
 		},
 		select: function () {
 			/**
@@ -1801,12 +1801,21 @@ window.UION = window.UI = (function(exports, window) {
 	}, exports.ClickEvents, exports.components.element);
 
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = exports.extend({
+			iconClass: {isText: true},
+			icon: {isText: true}
+		}, $._meta || {});
+	}(exports.components.button.prototype.$setters));
+
+
 	exports.components.icon = exports.def({
 		__name__: "icon",
 		$defaults: {
 			htmlTag: "A",
 			tagClass: "uk-icon-hover",
-			iconSize: "small",
+			iconClass: "uk-icon-small",
 			selectable: false,
 			content: ""
 		},
@@ -1814,11 +1823,16 @@ window.UION = window.UI = (function(exports, window) {
 			if (config.type == "button")
 				config.tagClass = "uk-icon-button";
 		},
-		template: function (config) {
-			return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'>{{content}}</i>",
-				{icon: config.icon, iconSize: config.iconSize, content: config.content});
-		}
+		template: "<i class='{{icon}} {{iconClass}}'>{{content}}</i>"
 	}, exports.ClickEvents, exports.components.element);
+
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = exports.extend({
+			iconClass: {isText: true}
+		}, $._meta || {});
+	}(exports.components.icon.prototype.$setters));
 
 
 	exports.components.label = exports.def({
@@ -2331,7 +2345,6 @@ window.UION = window.UI = (function(exports, window) {
 			padding: "none",
 			justify: false,
 			dropdownCSS: "uk-dropdown-small uk-dropdown-close",
-			dropdownStyle: "close",
 			blank: false
 		},
 		$setters: {
