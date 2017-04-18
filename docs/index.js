@@ -291,7 +291,7 @@ UI.new({
                         }
                     }
                 },
-                {label: "UION", css: "uk-text-contrast"}
+                {label: "UION - Extensible JSON UI", css: "uk-text-contrast"}
             ]
         },
         {
