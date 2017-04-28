@@ -1043,7 +1043,6 @@ window.UION = window.UI = (function(exports, window) {
 		exports.assert(node, exports.replaceString("Unknown node view {{view}}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
-		exports.views[config.id] = node;
 		return node;
 
 		function makeView(config) {
@@ -1242,6 +1241,7 @@ window.UION = window.UI = (function(exports, window) {
 			if (!config.id) config.id = exports.new.uid(this.__name__);
 			var node = exports.node(config.id);
 			exports.assert(!node, exports.replaceString("Node with id '{{id}}' already exists", {id: config.id}), config);
+			exports.views[config.id] = this;
 
 			this.$components = exports.list();
 			this.element = this._html = exports.html.createElement(config.htmlTag || "DIV", {id: config.id});
@@ -1514,6 +1514,12 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChildChange", [this._activeChild, newChild]);
 			this._activeChild = newChild;
 		},
+		getBatch: function () {
+			/**
+			 * Get the 'batch' value that was passed to `setBatch`.
+			 */
+			return this.$batch;
+		},
 		showBatch: function (name) {
 			/**
 			 * Checks the batch property of all children and makes all matching batch visible.
@@ -1522,7 +1528,7 @@ window.UION = window.UI = (function(exports, window) {
 			// Tricky: Rendering input fields will cause problems with on-screen keyboards.
 			// However, to preserve the order of elements, will need to rerender.
 			this._setVisible('batch', exports.isArray(name) ? name : [name], true);
-			this.batch = name;
+			this.$batch = name;
 		},
 		_setVisible: function (key, value, rerender) {
 			this.$components.each(function (item) {
@@ -2835,13 +2841,19 @@ window.UION = window.UI = (function(exports, window) {
 
 			this.dispatch("onDOMChanged", [null, "clear"]);
 		},
+		getBatch: function () {
+			/**
+			 * Get the 'batch' value that was passed to `setBatch`.
+			 */
+			return this.$batch;
+		},
 		showBatch: function (name) {
 			/**
 			 * Show only elements with a specific 'batch' value in its configuration. Hides all other elements.
 			 * @param name An array or a delimited string with a list of batch values to filter by.
 			 * @example showBatch('icons sidebar mainWindow')
 			 */
-			this.batch = name;
+			this.$batch = name;
 			this.each(function (item) {
 				if (name.indexOf(item.batch) != -1)
 					exports.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
