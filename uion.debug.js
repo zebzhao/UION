@@ -6002,16 +6002,19 @@ window.UION = window.UI = (function(exports, window) {
 					}, 1000));
 				}
 				if (config.on.onFocus) {
-					exports.event(this._html, "focus", function (e) {
+					exports.event(this.firstResponder(), "focus", function (e) {
 						this.dispatch("onFocus", [e]);
 					}, $this);
 				}
 				if (config.on.onBlur) {
-					exports.event(this._html, "blur", function (e) {
+					exports.event(this.firstResponder(), "blur", function (e) {
 						this.dispatch("onBlur", [e]);
 					}, $this);
 				}
 			}
+		},
+		firstResponder: function () {
+			return this._html;
 		}
 	};
 
@@ -6609,7 +6612,8 @@ window.UION = window.UI = (function(exports, window) {
 			label: "",
 			htmlTag: "BUTTON",
 			tagClass: "uk-button",
-			iconClass: "uk-icon-small"
+			iconClass: "uk-icon-small",
+			selectable: false
 		},
 		$setters: exports.setCSS({
 			type: {
@@ -6699,7 +6703,8 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "label",
 		$defaults: {
 			label: "",
-			htmlTag: "SPAN"
+			htmlTag: "SPAN",
+			selectable: false
 		},
 		$setters: exports.setCSS({
 			type: {
@@ -6873,6 +6878,14 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		),
+		firstResponder: function () {
+			/**
+			 * The first responder to events.
+			 * This element will get bound to events such as blur/focus/change etc.
+			 * @returns {Element}
+			 */
+			return this.getFormControl();
+		},
 		getFormControl: function () {
 			/**
 			 * Get the HTML element.
@@ -6978,7 +6991,7 @@ window.UION = window.UI = (function(exports, window) {
 			tagClass: "uk-toggle"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
@@ -7034,8 +7047,8 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
-			exports.event(this._html, "keyup", function (e) {
+			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
@@ -7093,7 +7106,7 @@ window.UION = window.UI = (function(exports, window) {
 			inputWidth: "medium"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange", [this.getValue()]);
@@ -7177,8 +7190,8 @@ window.UION = window.UI = (function(exports, window) {
 			iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
-			exports.event(this._html, "keyup", function (e) {
+			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
@@ -7734,6 +7747,7 @@ window.UION = window.UI = (function(exports, window) {
 			htmlTag: "UL",
 			itemTag: "LI",
 			selectable: false,
+			closeButton: false,
 			listStyle: "list",
 			itemClass: "",
 			margin: "",
@@ -7760,6 +7774,7 @@ window.UION = window.UI = (function(exports, window) {
 					"tab-center": "uk-tab-center",
 					"tab-left": "uk-tab-left",
 					"tab-right": "uk-tab-right",
+					"breadcrumb": "uk-breadcrumb",
 					"": "",
 					$multiple: true
 				}
@@ -8007,8 +8022,12 @@ window.UION = window.UI = (function(exports, window) {
 			else {
 				var link = new exports.components.link(config);
 				this.$components.push(link);
+
 				parentNode.appendChild(link._html);
-				this._addCloseHTML(link._html, config);
+
+				if (config.closeButton) {
+					this._addCloseHTML(link._html, config);
+				}
 			}
 			return ui;
 		},
@@ -8430,7 +8449,7 @@ window.UION = window.UI = (function(exports, window) {
 			listStyle: ""
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
