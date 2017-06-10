@@ -6418,17 +6418,20 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			}
 		},
+		__check__: function (bases) {
+			exports.assert(bases.indexOf('CommonEvents') != -1, "ClickEvents must extend CommonEvents.");
+		},
 		__after__: function (config) {
 			config.on = config.on || {};
-			exports.event(this._html, "click", this._onClick, this);
-			exports.event(this._html, "contextmenu", this._onContext, this);
+			exports.event(this.firstResponder(), "click", this._onClick, this);
+			exports.event(this.firstResponder(), "contextmenu", this._onContext, this);
 
 			// Optimization: these rarely get used.
 			if (config.on.onMouseDown) {
-				exports.event(this._html, "mousedown", this._onMouseDown, this);
+				exports.event(this.firstResponder(), "mousedown", this._onMouseDown, this);
 			}
 			if (config.on.onMouseUp) {
-				exports.event(this._html, "mouseup", this._onMouseUp, this);
+				exports.event(this.firstResponder(), "mouseup", this._onMouseUp, this);
 			}
 		},
 		_onClick: function (e) {
@@ -6810,7 +6813,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this._html, "load", function (e) {
+			exports.event(this.firstResponder(), "load", function (e) {
 				this.dispatch("onLoad", [e])
 			}, this);
 		}
@@ -8534,7 +8537,7 @@ window.UION = window.UI = (function(exports, window) {
 			this.$fieldsets = UI.list();
 		},
 		__after__: function () {
-			exports.event(this._html, "submit", this._onSubmit, this);
+			exports.event(this.firstResponder(), "submit", this._onSubmit, this);
 		},
 		_onSubmit: function (e) {
 			exports.html.preventEvent(e);
