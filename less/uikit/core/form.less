@@ -99,7 +99,6 @@
 
 @form-horizontal-label-width:                   200px;
 @form-horizontal-label-margin-top:              10px;
-@form-horizontal-controls-margin-left:          215px;
 @form-horizontal-controls-text-padding-top:     5px;
 
 @form-icon-font-size:                           @global-font-size;
@@ -562,12 +561,7 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
     }
 
     .uk-form-horizontal .uk-form-controls {
-        margin-left: @form-horizontal-controls-margin-left * 0.75;
         height: @form-height;
-
-        * {
-            display: inline-block;
-        }
 
         &::before {
             content: '';
@@ -594,12 +588,7 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
     }
 
     .uk-form-horizontal .uk-form-controls {
-        margin-left: @form-horizontal-controls-margin-left;
         height: @form-height;
-
-        * {
-            display: inline-block;
-        }
 
         &::before {
             content: '';
