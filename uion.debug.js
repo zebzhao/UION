@@ -7190,7 +7190,9 @@ window.UION = window.UI = (function(exports, window) {
 		$defaults: {
 			tagClass: "uk-search",
 			placeholder: "Search...",
-			iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>"
+			iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>",
+			inputClass: "uk-search-field",
+			inputType: "search"
 		},
 		__after__: function () {
 			exports.event(this.firstResponder(), "change", this._onChange, this);
@@ -7208,7 +7210,7 @@ window.UION = window.UI = (function(exports, window) {
 			 */
 			return this._html.lastChild;
 		},
-		template: '{{iconTemplate}}<input class="uk-search-field" type="search" placeholder="{{placeholder}}">'
+		template: '{{iconTemplate}}<input class="{{inputClass}}" type="{{inputType}}" placeholder="{{placeholder}}">'
 	}, exports.FormControl, exports.components.element);
 
 
