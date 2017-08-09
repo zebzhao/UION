@@ -899,28 +899,6 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.ComplexDataSetter = {
-		__name__: "ComplexDataSetter",
-		__check__: function (bases) {
-			var iComplexDataSetter = bases.indexOf("ComplexDataSetter");
-			exports.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
-			exports.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
-		},
-		setData: function (value) {
-			/**
-			 * Sets the data for the component.
-			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
-			 */
-			exports.assert(exports.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
-			this.clearAll();
-			for (var i = 0; i < value.length; i++) {
-				this.add(value[i]);
-			}
-			this.data = value;
-		}
-	};
-
-
 	exports.AbsolutePositionMethods = {
 		positionNextTo: function (node, position, marginX, marginY) {
 			/**
@@ -2197,12 +2175,16 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		__after__: function () {
 			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
 			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
+		},
+		_onChange: function () {
+			this.dispatch("onInput");
 		},
 		reset: function () {
 			/**
@@ -2256,9 +2238,13 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		__after__: function () {
 			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange", [this.getValue()]);
+		},
+		_onInput: function () {
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		getFormControl: function () {
 			/**
@@ -2342,12 +2328,16 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		__after__: function () {
 			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
 			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
+		},
+		_onInput: function () {
+			this.dispatch("onInput");
 		},
 		getFormControl: function () {
 			/**
@@ -2757,10 +2747,14 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.stack = exports.def({
 		__name__: "stack",
+		$defaults: {
+			filter: function () {
+				return true;
+			}
+		},
 		$setters: {
 			filter: function (value) {
 				exports.assert(exports.isFunction(value), "Expected function for 'filter', got: " + value);
-				this._filter = value;
 				return value;
 			},
 			droppable: function (value) {
@@ -2793,9 +2787,6 @@ window.UION = window.UI = (function(exports, window) {
 			// Do nothing, overwrites render function.
 		},
 		_droppable: function () {
-			return true;
-		},
-		_filter: function () {
 			return true;
 		},
 		_containerHTML: function () {
@@ -2845,7 +2836,7 @@ window.UION = window.UI = (function(exports, window) {
 			this._itemNodes = {};
 			this.each(function (node) {
 				this._itemNodes[node.id] = this._createItem(node);
-				if (this._filter(node))
+				if (this.filter(node))
 					this._containerHTML().appendChild(this._itemNodes[node.id]);
 			}, this);
 
@@ -2858,6 +2849,20 @@ window.UION = window.UI = (function(exports, window) {
 			}
 
 			this.dispatch("onDOMChanged", [null, "clear"]);
+		},
+		setData: function (value) {
+			/**
+			 * Sets the data for the component.
+			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
+			 */
+			exports.assert(exports.isArray(value), "setData expected array, got: " + value, this);
+			this.clearAll();
+			for (var i = 0; i < value.length; i++) {
+				if (this.filter(value[i])) {
+					this.add(value[i]);
+				}
+			}
+			this.data = value;
 		},
 		getBatch: function () {
 			/**
@@ -2879,7 +2884,7 @@ window.UION = window.UI = (function(exports, window) {
 					exports.html.addCSS(this._itemNodes[item.id], "uk-hidden");
 			}, this);
 		}
-	}, exports.LinkedList, exports.ComplexDataSetter, exports.components.element);
+	}, exports.LinkedList, exports.components.element);
 
 
 	(function($) {
