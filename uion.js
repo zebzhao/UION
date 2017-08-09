@@ -2181,10 +2181,10 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
 		},
-		_onChange: function () {
-			this.dispatch("onInput");
+		_onInput: function () {
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		reset: function () {
 			/**
@@ -2334,10 +2334,10 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
 		},
 		_onInput: function () {
-			this.dispatch("onInput");
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		getFormControl: function () {
 			/**
