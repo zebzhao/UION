@@ -490,7 +490,7 @@ UI.new({
                                     view: 'list',
                                     data: Object.keys(setter.options).sort().map(function(option) {
                                         return {
-                                            label: option || '&lt;empty&gt;',
+                                            label: option || '[empty]',
                                             value: option,
                                             selected: option ? cssValue.toString().indexOf(option) != -1 : model[cssName] == '',
                                             template: function(item) {
