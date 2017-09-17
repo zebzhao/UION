@@ -37,13 +37,12 @@
 // Variables
 // ========================================================================
 
-@nav-padding-vertical:                          5px;
+@nav-padding-vertical:                          10px;
 @nav-padding-horizontal:                        15px;
-@nav-side-font-size:                                 12px;
 
 @nav-header-padding-vertical:                   @nav-padding-vertical;
 @nav-header-padding-horizontal:                 @nav-padding-horizontal;
-@nav-header-font-size:                          12px;
+@nav-header-font-size:                          10pt;
 @nav-header-font-weight:                        bold;
 @nav-header-text-transform:                     uppercase;
 @nav-header-margin-top:                         15px;
@@ -51,7 +50,7 @@
 @nav-divider-margin-vertical:                   9px;
 @nav-divider-margin-horizontal:                 @nav-padding-horizontal;
 
-@nav-subtitle-font-size:                        12px;
+@nav-subtitle-font-size:                        10pt;
 @nav-subtitle-line-height:                      18px;
 
 @nav-nested-padding-left:                       15px;
@@ -78,8 +77,8 @@
 @nav-side-nested-hover-color:                   @global-link-hover-color;
 
 @nav-dropdown-color:                            @global-color;
-@nav-dropdown-hover-background:                 @global-primary-background;
-@nav-dropdown-hover-color:                      @global-contrast-color;
+@nav-dropdown-hover-background:                 rgba(0,0,0,0.05);
+@nav-dropdown-hover-color:                      @global-color;
 @nav-dropdown-header-color:                     #999;
 @nav-dropdown-divider-border:                   @global-border;
 @nav-dropdown-divider-border-width:             1px;
@@ -446,9 +445,7 @@ html:not(.uk-touch) .uk-nav-offcanvas ul a:hover { color: @nav-offcanvas-nested-
 .hook-nav-sub() {}
 .hook-nav-parent-icon() {}
 
-.hook-nav-side() {
-    font-size: @nav-side-font-size;
-}
+.hook-nav-side() {}
 .hook-nav-side-hover() {}
 .hook-nav-side-active() {}
 .hook-nav-side-header() {}

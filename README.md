@@ -4,7 +4,7 @@
 
 UION (User Interface Object Notation) is a JSON user interface builder based on UIkit. UION uses [Dripicons V2](https://github.com/amitjakhu/dripicons) as the default icon set.
 
-To see documentation about each component please visit the official [website](https://io.github.com/zebzhao/UION).
+To see documentation about each component please visit the official [website](http://zebzhao.github.io/UION/).
 
 Getting started
 ---

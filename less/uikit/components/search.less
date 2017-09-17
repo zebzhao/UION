@@ -12,7 +12,6 @@
 //                  `uk-loading`
 //
 // Uses:            Animation
-//                  Icon: FontAwesome
 //                  Navbar: `uk-navbar-flip`
 //
 // Used by:         Off-canvas
@@ -30,19 +29,13 @@
 // Variables
 // ========================================================================
 
-@search-width:                                  180px;
-@search-focus-width:                            180px;
+@search-width:                                  100%;
 @search-height:                                 @global-height;
-@search-padding:                                @global-height;
 @search-border:                                 rgba(0,0,0,0);
 @search-border-width:                           1px;
 @search-background:                             rgba(0,0,0,0);
 @search-color:                                  #444;
 @search-placeholder-color:                      #999;
-
-@search-icon:                                   "\e041";
-@search-icon-size:                              16px;
-@search-icon-color:                             @global-color;
 
 // Dropdown modifier
 @dropdown-search-width:                         300px;
@@ -63,14 +56,6 @@
 @nav-search-nested-color:                       #07D;
 @nav-search-nested-hover-color:                 #059;
 
-// Search in offcanvas
-@offcanvas-search-margin:                       20px 15px;
-@offcanvas-search-background:                   #1a1a1a;
-@offcanvas-search-border:                       rgba(0,0,0,0);
-@offcanvas-search-color:                        #ccc;
-@offcanvas-search-placeholder-color:            #777;
-@offcanvas-search-icon-color:                   #777;
-
 
 /* ========================================================================
    Component: Search
@@ -89,25 +74,6 @@
     margin: 0;
     .hook-search;
 }
-
-/*
- * Icon
- */
-
-.uk-search:before {
-    content: @search-icon;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: @search-padding;
-    line-height: @search-height;
-    text-align: center;
-    font-family: 'dripicons-v2', monospace;
-    font-size: @search-icon-size;
-    color: @search-icon-color;
-    .hook-search-icon;
-}
-
 
 /* Sub-object `uk-search-field`
  ========================================================================== */
@@ -164,7 +130,6 @@
     /* 6 */
     width: @search-width;
     height: @search-height;
-    padding: 0 0 0 @search-padding;
     border: @search-border-width solid @search-border;
     background: @search-background;
     -webkit-transition: all linear 0.2s;
@@ -183,11 +148,6 @@
     outline: 0;
     .hook-search-field-focus;
 }
-
-/* Focus + Active */
-.uk-search-field:focus,
-.uk-search.uk-active .uk-search-field { width: @search-focus-width; }
-
 
 /* Dropdown modifier: `uk-dropdown-search`
  ========================================================================== */
@@ -265,37 +225,12 @@
 .uk-nav-search ul a { color: @nav-search-nested-color; }
 .uk-nav-search ul a:hover { color: @nav-search-nested-hover-color; }
 
-
-/* Search in offcanvas
- ========================================================================== */
-
-.uk-offcanvas .uk-search {
-    display: block;
-    margin: @offcanvas-search-margin;
-}
-
-.uk-offcanvas .uk-search:before { color: @offcanvas-search-icon-color; }
-
-.uk-offcanvas .uk-search-field {
-    width: 100%;
-    border-color: @offcanvas-search-border;
-    background: @offcanvas-search-background;
-    color: @offcanvas-search-color;
-    .hook-offcanvas-search-field;
-}
-
-.uk-offcanvas .uk-search-field:-ms-input-placeholder { color: @offcanvas-search-placeholder-color !important; }
-.uk-offcanvas .uk-search-field::-moz-placeholder { color: @offcanvas-search-placeholder-color; }
-.uk-offcanvas .uk-search-field::-webkit-input-placeholder { color: @offcanvas-search-placeholder-color; }
-
-
 // Hooks
 // ========================================================================
 
 .hook-search-misc;
 
 .hook-search() {}
-.hook-search-icon() {}
 .hook-search-field() {}
 .hook-search-field-focus() {}
 
@@ -304,6 +239,5 @@
 .hook-nav-search-active() {}
 .hook-nav-search-header() {}
 .hook-nav-search-divider() {}
-.hook-offcanvas-search-field() {}
 
 .hook-search-misc() {}

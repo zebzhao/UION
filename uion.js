@@ -108,9 +108,9 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.template = function (template, config, thisArg, parentNode) {
 		if (exports.isFunction(template)) {
-			parentNode.innerHTML = template.call(thisArg, config);
+			template = template.call(thisArg, config);
 		}
-		else if (exports.isString(template)) {
+		if (exports.isString(template)) {
 			parentNode.innerHTML = exports.stringTemplate(template, config);
 		}
 		else if (exports.isObject(template)) {
@@ -649,7 +649,8 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		scroll: {
 			xy: "uk-overflow-container",
-			y: "uk-scrollable-text",
+			y: "uk-overflow-ycontainer",
+			text: "uk-scrollable-text",
 			"": ""
 		},
 		hidden: {
@@ -898,28 +899,6 @@ window.UION = window.UI = (function(exports, window) {
 	};
 
 
-	exports.ComplexDataSetter = {
-		__name__: "ComplexDataSetter",
-		__check__: function (bases) {
-			var iComplexDataSetter = bases.indexOf("ComplexDataSetter");
-			exports.assert(iComplexDataSetter != -1, "ComplexDataSetter is an abstract class, it cannot stand alone");
-			exports.assert(bases.indexOf("LinkedList") != -1, "ComplexDataSetter must extend LinkedList");
-		},
-		setData: function (value) {
-			/**
-			 * Sets the data for the component.
-			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
-			 */
-			exports.assert(exports.isArray(value), "ComplexDataSetter parse() expected array, got: " + value, this);
-			this.clearAll();
-			for (var i = 0; i < value.length; i++) {
-				this.add(value[i]);
-			}
-			this.data = value;
-		}
-	};
-
-
 	exports.AbsolutePositionMethods = {
 		positionNextTo: function (node, position, marginX, marginY) {
 			/**
@@ -1042,7 +1021,6 @@ window.UION = window.UI = (function(exports, window) {
 		exports.assert(node, exports.replaceString("Unknown node view {{view}}.", {view: config.view}), config);
 		if (parent)
 			parent.appendChild(node.element);
-		exports.views[config.id] = node;
 		return node;
 
 		function makeView(config) {
@@ -1148,16 +1126,19 @@ window.UION = window.UI = (function(exports, window) {
 					}, 1000));
 				}
 				if (config.on.onFocus) {
-					exports.event(this._html, "focus", function (e) {
+					exports.event(this.firstResponder(), "focus", function (e) {
 						this.dispatch("onFocus", [e]);
 					}, $this);
 				}
 				if (config.on.onBlur) {
-					exports.event(this._html, "blur", function (e) {
+					exports.event(this.firstResponder(), "blur", function (e) {
 						this.dispatch("onBlur", [e]);
 					}, $this);
 				}
 			}
+		},
+		firstResponder: function () {
+			return this._html;
 		}
 	};
 
@@ -1207,14 +1188,15 @@ window.UION = window.UI = (function(exports, window) {
 					id: config.dropdownId,
 					view: "dropdown",
 					pos: config.dropdownPos,
-					dropdown: value
+					dropdown: value,
+					dropdownCSS: config.dropdownCSS
 				};
 
 				var ui = exports.new(dropdown, document.body);
 
 				config.on = config.on || {};
 				this.addListener(config.dropdownEvent, function (config, node) {
-					ui.open($this);
+					ui.open(config);
 					ui.positionNextTo(node, dropdown.pos, config.dropdownMarginX, config.dropdownMarginY);
 					ui.moveWithinBoundary();
 				});
@@ -1240,19 +1222,14 @@ window.UION = window.UI = (function(exports, window) {
 			if (!config.id) config.id = exports.new.uid(this.__name__);
 			var node = exports.node(config.id);
 			exports.assert(!node, exports.replaceString("Node with id '{{id}}' already exists", {id: config.id}), config);
+			exports.views[config.id] = this;
 
 			this.$components = exports.list();
 			this.element = this._html = exports.html.createElement(config.htmlTag || "DIV", {id: config.id});
 			if (config.tagClass)
 				this.element.setAttribute("class", config.tagClass);
 
-			exports.extend(this._html.style, {
-				top: config.top, bottom: config.bottom, left: config.left, right: config.right,
-				width: config.width, height: config.height, minHeight: config.minHeight, maxHeight: config.maxHeight,
-				minWidth: config.minWidth, maxWidth: config.maxWidth,
-				marginBottom: config.marginBottom, marginTop: config.marginTop,
-				marginLeft: config.marginLeft, marginRight: config.marginRight
-			});
+			exports.extend(this._html.style, config.style || {});
 
 			this.render();
 		},
@@ -1370,7 +1347,9 @@ window.UION = window.UI = (function(exports, window) {
 			dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
 			dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
 			dropdownMarginX: "The left margin of the dropdown from anchor component.",
-			dropdownMarginY: "The top margin of the dropdown from anchor component."
+			dropdownMarginY: "The top margin of the dropdown from anchor component.",
+			template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
+			style: "A object containing properties to feed into the style attribute of the element"
 		}, $._meta || {});
 	}(exports.components.element.prototype.$setters));
 
@@ -1516,6 +1495,12 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onChildChange", [this._activeChild, newChild]);
 			this._activeChild = newChild;
 		},
+		getBatch: function () {
+			/**
+			 * Get the 'batch' value that was passed to `setBatch`.
+			 */
+			return this.$batch;
+		},
 		showBatch: function (name) {
 			/**
 			 * Checks the batch property of all children and makes all matching batch visible.
@@ -1524,7 +1509,7 @@ window.UION = window.UI = (function(exports, window) {
 			// Tricky: Rendering input fields will cause problems with on-screen keyboards.
 			// However, to preserve the order of elements, will need to rerender.
 			this._setVisible('batch', exports.isArray(name) ? name : [name], true);
-			this.batch = name;
+			this.$batch = name;
 		},
 		_setVisible: function (key, value, rerender) {
 			this.$components.each(function (item) {
@@ -1557,17 +1542,20 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			}
 		},
+		__check__: function (bases) {
+			exports.assert(bases.indexOf('CommonEvents') != -1, "ClickEvents must extend CommonEvents.");
+		},
 		__after__: function (config) {
 			config.on = config.on || {};
-			exports.event(this._html, "click", this._onClick, this);
-			exports.event(this._html, "contextmenu", this._onContext, this);
+			exports.event(this.firstResponder(), "click", this._onClick, this);
+			exports.event(this.firstResponder(), "contextmenu", this._onContext, this);
 
 			// Optimization: these rarely get used.
 			if (config.on.onMouseDown) {
-				exports.event(this._html, "mousedown", this._onMouseDown, this);
+				exports.event(this.firstResponder(), "mousedown", this._onMouseDown, this);
 			}
 			if (config.on.onMouseUp) {
-				exports.event(this._html, "mouseup", this._onMouseUp, this);
+				exports.event(this.firstResponder(), "mouseup", this._onMouseUp, this);
 			}
 		},
 		_onClick: function (e) {
@@ -1607,17 +1595,25 @@ window.UION = window.UI = (function(exports, window) {
 			bgClose: true,
 			keyboard: true,
 			minScrollHeight: 150,
-			closeModals: true,
+			closeModals: false,
 			center: true,
 			flex: false,
 			margin: "",
 			size: "",
-			layout: ""
+			layout: "",
+			dialogClass: "",
+			headerClass: "",
+			footerClass: ""
 		},
 		__init__: function (config) {
 			this.header = this._header = exports.html.createElement("DIV", {class: "uk-modal-header"});
 			this.footer = this._footer = exports.html.createElement("DIV", {class: "uk-modal-footer"});
 			this.body = this._body = exports.html.createElement("DIV", {class: "uk-modal-dialog"});
+
+			if (config.headerClass) exports.html.addCSS(this._header, config.headerClass);
+			if (config.dialogClass) exports.html.addCSS(this._body, config.dialogClass);
+			if (config.footerClass) exports.html.addCSS(this._footer, config.footerClass);
+
 			this._html.appendChild(this._body);
 			if (config.header) this._body.appendChild(this._header);
 			if (config.footer) this._body.appendChild(this._footer);
@@ -1652,7 +1648,6 @@ window.UION = window.UI = (function(exports, window) {
 				return value;
 			},
 			body: function (value) {
-				value.halign = value.halign || "center";
 				var innerBody = exports.new(value);
 				this.bodyContent = innerBody;
 				this.$components.push(this.bodyContent);
@@ -1710,9 +1705,9 @@ window.UION = window.UI = (function(exports, window) {
 			 * @dispatch onClose, onClosed
 			 * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
 			 */
-			this.dispatch("onClose", [config, this._html, args]);
+			this.dispatch("onClose", [this._config, this._html, args]);
 			UIkit.modal('#' + this._config.id).hide();
-			this.dispatch("onClosed", [config, this._html, args]);
+			this.dispatch("onClosed", [this._config, this._html, args]);
 		}
 	}, exports.components.flexgrid);
 
@@ -1732,7 +1727,8 @@ window.UION = window.UI = (function(exports, window) {
 			keyboard: {isBoolean: true},
 			minScrollHeight: {isNumber: true},
 			closeModals: {isBoolean: true},
-			center: {isBoolean: true}
+			center: {isBoolean: true},
+			dialogClass: {options: ['', 'uk-modal-dialog-blank', 'uk-modal-dialog-full']}
 		}, $._meta || {});
 	}(exports.components.modal.prototype.$setters));
 
@@ -1743,7 +1739,8 @@ window.UION = window.UI = (function(exports, window) {
 			label: "",
 			htmlTag: "BUTTON",
 			tagClass: "uk-button",
-			iconSize: "small"
+			iconClass: "uk-icon-small",
+			selectable: false
 		},
 		$setters: exports.setCSS({
 			type: {
@@ -1767,10 +1764,9 @@ window.UION = window.UI = (function(exports, window) {
 		}),
 		template: function (config) {
 			if (config.type == "icon")
-				return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'></i><span>{{label}}</span>",
-					{icon: config.icon, label: config.label, iconSize: config.iconSize});
+				return "<i class='{{icon}} {{iconClass}}'></i><span>{{label}}</span>";
 			else
-				return exports.replaceString("<span>{{label}}</span>", {label: config.label});
+				return "<span>{{label}}</span>";
 		},
 		select: function () {
 			/**
@@ -1796,12 +1792,21 @@ window.UION = window.UI = (function(exports, window) {
 	}, exports.ClickEvents, exports.components.element);
 
 
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = exports.extend({
+			iconClass: {isText: true},
+			icon: {isText: true}
+		}, $._meta || {});
+	}(exports.components.button.prototype.$setters));
+
+
 	exports.components.icon = exports.def({
 		__name__: "icon",
 		$defaults: {
 			htmlTag: "A",
 			tagClass: "uk-icon-hover",
-			iconSize: "small",
+			iconClass: "uk-icon-small",
 			selectable: false,
 			content: ""
 		},
@@ -1809,18 +1814,24 @@ window.UION = window.UI = (function(exports, window) {
 			if (config.type == "button")
 				config.tagClass = "uk-icon-button";
 		},
-		template: function (config) {
-			return exports.replaceString("<i class='{{icon}} uk-icon-{{iconSize}}'>{{content}}</i>",
-				{icon: config.icon, iconSize: config.iconSize, content: config.content});
-		}
+		template: "<i class='{{icon}} {{iconClass}}'>{{content}}</i>"
 	}, exports.ClickEvents, exports.components.element);
+
+
+	// Define setter options for auto-documentation
+	(function($) {
+		$._meta = exports.extend({
+			iconClass: {isText: true}
+		}, $._meta || {});
+	}(exports.components.icon.prototype.$setters));
 
 
 	exports.components.label = exports.def({
 		__name__: "label",
 		$defaults: {
 			label: "",
-			htmlTag: "SPAN"
+			htmlTag: "SPAN",
+			selectable: false
 		},
 		$setters: exports.setCSS({
 			type: {
@@ -1926,7 +1937,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this._html, "load", function (e) {
+			exports.event(this.firstResponder(), "load", function (e) {
 				this.dispatch("onLoad", [e])
 			}, this);
 		}
@@ -1994,6 +2005,14 @@ window.UION = window.UI = (function(exports, window) {
 				}
 			}
 		),
+		firstResponder: function () {
+			/**
+			 * The first responder to events.
+			 * This element will get bound to events such as blur/focus/change etc.
+			 * @returns {Element}
+			 */
+			return this.getFormControl();
+		},
 		getFormControl: function () {
 			/**
 			 * Get the HTML element.
@@ -2099,7 +2118,7 @@ window.UION = window.UI = (function(exports, window) {
 			tagClass: "uk-toggle"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
@@ -2155,13 +2174,17 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
-			exports.event(this._html, "keyup", function (e) {
+			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
+			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
+		},
+		_onInput: function () {
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		reset: function () {
 			/**
@@ -2214,10 +2237,14 @@ window.UION = window.UI = (function(exports, window) {
 			inputWidth: "medium"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange", [this.getValue()]);
+		},
+		_onInput: function () {
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		getFormControl: function () {
 			/**
@@ -2294,28 +2321,32 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "search",
 		$defaults: {
 			tagClass: "uk-search",
-			placeholder: "search..."
+			placeholder: "Search...",
+			iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>",
+			inputClass: "uk-search-field",
+			inputType: "search"
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
-			exports.event(this._html, "keyup", function (e) {
+			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.event(this.firstResponder(), "input", this._onInput, this);
+			exports.event(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
+		},
+		_onInput: function () {
+			this.dispatch("onInput", [this.getValue()]);
 		},
 		getFormControl: function () {
 			/**
 			 * Gets the HTML input element.
 			 * @returns {Element}
 			 */
-			return this._html.firstChild;
+			return this._html.lastChild;
 		},
-		template: function (obj) {
-			return exports.replaceString('<input class="uk-search-field" type="search" placeholder="{{placeholder}}">',
-				{placeholder: obj.placeholder})
-		}
+		template: '{{iconTemplate}}<input class="{{inputClass}}" type="{{inputType}}" placeholder="{{placeholder}}">'
 	}, exports.FormControl, exports.components.element);
 
 
@@ -2328,7 +2359,6 @@ window.UION = window.UI = (function(exports, window) {
 			padding: "none",
 			justify: false,
 			dropdownCSS: "uk-dropdown-small uk-dropdown-close",
-			dropdownStyle: "close",
 			blank: false
 		},
 		$setters: {
@@ -2717,10 +2747,14 @@ window.UION = window.UI = (function(exports, window) {
 
 	exports.stack = exports.def({
 		__name__: "stack",
+		$defaults: {
+			filter: function () {
+				return true;
+			}
+		},
 		$setters: {
 			filter: function (value) {
 				exports.assert(exports.isFunction(value), "Expected function for 'filter', got: " + value);
-				this._filter = value;
 				return value;
 			},
 			droppable: function (value) {
@@ -2753,9 +2787,6 @@ window.UION = window.UI = (function(exports, window) {
 			// Do nothing, overwrites render function.
 		},
 		_droppable: function () {
-			return true;
-		},
-		_filter: function () {
 			return true;
 		},
 		_containerHTML: function () {
@@ -2805,7 +2836,7 @@ window.UION = window.UI = (function(exports, window) {
 			this._itemNodes = {};
 			this.each(function (node) {
 				this._itemNodes[node.id] = this._createItem(node);
-				if (this._filter(node))
+				if (this.filter(node))
 					this._containerHTML().appendChild(this._itemNodes[node.id]);
 			}, this);
 
@@ -2819,13 +2850,33 @@ window.UION = window.UI = (function(exports, window) {
 
 			this.dispatch("onDOMChanged", [null, "clear"]);
 		},
+		setData: function (value) {
+			/**
+			 * Sets the data for the component.
+			 * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
+			 */
+			exports.assert(exports.isArray(value), "setData expected array, got: " + value, this);
+			this.clearAll();
+			for (var i = 0; i < value.length; i++) {
+				if (this.filter(value[i])) {
+					this.add(value[i]);
+				}
+			}
+			this.data = value;
+		},
+		getBatch: function () {
+			/**
+			 * Get the 'batch' value that was passed to `setBatch`.
+			 */
+			return this.$batch;
+		},
 		showBatch: function (name) {
 			/**
 			 * Show only elements with a specific 'batch' value in its configuration. Hides all other elements.
 			 * @param name An array or a delimited string with a list of batch values to filter by.
 			 * @example showBatch('icons sidebar mainWindow')
 			 */
-			this.batch = name;
+			this.$batch = name;
 			this.each(function (item) {
 				if (name.indexOf(item.batch) != -1)
 					exports.html.removeCSS(this._itemNodes[item.id], "uk-hidden");
@@ -2833,7 +2884,7 @@ window.UION = window.UI = (function(exports, window) {
 					exports.html.addCSS(this._itemNodes[item.id], "uk-hidden");
 			}, this);
 		}
-	}, exports.LinkedList, exports.ComplexDataSetter, exports.components.element);
+	}, exports.LinkedList, exports.components.element);
 
 
 	(function($) {
@@ -2850,9 +2901,11 @@ window.UION = window.UI = (function(exports, window) {
 		__name__: "list",
 		$defaults: {
 			htmlTag: "UL",
+			itemTag: "LI",
 			selectable: false,
+			closeButton: false,
 			listStyle: "list",
-			itemStyle: "",
+			itemClass: "",
 			margin: "",
 			dropdownEvent: "onItemClick"
 		},
@@ -2877,6 +2930,7 @@ window.UION = window.UI = (function(exports, window) {
 					"tab-center": "uk-tab-center",
 					"tab-left": "uk-tab-left",
 					"tab-right": "uk-tab-right",
+					"breadcrumb": "uk-breadcrumb",
 					"": "",
 					$multiple: true
 				}
@@ -3096,13 +3150,13 @@ window.UION = window.UI = (function(exports, window) {
 			this.dispatch("onItemClosed", [item]);
 		},
 		_itemHTML: function (itemConfig) {
-			var itemStyle = itemConfig.$css || this._config.itemStyle;
+			var itemClass = itemConfig.$css || this._config.itemClass;
 
-			var li = exports.html.createElement("LI",
+			var li = exports.html.createElement(this._config.itemTag,
 				{
-					class: exports.stringCSS(itemStyle)
-					+ (itemConfig.header ? "uk-nav-header" : "")
-					+ (itemConfig.divider ? "uk-nav-divider" : "")
+					class: exports.stringCSS(itemClass)
+					+ (!itemConfig.view && itemConfig.header ? "uk-nav-header" : "")
+					+ (!itemConfig.view && itemConfig.divider ? "uk-nav-divider" : "")
 				});
 
 			if (!itemConfig.header && !itemConfig.divider) {
@@ -3124,8 +3178,12 @@ window.UION = window.UI = (function(exports, window) {
 			else {
 				var link = new exports.components.link(config);
 				this.$components.push(link);
+
 				parentNode.appendChild(link._html);
-				this._addCloseHTML(link._html, config);
+
+				if (config.closeButton) {
+					this._addCloseHTML(link._html, config);
+				}
 			}
 			return ui;
 		},
@@ -3205,6 +3263,10 @@ window.UION = window.UI = (function(exports, window) {
 	(function($) {
 		$.accordion.isBoolean = true;
 		$.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+		$._meta = exports.extend({
+			selectable: {isBoolean: true},
+			itemClass: {isText: true}
+		}, $._meta || {});
 	}(exports.components.list.prototype.$setters));
 
 
@@ -3543,7 +3605,7 @@ window.UION = window.UI = (function(exports, window) {
 			listStyle: ""
 		},
 		__after__: function () {
-			exports.event(this._html, "change", this._onChange, this);
+			exports.event(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
@@ -3628,7 +3690,7 @@ window.UION = window.UI = (function(exports, window) {
 			this.$fieldsets = UI.list();
 		},
 		__after__: function () {
-			exports.event(this._html, "submit", this._onSubmit, this);
+			exports.event(this.firstResponder(), "submit", this._onSubmit, this);
 		},
 		_onSubmit: function (e) {
 			exports.html.preventEvent(e);
@@ -3729,6 +3791,7 @@ window.UION = window.UI = (function(exports, window) {
 				var controlContainer = parentNode;
 				if (!config.inline) {
 					controlContainer = exports.html.createElement("DIV", {class: "uk-form-controls"});
+					exports.html.addCSS(controlContainer, config.$css);
 					parentNode.appendChild(controlContainer);
 				}
 

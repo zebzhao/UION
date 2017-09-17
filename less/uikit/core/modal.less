@@ -42,11 +42,13 @@
 @modal-dialog-padding:                          20px;
 @modal-dialog-width:                            600px;
 @modal-dialog-background:                       #fff;
+@modal-dialog-border-radius:                    2px;
+@modal-dialog-box-shadow:                       0 5px 15px rgba(0,0,0,0.15);
 
 @modal-dialog-large-width:                      930px;
 @modal-dialog-large-width-large:                1130px;
 
-@modal-header-margin-bottom:                    15px;
+@modal-header-margin-bottom:                    0;
 
 @modal-footer-margin-top:                       15px;
 
@@ -86,8 +88,8 @@
     background: @modal-background;
     /* 5 */
     opacity: 0;
-    -webkit-transition: opacity 0.15s linear;
-    transition: opacity 0.15s linear;
+    -webkit-transition: opacity 0.3s linear;
+    transition: opacity 0.3s linear;
     /* 6 */
     touch-action: cross-slide-y pinch-zoom double-tap-zoom;
     /* 7 */
@@ -128,14 +130,13 @@
     margin: @modal-dialog-margin-vertical auto;
     padding: @modal-dialog-padding;
     width: @modal-dialog-width;
-    max-width: 100%;
     max-width: ~"calc(100% - 20px)";
     /* 3 */
     background: @modal-dialog-background;
     /* 4 */
     opacity: 0;
-    -webkit-transform: translateY(-100px);
-    transform: translateY(-100px);
+    -webkit-transform: translateY(50vh);
+    transform: translateY(50vh);
     -webkit-transition: opacity 0.3s linear, -webkit-transform 0.3s ease-out;
     transition: opacity 0.3s linear, transform 0.3s ease-out;
     .hook-modal-dialog;
@@ -151,6 +152,13 @@
     .uk-modal-dialog {
         width: auto;
         margin: 10px auto;
+    }
+
+    .uk-modal-dialog.uk-modal-dialog-full {
+        max-width: 100%;
+        margin: 0 auto;
+        max-height: 100vh;
+        height: 100vh;
     }
 
 }
@@ -231,8 +239,6 @@
     padding: 0;
     width: 100%;
     max-width: 100%;
-    -webkit-transition: opacity 0.3s linear;
-    transition: opacity 0.3s linear;
 }
 
 /*
@@ -321,8 +327,8 @@
 }
 
 .uk-modal-spinner:after {
-    content: "\f110";
-    font-family: FontAwesome;
+    content: "\e050";
+    font-family: "dripicons-v2" !important;
     -webkit-animation: uk-rotate 2s infinite linear;
     animation: uk-rotate 2s infinite linear;
 }
@@ -334,7 +340,10 @@
 .hook-modal-misc;
 
 .hook-modal() {}
-.hook-modal-dialog() {}
+.hook-modal-dialog() {
+    box-shadow: @modal-dialog-box-shadow;
+    border-radius: @modal-dialog-border-radius;
+}
 .hook-modal-dialog-lightbox() {}
 .hook-modal-header() {}
 .hook-modal-footer() {}

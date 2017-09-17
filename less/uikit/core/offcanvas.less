@@ -28,9 +28,10 @@
 // ========================================================================
 
 @offcanvas-z-index:                             1000;
-@offcanvas-background:                          rgba(0,0,0,0.1);
+@offcanvas-background:                          rgba(0,0,0,0.3);
 
 @offcanvas-bar-width:                           270px;
+@offcanvas-bar-shadow:                          0 5px 10px rgba(0,0,0,0.15);
 @offcanvas-bar-background:                      white;
 
 @offcanvas-panel-margin:                        20px 15px;
@@ -163,6 +164,8 @@
 .hook-offcanvas-misc;
 
 .hook-offcanvas() {}
-.hook-offcanvas-bar() {}
+.hook-offcanvas-bar() {
+    box-shadow: @offcanvas-bar-shadow;
+}
 .hook-offcanvas-panel() {}
 .hook-offcanvas-misc() {}
