@@ -5086,8 +5086,8 @@ window.UION = window.UI = (function(exports, window) {
 		return typeof node == "string" ? document.getElementById(node) : node;
 	};
 
-	exports._events = {};
-	exports.event = function (node, event, handler, thisArg) {
+	exports._listeners = {};
+	exports.addListener = function (node, event, handler, thisArg) {
 		exports.assert(node, exports.replaceString("Invalid node as target for {{event}} event", {event: event}));
 		exports.assert(handler, exports.replaceString("Invalid handler as target for {{event}} event", {event: event}));
 		node = exports.node(node);
@@ -5097,7 +5097,7 @@ window.UION = window.UI = (function(exports, window) {
 		if (thisArg)
 			handler = exports.bind(handler, thisArg);
 
-		exports._events[id] = [node, event, handler];	//store event info, for detaching
+		exports._listeners[id] = [node, event, handler];	//store event info, for detaching
 
 		// Not officially supporting, or going out of the way to support IE10-
 		node.addEventListener(event, handler);
@@ -5105,14 +5105,14 @@ window.UION = window.UI = (function(exports, window) {
 		return id;
 	};
 
-	exports.removeEvent = function (id) {
+	exports.removeListener = function (id) {
 		if (!id) return;
-		exports.assert(exports._events[id], exports.replaceString("Event with id {{id}} does not exist", {id: id}));
+		exports.assert(exports._listeners[id], exports.replaceString("Event with id {{id}} does not exist", {id: id}));
 
-		var e = exports._events[id];
+		var e = exports._listeners[id];
 		e[0].removeEventListener(e[1], e[2]);
 
-		delete exports._events[id];
+		delete exports._listeners[id];
 	};
 
 
@@ -5132,8 +5132,8 @@ window.UION = window.UI = (function(exports, window) {
 	exports.Dispatcher = {
 		__name__: "Dispatcher",
 		__init__: function (config) {
-			this._eventsByName = {};
-			this._eventsById = {};
+			this._listenersByEvent = {};
+			this._listeners = {};
 
 			var listeners = config.on;
 			if (listeners) {
@@ -5151,7 +5151,7 @@ window.UION = window.UI = (function(exports, window) {
 			 * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event.
 			 * @example dispatch('onClick', [config, element, event])
 			 */
-			var handlers = this._eventsByName[type];
+			var handlers = this._listenersByEvent[type];
 			if (handlers) {
 				for (var i = 0; i < handlers.length; i++) {
 					handlers[i].apply(this, params);
@@ -5171,36 +5171,47 @@ window.UION = window.UI = (function(exports, window) {
 
 			id = id || exports.uid();
 
-			var handlers = this._eventsByName[type] || exports.list();
+			var handlers = this._listenersByEvent[type] || exports.list();
 			handlers.push(func);
-			this._eventsByName[type] = handlers;
-			this._eventsById[id] = {_func: func, _name: type};
+			this._listenersByEvent[type] = handlers;
+			this._listeners[id] = {_func: func, _name: type};
 
 			return id;
 		},
-		removeEvent: function (id) {
+		removeListener: function (id) {
 			/**
 			 * Removes a listener based on the event id.
-			 * @param id Event id from adding the listener.
-			 */
-			if (!this._eventsById[id]) return;
-
-			var name = this._eventsById[id]._name;
-			var func = this._eventsById[id]._func;
-
-			var handlers = this._eventsByName[name];
-			handlers.remove(func);
-
-			delete this._eventsById[id];
-		},
-		hasEvent: function (type) {
-			/**
-			 * Checks if an particular event handler exists.
-			 * @param type Type of event.
-			 * @example hasEvent('onInitialized')
+			 * @param id Listener id from adding the listener.
+			 * @example removeListener(listenerId)
 			 * @returns {boolean}
 			 */
-			var handlers = this._eventsByName[type];
+			if (!this._listeners[id]) return;
+
+			var name = this._listeners[id]._name;
+			var func = this._listeners[id]._func;
+
+			var handlers = this._listenersByEvent[name];
+			handlers.remove(func);
+
+			delete this._listeners[id];
+		},
+		hasListener: function (id) {
+			/**
+			 * Checks if an particular event listener exists.
+			 * @param id Listener id from adding the listener.
+			 * @example hasListener(listenerId)
+			 * @returns {boolean}
+			 */
+			return !!this._listeners[id];
+		},
+		hasListenersForEvent: function (type) {
+			/**
+			 * Checks if there are any listeners to a particular event.
+			 * @param type Type of event.
+			 * @example hasListenersForEvent('onInitialized')
+			 * @returns {boolean}
+			 */
+			var handlers = this._listenersByEvent[type];
 			return handlers && handlers.length;
 		}
 	};
@@ -5689,12 +5700,12 @@ window.UION = window.UI = (function(exports, window) {
 
 			exports._dragThreshold = 10;
 
-			exports.event(window, "mouseup", exports._globalMouseUp);
-			exports.event(window, "mousemove", exports._globalMouseMove);
+			exports.addListener(window, "mouseup", exports._globalMouseUp);
+			exports.addListener(window, "mousemove", exports._globalMouseMove);
 
 			if (UIkit.support.touch) {
-				exports.event(window, "touchend", exports._globalMouseUp);
-				exports.event(window, "touchmove", exports._globalMouseMove);
+				exports.addListener(window, "touchend", exports._globalMouseUp);
+				exports.addListener(window, "touchmove", exports._globalMouseMove);
 			}
 
 			function findDroppableParent(node) {
@@ -5710,7 +5721,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		};
 		if (document.readyState == "complete") ready();
-		else exports.event(window, "load", ready);
+		else exports.addListener(window, "load", ready);
 	}());
 
 
@@ -5970,22 +5981,22 @@ window.UION = window.UI = (function(exports, window) {
 			var $this = this;
 			if (config.on) {
 				if (config.on.onResize) {
-					exports.event(window, "resize", function (e) {
+					exports.addListener(window, "resize", function (e) {
 						this.dispatch("onResize", [e]);
 					}, $this);
 				}
 				if (config.on.onDebounceResize) {
-					exports.event(window, "resize", UIkit.Utils.debounce(function (e) {
+					exports.addListener(window, "resize", UIkit.Utils.debounce(function (e) {
 						$this.dispatch("onDebounceResize", [e]);
 					}, 1000));
 				}
 				if (config.on.onFocus) {
-					exports.event(this.firstResponder(), "focus", function (e) {
+					exports.addListener(this.firstResponder(), "focus", function (e) {
 						this.dispatch("onFocus", [e]);
 					}, $this);
 				}
 				if (config.on.onBlur) {
-					exports.event(this.firstResponder(), "blur", function (e) {
+					exports.addListener(this.firstResponder(), "blur", function (e) {
 						this.dispatch("onBlur", [e]);
 					}, $this);
 				}
@@ -6401,15 +6412,15 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		__after__: function (config) {
 			config.on = config.on || {};
-			exports.event(this.firstResponder(), "click", this._onClick, this);
-			exports.event(this.firstResponder(), "contextmenu", this._onContext, this);
+			exports.addListener(this.firstResponder(), "click", this._onClick, this);
+			exports.addListener(this.firstResponder(), "contextmenu", this._onContext, this);
 
 			// Optimization: these rarely get used.
 			if (config.on.onMouseDown) {
-				exports.event(this.firstResponder(), "mousedown", this._onMouseDown, this);
+				exports.addListener(this.firstResponder(), "mousedown", this._onMouseDown, this);
 			}
 			if (config.on.onMouseUp) {
-				exports.event(this.firstResponder(), "mouseup", this._onMouseUp, this);
+				exports.addListener(this.firstResponder(), "mouseup", this._onMouseUp, this);
 			}
 		},
 		_onClick: function (e) {
@@ -6791,7 +6802,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "load", function (e) {
+			exports.addListener(this.firstResponder(), "load", function (e) {
 				this.dispatch("onLoad", [e])
 			}, this);
 		}
@@ -6972,7 +6983,7 @@ window.UION = window.UI = (function(exports, window) {
 			tagClass: "uk-toggle"
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.addListener(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
@@ -7028,9 +7039,9 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "change", this._onChange, this);
-			exports.event(this.firstResponder(), "input", this._onInput, this);
-			exports.event(this.firstResponder(), "keyup", function (e) {
+			exports.addListener(this.firstResponder(), "change", this._onChange, this);
+			exports.addListener(this.firstResponder(), "input", this._onInput, this);
+			exports.addListener(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
@@ -7091,8 +7102,8 @@ window.UION = window.UI = (function(exports, window) {
 			inputWidth: "medium"
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "change", this._onChange, this);
-			exports.event(this.firstResponder(), "input", this._onInput, this);
+			exports.addListener(this.firstResponder(), "change", this._onChange, this);
+			exports.addListener(this.firstResponder(), "input", this._onInput, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange", [this.getValue()]);
@@ -7181,9 +7192,9 @@ window.UION = window.UI = (function(exports, window) {
 			inputType: "search"
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "change", this._onChange, this);
-			exports.event(this.firstResponder(), "input", this._onInput, this);
-			exports.event(this.firstResponder(), "keyup", function (e) {
+			exports.addListener(this.firstResponder(), "change", this._onChange, this);
+			exports.addListener(this.firstResponder(), "input", this._onInput, this);
+			exports.addListener(this.firstResponder(), "keyup", function (e) {
 				this.dispatch("onKeyUp", [e, this._html, this]);
 			}, this);
 		},
@@ -7838,7 +7849,7 @@ window.UION = window.UI = (function(exports, window) {
 				if (config.tab == 'responsive') {
 					this.addListener("onDOMChanged", this._onDOMChanged);
 					this.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, this.headNode);
-					exports.event(window, "resize", this.updateFit, this);
+					exports.addListener(window, "resize", this.updateFit, this);
 					this.dispatch("onDOMChanged", [null, "refresh"]);
 				}
 			}
@@ -8045,7 +8056,7 @@ window.UION = window.UI = (function(exports, window) {
 			if (item.$close) {
 				var close = exports.html.createElement("SPAN", {class: "uk-close"});
 
-				exports.event(close, "click", function (e) {
+				exports.addListener(close, "click", function (e) {
 					if (item.$preventDefault !== false) {
 						exports.html.preventEvent(e);
 					}
@@ -8056,7 +8067,7 @@ window.UION = window.UI = (function(exports, window) {
 			}
 		},
 		_attachNodeEvents: function (node, itemConfig) {
-			exports.event(node, "click", function (e) {
+			exports.addListener(node, "click", function (e) {
 				if (itemConfig.$preventDefault !== false && this._config.$preventDefault !== false) {
 					exports.html.preventEvent(e);
 				}
@@ -8066,7 +8077,7 @@ window.UION = window.UI = (function(exports, window) {
 			}, this);
 
 			if (this.context && itemConfig.context !== false) {
-				exports.event(node, "contextmenu", function (e) {
+				exports.addListener(node, "contextmenu", function (e) {
 					if (itemConfig.$preventDefault !== false) {
 						exports.html.preventEvent(e);
 					}
@@ -8083,7 +8094,7 @@ window.UION = window.UI = (function(exports, window) {
 			if (this.draggable && itemConfig.$draggable !== false) {
 				node.setAttribute("draggable", "false");
 
-				exports.event(node, "dragstart", function (e) {
+				exports.addListener(node, "dragstart", function (e) {
 					exports.html.preventEvent(e);
 				}, this);
 
@@ -8107,8 +8118,8 @@ window.UION = window.UI = (function(exports, window) {
 					};
 				}
 
-				if (UIkit.support.touch) exports.event(node, "touchstart", onMouseDown, this);
-				exports.event(node, "mousedown", onMouseDown, this);
+				if (UIkit.support.touch) exports.addListener(node, "touchstart", onMouseDown, this);
+				exports.addListener(node, "mousedown", onMouseDown, this);
 			}
 		}
 	}, exports.stack);
@@ -8459,7 +8470,7 @@ window.UION = window.UI = (function(exports, window) {
 			listStyle: ""
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "change", this._onChange, this);
+			exports.addListener(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
 			this.dispatch("onChange");
@@ -8544,7 +8555,7 @@ window.UION = window.UI = (function(exports, window) {
 			this.$fieldsets = UI.list();
 		},
 		__after__: function () {
-			exports.event(this.firstResponder(), "submit", this._onSubmit, this);
+			exports.addListener(this.firstResponder(), "submit", this._onSubmit, this);
 		},
 		_onSubmit: function (e) {
 			exports.html.preventEvent(e);
