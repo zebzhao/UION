@@ -2132,7 +2132,7 @@ window.UION = window.UI = (function(exports, window) {
 			exports.addListener(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
 		},
 		template: function (config) {
 			return exports.replaceString('<input type="checkbox"{{checked}}><div class="uk-toggle-slider"></div>',
@@ -3089,20 +3089,21 @@ window.UION = window.UI = (function(exports, window) {
 		},
 		setActiveLabel: function (label) {
 			/**
-			 * Sets the active item of the list based on the item's label property. This operates as a single-selection of an item.
+			 * Sets the active item of the list based on the item's label property. This operates as a single-selection of an item. Returns true on success.
 			 * @param label The label value of an item.
+			 * @returns {boolean}
 			 */
-			this.setActive("label", label);
+			return this.setActive("label", label);
 		},
 		setActive: function (key, value) {
 			/**
-			 * Set the active item of the list based on a property. This operates as a single-selection of an item.
+			 * Set the active item of the list based on a property. This operates as a single-selection of an item. Returns true on success.
+			 * @returns {boolean}
 			 */
 			this.unselectAll();
 			var item = this.findOne(key, value);
-			exports.assert(item, exports.replaceString("Could not find {{key}} {{value}} in {{id}}.",
-				{key: key, value: value, id: this._config.id}));
-			this.select(item);
+			if (item) this.select(item);
+			return !!item;
 		},
 		isSelected: function (item) {
 			/**
@@ -3619,7 +3620,7 @@ window.UION = window.UI = (function(exports, window) {
 			exports.addListener(this.firstResponder(), "change", this._onChange, this);
 		},
 		_onChange: function () {
-			this.dispatch("onChange");
+			this.dispatch("onChange", [this.getValue()]);
 		},
 		select: function (item) {
 			/**
