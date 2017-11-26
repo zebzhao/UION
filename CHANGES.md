@@ -19,7 +19,8 @@ Version 0.20.0
 - All methods under `UI.html` moved to `UI`
 - `addCSS`, `removeCSS`, `hasCSS` renamed to `addClass`, `removeClass`, `hasClass`
 - `UI.new.uid` renamed to `UI.uidForComponent`
-- Add new mixin bases: `ChangeEvent`, `KeyInputEvent`
+- Add new mixin bases: `ChangeEvent`, `InputControl`
+- `autcomplete, autocorrect, autocaptitalize` moved to `InputControl` from `FormControl`
 - Some handlers will no longer be registered automatically unless specifically defined in `on` object
 - Setters behavior clean up: will no longer put a duplicated value under the component
 - Normalized assertion error messages
@@ -27,6 +28,15 @@ Version 0.20.0
 - `FormControl` `class` setter and `setClass` renamed to `formClass` and `setFormClass` 
 - Add `clearFormClass` method to `FormControl` base
 - `UI.pluck` now supports nested properties
+- `unselect` renamed to `deselect`
+- `unselectAll` renamed to `deselectAll`
+- Add `UI.$globalListenerIds` and `UI.$windowListeners` to track and manage window listeners
+- `UI._dragThreshold` renamed to `UI.$dragThreshold`
+- Window resize events are all aggregated in 1 handler
+- Add `UI.windowListeners` to add window listeners
+- `firstResponder` renamed to `responder`
+- Add `Responder` class to handle responding to HTML events
+- `form` `layout` setter merged with `formStyle`
 
 Version 0.10.0
 -----------

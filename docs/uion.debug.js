@@ -4870,19 +4870,36 @@
     return xhrupload;
 });
 
-window.UION = window.UI = (function (exports, window) {
+window.UION = window.UI = (function (exports, window, UIkit) {
   var $definitions = {},
     $listeners = {},
+    $windowListeners = {
+      mousemove: [windowOnMouseMove],
+      moveup: [windowOnMouseUp],
+      touchend: [windowOnMouseUp],
+      touchmove: [windowOnMouseMove],
+      load: [windowOnLoad],
+      resize: []
+    },
+    $globalListenerIds = {},
     $components = {};
 
-  window.$$ = $$;
-
   extend(exports, {
+    $ready: false,
+    $dragThreshold: 10,
+    $globalListenerIds: $globalListenerIds,
+    $windowListeners: $windowListeners,
+
     listeners: $listeners,
     definitions: $definitions,
     components: $components,
 
     $$: $$,
+
+    message: UIkit.notify,
+    confirm: UIkit.modal.confirm,
+    prompt: UIkit.modal.prompt,
+    alert: UIkit.modal.alert,
 
     isArray: isArray,
     isString: isString,
@@ -4904,6 +4921,7 @@ window.UION = window.UI = (function (exports, window) {
 
     classString: classString,
     classSetters: classSetters,
+    prefixClassOptions: prefixClassOptions,
 
     extend: extend,
     defaults: defaults,
@@ -5083,7 +5101,7 @@ window.UION = window.UI = (function (exports, window) {
     var after = config.__after__ ? [config.__after__] : [];
     var $defaults = config.$defaults || {};
     var $setters = config.$setters || {};
-    var $types = config.$types || {};
+    var $events = config.$events || {};
 
     var baseNames = [];
     for (var j = 0; j < bases.length; j++) {
@@ -5115,8 +5133,8 @@ window.UION = window.UI = (function (exports, window) {
       if (base.$defaults) {
         defaults($defaults, base.$defaults);
       }
-      if (base.$types) {
-        defaults($types, base.$types);
+      if (base.$events) {
+        defaults($events, base.$events);
       }
       if (base.$setters) {
         defaults($setters, base.$setters);
@@ -5139,7 +5157,7 @@ window.UION = window.UI = (function (exports, window) {
     compiled.__name__ = config.__name__;
     compiled.__base__ = baseNames;
     compiled.$defaults = $defaults;
-    compiled.$types = $types;
+    compiled.$events = $events;
     compiled.$setters = $setters;
 
     function Constructor(config) {
@@ -5291,6 +5309,39 @@ window.UION = window.UI = (function (exports, window) {
     }
   };
 
+
+  exports.Responder = {
+    __name__: "Responder",
+    __check__: function (bases) {
+      assertBasesCheck('Dispatcher', 'Responder', bases);
+    },
+    $events: {},
+    __after__: function (config) {
+      var $this = this;
+      var on = config.on || {};
+      forIn(function (eventName, listenerConfig) {
+        if (!listenerConfig.lazy || on[listenerConfig.dispatch]) {
+          addListener($this.responder(), eventName, function (e) {
+            var retVal;
+            if (isFunction(listenerConfig.callback)) {
+              retVal = listenerConfig.callback.call($this, $this.config, $this.el, e);
+            }
+            if (!listenerConfig.defaultEvent) preventEvent(e);
+            $this.dispatch(listenerConfig.dispatch, [$this.config, $this.el, e]);
+            return retVal;
+          });
+        }
+      }, defaults(config.$events || {}, $this.$events));
+    },
+    responder: function () {
+      /**
+       * The responder to events.
+       * This element will get bound to events such as blur/focus/change etc.
+       * @returns {Element}
+       */
+      return this.el;
+    }
+  };
 
   exports.ListMethods = {
     removeAt: function (index) {
@@ -5697,115 +5748,117 @@ window.UION = window.UI = (function (exports, window) {
       node.classList.remove(name);
   }
 
-  exports.ready = function (code) {
-    if (exports._ready) code.call();
-    else exports._onload.push(code);
+  exports.ready = function (fn) {
+    if (exports.$ready) fn.call();
+    else $windowListeners.load.push(fn);
   };
-  exports._ready = false;
-  exports._onload = [];
 
+  function buildWindowListener(listeners) {
+    function executeAllListeners(e) {
+      for (var i=0; i<listeners; i++) {
+        listeners[i].call(window, e);
+      }
+    }
+    return executeAllListeners;
+  }
 
-  (function () {
-    var ready = function () {
-      exports._ready = true;
+  $globalListenerIds.mouseup = addListener(window, "mouseup", buildWindowListener($windowListeners.mouseup));
+  $globalListenerIds.mousemove = addListener(window, "mousemove", buildWindowListener($windowListeners.mousemove));
+  $globalListenerIds.resize = addListener(window, "resize", buildWindowListener($windowListeners.resize));
 
-      setAttributes(document.body, {"data-uk-observe": ""});
+  if (document.readyState == "complete") {
+    windowOnLoad();
+  } else {
+    $globalListenerIds.load = addListener(window, "load", buildWindowListener($windowListeners.load));
+  }
 
-      for (var i = 0; i < exports._onload.length; i++) {
-        exports._onload[i]();
+  if (UIkit.support.touch) {
+    $globalListenerIds.touchend = addListener(window, "touchend", buildWindowListener($windowListeners.touchend));
+    $globalListenerIds.touchmove = addListener(window, "touchmove", buildWindowListener($windowListeners.touchmove));
+  }
+
+  function windowOnMouseUp(e) {
+    var dragged = exports._dragged;
+    if (dragged) {
+      var nodeStyle = dragged.node.style;
+      var display = nodeStyle.display;
+
+      nodeStyle.display = 'none';
+
+      var src = e.changedTouches ? e.changedTouches[0] : e;
+      var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
+      if (dropTarget && dropTarget.master.config.droppable(dropTarget.config, dragged.config, dragged.node)) {
+        // Must be before dragEnd to prevent position of elements shifting in tree
+        // Shifted position will shift the drop target
+        dropTarget.master.dispatch("onItemDrop", [dropTarget.config, dragged.config, dropTarget, e]);
       }
 
-      exports._globalMouseUp = function (e) {
-        var dragged = exports._dragged;
-        if (dragged) {
-          var nodeStyle = dragged.node.style;
-          var display = nodeStyle.display;
+      dragged.target.dispatch("onItemDragEnd", [dragged.config, dragged.node, e]);
 
-          nodeStyle.display = 'none';
+      removeClass(dragged.node, 'uk-active-drag');
 
-          var src = e.changedTouches ? e.changedTouches[0] : e;
-          var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
-          if (dropTarget && dropTarget.master.config.droppable(dropTarget.config, dragged.config, dragged.node)) {
-            // Must be before dragEnd to prevent position of elements shifting in tree
-            // Shifted position will shift the drop target
-            dropTarget.master.dispatch("onItemDrop", [dropTarget.config, dragged.config, dropTarget, e]);
-          }
+      nodeStyle.top = dragged.originalPos.top;
+      nodeStyle.left = dragged.originalPos.left;
+      nodeStyle.display = display;
+      exports._dragged = null;
+    }
+    exports._selectedForDrag = null;
+  }
 
-          dragged.target.dispatch("onItemDragEnd", [dragged.config, dragged.node, e]);
-
-          removeClass(dragged.node, 'uk-active-drag');
-
-          nodeStyle.top = dragged.originalPos.top;
-          nodeStyle.left = dragged.originalPos.left;
-          nodeStyle.display = display;
-          exports._dragged = null;
-        }
+  function windowOnMouseMove(e) {
+    var selectedForDrag = exports._selectedForDrag;
+    var src = e.touches ? e.touches[0] : e;
+    if (selectedForDrag) {
+      if (Math.abs(src.clientX - selectedForDrag.pos.x) > exports.$dragThreshold ||
+        Math.abs(src.clientY - selectedForDrag.pos.y) > exports.$dragThreshold) {
+        // Begin drag event
+        exports._dragged = selectedForDrag;
         exports._selectedForDrag = null;
-      };
+        addClass(selectedForDrag.node, 'uk-active-drag');
 
-      exports._globalMouseMove = function (e) {
-        var selectedForDrag = exports._selectedForDrag;
-        var src = e.touches ? e.touches[0] : e;
-        if (selectedForDrag) {
-          if (Math.abs(src.clientX - selectedForDrag.pos.x) > exports._dragThreshold ||
-            Math.abs(src.clientY - selectedForDrag.pos.y) > exports._dragThreshold) {
-            // Begin drag event
-            exports._dragged = selectedForDrag;
-            exports._selectedForDrag = null;
-            addClass(selectedForDrag.node, 'uk-active-drag');
-
-            // Fire drag listener event
-            selectedForDrag.target.dispatch("onItemDragStart",
-              [selectedForDrag.config, selectedForDrag.node, selectedForDrag.event]);
-          }
-        }
-        else if (exports._dragged) {
-          var dragged = exports._dragged;
-          dragged.node.style.top = (src.clientY + dragged.mouseOffset.top) + 'px';
-          dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
-
-          var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
-          if (dropTarget && dropTarget.master.config.droppable(dropTarget.config, dragged.config, dragged.node)) {
-            var oldDropTarget = exports._dropTarget;
-            if (oldDropTarget != dropTarget) {
-              if (oldDropTarget) {
-                oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTarget.config, oldDropTarget, e]);
-              }
-              dropTarget.master.dispatch('onItemDragEnter', [dropTarget.config, dropTarget, e]);
-              exports._dropTarget = dropTarget;
-            }
-            else if (oldDropTarget) {
-              oldDropTarget.master.dispatch('onItemDragOver', [oldDropTarget.config, oldDropTarget, e]);
-            }
-          }
-        }
-      };
-
-      exports._dragThreshold = 10;
-
-      addListener(window, "mouseup", exports._globalMouseUp);
-      addListener(window, "mousemove", exports._globalMouseMove);
-
-      if (UIkit.support.touch) {
-        addListener(window, "touchend", exports._globalMouseUp);
-        addListener(window, "touchmove", exports._globalMouseMove);
+        // Fire drag listener event
+        selectedForDrag.target.dispatch("onItemDragStart",
+          [selectedForDrag.config, selectedForDrag.node, selectedForDrag.event]);
       }
+    }
+    else if (exports._dragged) {
+      var dragged = exports._dragged;
+      dragged.node.style.top = (src.clientY + dragged.mouseOffset.top) + 'px';
+      dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
 
-      function findDroppableParent(node) {
-        // Exit after 100 tries, otherwise assume circular reference
-        for (var i = 0; i < 100; i++) {
-          if (!node)
-            break;
-          else if (node.config && node.master && node.$droppable)
-            return node;
-          else
-            node = node.parentNode;
+      var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
+      if (dropTarget && dropTarget.master.config.droppable(dropTarget.config, dragged.config, dragged.node)) {
+        var oldDropTarget = exports._dropTarget;
+        if (oldDropTarget != dropTarget) {
+          if (oldDropTarget) {
+            oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTarget.config, oldDropTarget, e]);
+          }
+          dropTarget.master.dispatch('onItemDragEnter', [dropTarget.config, dropTarget, e]);
+          exports._dropTarget = dropTarget;
+        }
+        else if (oldDropTarget) {
+          oldDropTarget.master.dispatch('onItemDragOver', [oldDropTarget.config, oldDropTarget, e]);
         }
       }
-    };
-    if (document.readyState == "complete") ready();
-    else addListener(window, "load", ready);
-  }());
+    }
+  }
+
+  function windowOnLoad() {
+    exports.$ready = true;
+    setAttributes(document.body, {"data-uk-observe": ""});
+  }
+
+  function findDroppableParent(node) {
+    // Exit after 100 tries, otherwise assume circular reference
+    for (var i = 0; i < 100; i++) {
+      if (!node)
+        break;
+      else if (node.config && node.master && node.$droppable)
+        return node;
+      else
+        node = node.parentNode;
+    }
+  }
 
 
   exports.PropertySetter = {
@@ -6088,33 +6141,27 @@ window.UION = window.UI = (function (exports, window) {
 
   exports.CommonEvents = {
     __name__: "CommonEvents",
+    __check__: function (bases) {
+      assertBasesCheck('Responder', 'CommonEvents', bases);
+    },
+    $events: {
+      focus: {lazy: true, dispatch: "onFocus", defaultEvent: true},
+      blur: {lazy: true, dispatch: "onBlur", defaultEvent: true}
+    },
     __after__: function (config) {
       var $this = this;
       if (config.on) {
         if (config.on.onResize) {
-          addListener(window, "resize", function (e) {
-            this.dispatch("onResize", [e]);
-          }, $this);
+          $windowListeners.resize.push(function (e) {
+            $this.dispatch("onResize", [e]);
+          });
         }
         if (config.on.onDebounceResize) {
-          addListener(window, "resize", UIkit.Utils.debounce(function (e) {
+          $windowListeners.resize.push(UIkit.Utils.debounce(function (e) {
             $this.dispatch("onDebounceResize", [e]);
           }, 1000));
         }
-        if (config.on.onFocus) {
-          addListener(this.firstResponder(), "focus", function (e) {
-            this.dispatch("onFocus", [e]);
-          }, $this);
-        }
-        if (config.on.onBlur) {
-          addListener(this.firstResponder(), "blur", function (e) {
-            this.dispatch("onBlur", [e]);
-          }, $this);
-        }
       }
-    },
-    firstResponder: function () {
-      return this.el;
     }
   };
 
@@ -6299,7 +6346,7 @@ window.UION = window.UI = (function (exports, window) {
 
       return input;
     }
-  }, exports.Dispatcher, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
+  }, exports.Dispatcher, exports.Responder, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
 
   //
   // Define setter options for auto-documentation
@@ -6534,15 +6581,6 @@ window.UION = window.UI = (function (exports, window) {
             self.getFormControl().parentNode.appendChild(self.help);
           }
         },
-        autocomplete: function (value) {
-          setAttributes(this.getFormControl(), {autocomplete: value});
-        },
-        autocapitalize: function (value) {
-          setAttributes(this.getFormControl(), {autocapitalize: value});
-        },
-        autocorrect: function (value) {
-          setAttributes(this.getFormControl(), {autocorrect: value});
-        },
         type: function (value) {
           setAttributes(this.getFormControl(), {type: value});
           addClass(this.getFormControl(), "uk-vertical-align-middle");
@@ -6550,15 +6588,12 @@ window.UION = window.UI = (function (exports, window) {
         value: function (value) {
           if (value !== undefined)
             this.setValue(value);
-        },
-        placeholder: function (value) {
-          setAttributes(this.getFormControl(), {placeholder: value});
         }
       }
     ),
-    firstResponder: function () {
+    responder: function () {
       /**
-       * The first responder to events.
+       * The responder to events.
        * This element will get bound to events such as blur/focus/change etc.
        * @returns {Element}
        */
@@ -6638,9 +6673,27 @@ window.UION = window.UI = (function (exports, window) {
     }
   };
 
+  //
+  // Define setter options for auto-documentation
+  (function ($setters) {
+    $setters.help.isText = true;
+    $setters.formClass.options = {"": "", "danger": "danger", "success": "success"};
+    $setters.type.description = "Set the type of the HTML input element.";
+    $setters.value.description = "Initial value of the HTML input element.";
+  }(exports.FormControl.$setters));
+  //
 
+  
   exports.ClickEvents = {
     __name__: 'ClickEvents',
+    $events: {
+      click: {dispatch: "onClick"},
+      contextmenu: {lazy: true, dispatch: "onContext"},
+      mousedown: {lazy: true, dispatch: "onMouseDown"},
+      mouseup: {lazy: true, dispatch: "onMouseUp", callback: function (config, el, e) {
+        windowOnMouseUp(e);
+      }}
+    },
     $setters: {
       target: function (value) {
         setAttributes(this.el, {target: value});
@@ -6650,50 +6703,7 @@ window.UION = window.UI = (function (exports, window) {
       }
     },
     __check__: function (bases) {
-      assertBasesCheck('Dispatcher', 'ClickEvents', bases);
-      assertBasesCheck('FormControl', 'ClickEvents', bases);
-    },
-    __after__: function (config) {
-      var on = config.on = config.on || {};
-      var self = this;
-      var firstResponder = self.firstResponder();
-      addListener(firstResponder, "click", self._onClick, self);
-
-      // Optimization: add only if defined as these rarely get used.
-      if (on.onContext) {
-        addListener(firstResponder, "contextmenu", self._onContext, self);
-      }
-      if (on.onMouseDown) {
-        addListener(firstResponder, "mousedown", self._onMouseDown, self);
-      }
-      if (on.onMouseUp) {
-        addListener(firstResponder, "mouseup", self._onMouseUp, self);
-      }
-    },
-    _onClick: function (e) {
-      if (this.config.$preventDefault !== false) {
-        preventEvent(e);
-      }
-      this.dispatch("onClick", [this.config, this.el, e]);
-    },
-    _onMouseDown: function (e) {
-      if (this.config.$preventDefault !== false) {
-        preventEvent(e);
-      }
-      this.dispatch("onMouseDown", [this.config, this.el, e]);
-    },
-    _onMouseUp: function (e) {
-      this.dispatch("onMouseUp", [this.config, this.el, e]);
-      if (this.config.$preventDefault !== false) {
-        exports._globalMouseUp(e);
-        preventEvent(e);
-      }
-    },
-    _onContext: function (e) {
-      if (this.config.$preventDefault !== false) {
-        preventEvent(e);
-      }
-      this.dispatch("onContext", [this.config, this.el, e]);
+      assertBasesCheck('Responder', 'ClickEvents', bases);
     }
   };
 
@@ -6888,14 +6898,14 @@ window.UION = window.UI = (function (exports, window) {
        */
       return !!this.config.$selected;
     },
-    unselect: function () {
+    deselect: function () {
       /**
-       * Change the button state to unselected.
+       * Change the button state to deselected.
        */
       this.config.$selected = false;
       removeClass(this.el, "uk-active");
     }
-  }, exports.ClickEvents, exports.FormControl, $definitions.element);
+  }, exports.ClickEvents, $definitions.element);
 
   //
   // Define setter options for auto-documentation
@@ -6922,7 +6932,7 @@ window.UION = window.UI = (function (exports, window) {
         config.tagClass = "uk-icon-button";
     },
     template: "<i class='{{icon}} {{iconClass}}'>{{content}}</i>"
-  }, exports.ClickEvents, exports.FormControl, $definitions.element);
+  }, exports.ClickEvents, $definitions.element);
 
   //
   // Define setter options for auto-documentation
@@ -6978,7 +6988,7 @@ window.UION = window.UI = (function (exports, window) {
     template: function (config) {
       return config.label;
     }
-  }, exports.ClickEvents, exports.FormControl, $definitions.element);
+  }, exports.ClickEvents, $definitions.element);
 
 
   $definitions.progress = def({
@@ -7042,72 +7052,61 @@ window.UION = window.UI = (function (exports, window) {
     $defaults: {
       htmlTag: "IMG"
     },
+    $events: {
+      load: {lazy: true, dispatch: "onLoad"}
+    },
     $setters: {
       src: function (value) {
         setAttributes(this.el, {src: value});
       }
-    },
-    __after__: function () {
-      addListener(this.firstResponder(), "load", function (e) {
-        this.dispatch("onLoad", [e])
-      }, this);
     }
-  }, exports.ClickEvents, exports.FormControl, $definitions.element);
+  }, exports.ClickEvents, $definitions.element);
 
 
   exports.ChangeEvent = {
     __name__: 'ChangeEvent',
     __check__: function (bases) {
-      assertBasesCheck('Dispatcher', 'ChangeEvent', bases);
-      assertBasesCheck('FormControl', 'ChangeEvent', bases);
+      assertBasesCheck('Responder', 'ChangeEvent', bases);
     },
-    __after__: function () {
-      var on = this.config.on = this.config.on || {};
-      if (on.onChange)
-        addListener(this.firstResponder(), "change", this._onChange, this);
-    },
-    _onChange: function () {
-      this.dispatch("onChange", [this.getValue()]);
+    $events: {
+      change: {lazy: true, dispatch: "onChange", defaultEvent: true}
     }
   };
 
-  exports.KeyInputEvents = {
+  exports.InputControl = {
     __name__: 'ChangeEvent',
     __check__: function (bases) {
-      assertBasesCheck('Dispatcher', 'ChangeEvent', bases);
-      assertBasesCheck('FormControl', 'ChangeEvent', bases);
+      assertBasesCheck('Responder', 'InputControl', bases);
+      assertBasesCheck('FormControl', 'InputControl', bases);
     },
-    __after__: function () {
-      var self = this;
-      var on = this.config.on = this.config.on || {};
-      var firstResponder = self.firstResponder();
-
-      if (on.onInput)
-        addListener(firstResponder, "input", self._onInput, self);
-
-      if (on.onKeyUp)
-        addListener(firstResponder, "keyup", self._onKeyUp, self);
+    $events: {
+      input: {lazy: true, dispatch: 'onInput', defaultEvent: true},
+      keyup: {lazy: true, dispatch: 'onKeyUp', defaultEvent: true}
     },
-    _onInput: function () {
-      this.dispatch("onInput", [this.getValue()]);
-    },
-    _onKeyUp: function (e) {
-      this.dispatch("onKeyUp", [e, this.el, this]);
+    $setters: {
+      autocomplete: function (value) {
+        setAttributes(this.getFormControl(), {autocomplete: value});
+      },
+      autocapitalize: function (value) {
+        setAttributes(this.getFormControl(), {autocapitalize: value});
+      },
+      autocorrect: function (value) {
+        setAttributes(this.getFormControl(), {autocorrect: value});
+      },
+      placeholder: function (value) {
+        setAttributes(this.getFormControl(), {placeholder: value});
+      }
     }
   };
 
   //
   // Define setter options for auto-documentation
   (function ($setters) {
-    $setters.help.isText = true;
     $setters.autocomplete.isBoolean = true;
     $setters.autocapitalize.isBoolean = true;
     $setters.autocorrect.isBoolean = true;
     $setters.placeholder.isText = true;
-    $setters.formClass.options = {"": "", "danger": "danger", "success": "success"};
-    $setters.type.description = "Set the type of the HTML input element.";
-    $setters.value.description = "Initial value of the HTML input element.";
-  }(exports.FormControl.$setters));
+  }(exports.InputControl.$setters));
   //
 
   $definitions.toggle = def({
@@ -7151,7 +7150,7 @@ window.UION = window.UI = (function (exports, window) {
     setValue: function (value) {
       /**
        * Set the value of the toggle.
-       * @paramm value
+       * @param value
        */
       this.getFormControl().checked = value;
     }
@@ -7163,9 +7162,6 @@ window.UION = window.UI = (function (exports, window) {
     $defaults: {
       htmlTag: "INPUT",
       inputWidth: "medium",
-      autocomplete: "on",
-      autocapitalize: "on",
-      autocorrect: "on",
       inline: false
     },
     $setters: {
@@ -7211,12 +7207,12 @@ window.UION = window.UI = (function (exports, window) {
       }
       else this.getFormControl().value = value;
     }
-  }, exports.KeyInputEvents, exports.ChangeEvent, exports.FormControl, $definitions.element);
+  }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
   //
   // Define setter options for auto-documentation
-  (function ($) {
-    $.checked.isBoolean = true;
+  (function ($setters) {
+    $setters.checked.isBoolean = true;
   }($definitions.input.prototype.$setters));
   //
 
@@ -7235,7 +7231,7 @@ window.UION = window.UI = (function (exports, window) {
       return this.el.firstChild;
     },
     template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
-  }, exports.KeyInputEvents, exports.ChangeEvent, exports.FormControl, $definitions.element);
+  }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
 
   $definitions.autocomplete = def({
@@ -7315,7 +7311,7 @@ window.UION = window.UI = (function (exports, window) {
       return this.el.lastChild;
     },
     template: '{{iconTemplate}}<input class="{{inputClass}}" type="{{inputType}}" placeholder="{{placeholder}}">'
-  }, exports.KeyInputEvents, exports.ChangeEvent, exports.FormControl, $definitions.element);
+  }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
 
   $definitions.dropdown = def({
@@ -7885,28 +7881,28 @@ window.UION = window.UI = (function (exports, window) {
     },
     $setters: extend(
       classSetters({
-        listStyle: {
-          "nav": "uk-nav",
-          "side": ["uk-nav", "uk-nav-side"],
-          "offcanvas": ["uk-nav", "uk-nav-offcanvas"],
-          "dropdown": ["uk-nav", "uk-nav-dropdown", "uk-nav-side"],
-          "stripped": ["uk-nav", "uk-list", "uk-list-stripped"],
-          "line": ["uk-list", "uk-list-line"],
-          "subnav": "uk-subnav",
-          "navbar": "uk-navbar-nav",
-          "navbar-center": "uk-navbar-center",
-          "subnav-line": ["uk-subnav", "uk-subnav-line"],
-          "subnav-pill": ["uk-subnav", "uk-subnav-pill"],
-          "list": "uk-list",
-          "tab": "uk-tab",
-          "tab-flip": "uk-tab-flip",
-          "tab-bottom": "uk-tab-bottom",
-          "tab-center": "uk-tab-center",
-          "tab-left": "uk-tab-left",
-          "tab-right": "uk-tab-right",
-          "breadcrumb": "uk-breadcrumb",
+        listStyle: prefixClassOptions({
+          "nav": "nav",
+          "side": ["nav", "nav-side"],
+          "offcanvas": ["nav", "nav-offcanvas"],
+          "dropdown": ["nav", "nav-dropdown", "nav-side"],
+          "stripped": ["nav", "list", "list-stripped"],
+          "line": ["list", "list-line"],
+          "subnav": "subnav",
+          "navbar": "navbar-nav",
+          "navbar-center": "navbar-center",
+          "subnav-line": ["subnav", "subnav-line"],
+          "subnav-pill": ["subnav", "subnav-pill"],
+          "list": "list",
+          "tab": "tab",
+          "tab-flip": "tab-flip",
+          "tab-bottom": "tab-bottom",
+          "tab-center": "tab-center",
+          "tab-left": "tab-left",
+          "tab-right": "tab-right",
+          "breadcrumb": "breadcrumb",
           "": ""
-        }
+        }, 'uk-')
       }),
       {
         accordion: function (value) {
@@ -7955,7 +7951,7 @@ window.UION = window.UI = (function (exports, window) {
         if (config.tab == 'responsive') {
           self.addListener("onDOMChanged", self._onDOMChanged);
           self.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, self.headNode);
-          addListener(window, "resize", self.updateFit, self);
+          $windowListeners.resize.push(bind(self.updateFit, self));
           self.dispatch("onDOMChanged", [null, "refresh"]);
         }
       }
@@ -7970,12 +7966,12 @@ window.UION = window.UI = (function (exports, window) {
         self.dropdownList.add(linked, self.dropdownList.findOne("$link", before));
         // Select dropdown item if item is selected
         if (item.$selected) {
-          self.dropdownList.unselectAll();
+          self.dropdownList.deselectAll();
           self.dropdownList.select(linked);
         }
       }
       if (item.$selected) {
-        self.unselectAll();
+        self.deselectAll();
         self.select(item);
       }
     },
@@ -7998,14 +7994,14 @@ window.UION = window.UI = (function (exports, window) {
     },
     _onItemSelectionChanged: function (item) {
       var self = this;
-      self.unselectAll();
+      self.deselectAll();
       self.select(item);
 
       // Select dropdown item
       if (self.dropdownList) {
         var linked = self.dropdownList.findOne("$link", item);
         if (linked) {
-          self.dropdownList.unselectAll();
+          self.dropdownList.deselectAll();
           self.dropdownList.select(linked);
         }
 
@@ -8020,7 +8016,6 @@ window.UION = window.UI = (function (exports, window) {
       var self = this;
       self.each(function (item) {
         // Show everything for checking y-offset (keep invisible to avoid blink)
-        removeClass(this._itemNodes[item.id], "uk-hidden");
         addClass(this._itemNodes[item.id], "uk-invisible");
         // Update batch according to $selected state
         if (!item.$tabmenu) {
@@ -8062,7 +8057,7 @@ window.UION = window.UI = (function (exports, window) {
        * Set the active item of the list based on a property. This operates as a single-selection of an item. Returns true on success.
        * @returns {boolean}
        */
-      this.unselectAll();
+      this.deselectAll();
       var item = this.findOne(key, value);
       if (item) this.select(item);
       return !!item;
@@ -8078,7 +8073,7 @@ window.UION = window.UI = (function (exports, window) {
     },
     select: function (item) {
       /**
-       * Selects an active item of the list. This method will not unselect previously selected items.
+       * Selects an active item of the list. This method will not deselect previously selected items.
        * @param item The object to select in the list.
        */
       if (isString(item))
@@ -8086,9 +8081,9 @@ window.UION = window.UI = (function (exports, window) {
       item.$selected = true;
       addClass(this.getItemNode(item.id), "uk-active");
     },
-    unselectAll: function () {
+    deselectAll: function () {
       /**
-       * Unselects all items in the list, use this for single-selection lists.
+       * Deselects all items in the list, use this for single-selection lists.
        */
       this.each(function (item) {
         var node = this.getItemNode(item.id);
@@ -8354,7 +8349,8 @@ window.UION = window.UI = (function (exports, window) {
     },
     template: function (config) {
       return interpolate(
-        '<a><i class="uk-icon-{{icon}}" style="margin-left: {{margin}}px"></i><span class="uk-margin-small-left">{{label}}</span></a>',
+        '<a><i class="uk-icon-{{icon}}" style="margin-left: {{margin}}px">' +
+        '</i><span class="uk-margin-small-left">{{label}}</span></a>',
         {
           icon: config.$branch ?
             (config.$children.length ?
@@ -8596,7 +8592,7 @@ window.UION = window.UI = (function (exports, window) {
       item.$selected = true;
       this.getFormControl().selectedIndex = this.indexOf(item);
     },
-    unselectAll: function () {
+    deselectAll: function () {
       // Do nothing, invalid for select component.
     },
     setValue: function (value) {
@@ -8631,16 +8627,17 @@ window.UION = window.UI = (function (exports, window) {
       layout: "stacked",
       fieldset: []
     },
+    $events: {
+      submit: {dispatch: 'onSubmit', callback: returnTrue}
+    },
     $setters: extend(
       classSetters({
-        layout: {
-          stacked: "uk-form-stacked",
-          horizontal: "uk-form-horizontal"
-        },
-        formStyle: {
-          line: "uk-form-line",
+        formStyle: prefixClassOptions({
+          stacked: "",
+          horizontal: "",
+          line: "",
           "": ""
-        }
+        }, 'uk-form-', true)
       }),
       {
         fieldset: function (value) {
@@ -8663,14 +8660,6 @@ window.UION = window.UI = (function (exports, window) {
       }),
     __init__: function () {
       this.$fieldsets = UI.list();
-    },
-    __after__: function () {
-      addListener(this.firstResponder(), "submit", this._onSubmit, this);
-    },
-    _onSubmit: function (e) {
-      preventEvent(e);
-      this.dispatch("onSubmit", [this.getValues(), this]);
-      return true;
     },
     clear: function () {
       /**
@@ -8726,6 +8715,15 @@ window.UION = window.UI = (function (exports, window) {
     }
   }, $definitions.element);
 
+  //
+  // Define setter options for auto-documentation
+  (function ($setters) {
+    $setters.formStyle.multipleAllowed = true;
+    $setters.fieldset.description = 'Fieldset object';
+    $setters.fieldsets.description = 'An array of Fieldset objects';
+  }($definitions.form.prototype.$setters));
+  //
+
 
   $definitions.fieldset = def({
     __name__: "fieldset",
@@ -8733,10 +8731,11 @@ window.UION = window.UI = (function (exports, window) {
       htmlTag: "FIELDSET"
     },
     $setters: classSetters({
-      layout: {
-        stacked: "uk-form-stacked",
-        horizontal: "uk-form-horizontal"
-      }
+      layout: prefixClassOptions({
+        stacked: "",
+        horizontal: "",
+        "": ""
+      }, 'uk-form-', true)
     }),
     _itemHTML: function (itemConfig) {
       if (itemConfig.title) {
@@ -8847,16 +8846,10 @@ window.UION = window.UI = (function (exports, window) {
     }
   }, $definitions.stack);
 
-
-  if (window.UIkit) {
-    exports.message = UIkit.notify;
-    exports.confirm = UIkit.modal.confirm;
-    exports.prompt = UIkit.modal.prompt;
-    exports.alert = UIkit.modal.alert;
-  }
+  window.$$ = $$;
 
   return exports;
-})({}, window);
+})({}, window, window.UIkit);
 
 //
 UI.debug = true;
