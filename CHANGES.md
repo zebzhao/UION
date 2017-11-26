@@ -1,7 +1,32 @@
-JIkit Changelog
+UION Changelog
 ===============
 
 Here you can see the full list of changes between each JIkit release.
+
+Version 0.20.0
+-----------
+- Major breaking changes from refactoring
+- `UI.views` renamed to `UI.components`
+- `UI.classes` renamed to `UI.definitions`
+- `UI.listeners` exposed from `UI._listeners`
+- `UI.replaceString` renamed to `UI.interpolate`
+- Removed `_config` and `_html` from `element`
+- `UI.stack` renamed to `UI.definitions.stack`
+- `debug` flag turned off in minified build
+- Tweak all attribute setters to be more consistent
+- `UI.class` removed
+- `UI.setCSS` renamed to `UI.classSetters`
+- All methods under `UI.html` moved to `UI`
+- `addCSS`, `removeCSS`, `hasCSS` renamed to `addClass`, `removeClass`, `hasClass`
+- `UI.new.uid` renamed to `UI.uidForComponent`
+- Add new mixin bases: `ChangeEvent`, `KeyInputEvent`
+- Some handlers will no longer be registered automatically unless specifically defined in `on` object
+- Setters behavior clean up: will no longer put a duplicated value under the component
+- Normalized assertion error messages
+- New `UI.setAttributes` method
+- `FormControl` `class` setter and `setClass` renamed to `formClass` and `setFormClass` 
+- Add `clearFormClass` method to `FormControl` base
+- `UI.pluck` now supports nested properties
 
 Version 0.10.0
 -----------

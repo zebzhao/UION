@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "homepage": "https://github.com/zebzhao/UION",
   "dependencies": {
-    "uikit": "uikit/uikit#^2.26.x",
+    "uikit": "uikit/uikit#^2.27.x",
     "jquery": "^2.x.x"
   },
   "ignore": [

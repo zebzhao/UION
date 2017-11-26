@@ -33,22 +33,24 @@ describe('helper basis', function() {
     it('should pluck values', function() {
         var original = [{a:1}, {a:2}, {a:3}];
         expect(UI.pluck(original, 'a')).toEqual([1, 2, 3]);
+        var nested = [{a: {b: 0}}, {a: {b: 1}}, {a: {b: 2}}];
+        expect(UI.pluck(nested, 'a.b')).toEqual([0, 1, 2]);
     });
 
     it('should get unique id', function() {
-        expect(UI.new.uid()).not.toEqual(UI.new.uid());
+        expect(UI.uidForComponent()).not.toEqual(UI.uidForComponent());
         expect(UI.uid()).not.toEqual(UI.uid());
     });
 
-    it('should replace string with params', function() {
+    it('should interpolate string with params', function() {
         var templateString = '{{test.awesome}}, {{test.ride.ride}}, {{cool}}{{cool2}}';
-        expect(UI.replaceString(templateString,
+        expect(UI.interpolate(templateString,
             {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty', cool2: '-two'})).toEqual('cool, know, sixty-two');
     });
 });
 
 describe('dispatcher', function() {
-    var Dispatcher = UI.class({__name__: "dispatcherTest"}, [UI.Dispatcher]);
+    var Dispatcher = UI.def({__name__: "dispatcherTest"}, UI.Dispatcher);
     var dispatcher = new Dispatcher({});
     var handlers = {
         fireWithArgs: function() {}
@@ -188,24 +190,24 @@ describe('list', function() {
 describe('html', function() {
     var node = document.body;
     it('should add and remove css', function() {
-        UI.html.addCSS(node, "s1");
+        UI.addClass(node, "s1");
         expect(node.className).toEqual("s1");
-        UI.html.addCSS(node, "s1", true);
+        UI.addClass(node, "s1", true);
         expect(node.className).toEqual("s1");
-        UI.html.addCSS(node, "s2", true);
+        UI.addClass(node, "s2", true);
         expect(node.className).toEqual("s1 s2");
-        UI.html.removeCSS(node, "s1");
-        UI.html.removeCSS(node, "s2");
+        UI.removeClass(node, "s1");
+        UI.removeClass(node, "s2");
         expect(node.className).toEqual("");
     })
 });
 
 describe('element', function() {
     it('should set properties', function() {
-        spyOn(UI.components.element.prototype.$setters, 'hidden');
-        expect(UI.components.element.prototype.$setters.hidden).not.toHaveBeenCalled();
+        spyOn(UI.definitions.element.prototype.$setters, 'hidden');
+        expect(UI.definitions.element.prototype.$setters.hidden).not.toHaveBeenCalled();
         var elem = UI.new({view: 'element', hidden: true});
-        expect(UI.components.element.prototype.$setters.hidden).toHaveBeenCalled();
+        expect(UI.definitions.element.prototype.$setters.hidden).toHaveBeenCalled();
     });
 
     it('should not allow duplicates', function() {
@@ -219,7 +221,7 @@ describe('element', function() {
         var on = {onInitialized: {}};
         spyOn(on, "onInitialized");
         var ui = UI.new({view: 'element', hidden: true,  on: on});
-        expect(ui._eventsByName.onInitialized).toBeDefined();
+        expect(ui._listenersByEvent.onInitialized).toBeDefined();
         expect(on.onInitialized.calls.count()).toBe(1);
     });
 });
@@ -229,7 +231,7 @@ describe('flexgrid', function() {
 
 describe('linked-list', function() {
     var n1 = {}, n2 = {}, n3 = {};
-    var List = UI.class({__name__: "test-linked-list"}, [UI.LinkedList, UI.Dispatcher]);
+    var List = UI.def({__name__: "test-linked-list"}, UI.LinkedList, UI.Dispatcher);
     var list = new List({});
 
     function echo(obj) {
