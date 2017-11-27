@@ -4875,7 +4875,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $listeners = {},
     $windowListeners = {
       mousemove: [windowOnMouseMove],
-      moveup: [windowOnMouseUp],
+      mouseup: [windowOnMouseUp],
       touchend: [windowOnMouseUp],
       touchmove: [windowOnMouseMove],
       load: [windowOnLoad],
@@ -5754,8 +5754,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   };
 
   function buildWindowListener(listeners) {
+    assertPropertyValidator(listeners, 'listeners', isArray);
     function executeAllListeners(e) {
-      for (var i=0; i<listeners; i++) {
+      for (var i=0; i<listeners.length; i++) {
         listeners[i].call(window, e);
       }
     }
@@ -6175,8 +6176,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dropdownId: undefined,
       dropdownMarginX: 5,
       dropdownMarginY: 5,
-      uploadOptions: {},
-      $preventDefault: true
+      uploadOptions: {}
     },
     $setters: {
       disabled: function (value) {
@@ -6228,7 +6228,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       uploader: function (value) {
         if (value) {
           // Must allow default events to open uploader
-          this.config.$preventDefault = false;
           // Add css to mock a file input
           addClass(this.el, "uk-form-file");
           this.el.appendChild(this._uploadFileHTML());
@@ -6687,7 +6686,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   exports.ClickEvents = {
     __name__: 'ClickEvents',
     $events: {
-      click: {dispatch: "onClick"},
+      click: {dispatch: "onClick", defaultEvent: true},
       contextmenu: {lazy: true, dispatch: "onContext"},
       mousedown: {lazy: true, dispatch: "onMouseDown"},
       mouseup: {lazy: true, dispatch: "onMouseUp", callback: function (config, el, e) {
@@ -6982,8 +6981,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "link",
     $defaults: {
       label: "",
-      htmlTag: "A",
-      $preventDefault: false
+      htmlTag: "A"
     },
     template: function (config) {
       return config.label;
@@ -8159,24 +8157,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _addCloseHTML: function (node, item) {
       if (item.$close) {
-        var close = createElement("SPAN", {class: "uk-close"});
-
-        addListener(close, "click", function (e) {
-          if (item.$preventDefault !== false) {
-            preventEvent(e);
+        var $this = this;;
+        $this._close = UI.new({
+          view: "link",
+          htmlTag: "SPAN",
+          tagClass: "uk-close",
+          on: {
+            onClick: function () {
+              $this.closeItem(item);
+            }
           }
-          this.closeItem(item);
-        }, this);
-
-        node.appendChild(close);
+        }, node);
       }
     },
     _attachNodeEvents: function (node, itemConfig) {
       var self = this;
       addListener(node, "click", function (e) {
-        if (itemConfig.$preventDefault !== false && this.config.$preventDefault !== false) {
-          preventEvent(e);
-        }
         if (!exports._dragged) {
           this.dispatch("onItemClick", [itemConfig, node, e]);
         }
@@ -8184,9 +8180,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       if (self.context && itemConfig.context !== false) {
         addListener(node, "contextmenu", function (e) {
-          if (itemConfig.$preventDefault !== false) {
-            preventEvent(e);
-          }
           this.dispatch("onItemContext", [itemConfig, node, e]);
         }, self);
       }
