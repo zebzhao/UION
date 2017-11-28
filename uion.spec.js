@@ -57,8 +57,8 @@ describe('helper basis', function () {
   });
 
   it('should get unique id', function () {
-    expect(UI.uidForComponent()).not.toEqual(UI.uidForComponent());
     expect(UI.uid()).not.toEqual(UI.uid());
+    expect(UI.uid('test')).not.toEqual(UI.uid('test'));
   });
 
   it('should interpolate string with params', function () {

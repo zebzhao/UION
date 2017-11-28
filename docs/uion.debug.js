@@ -4266,74 +4266,6 @@
     }
 
     if (typeof define == 'function' && define.amd) {
-        define('uikit-form-password', ['uikit'], function(){
-            return component || addon(UIkit2);
-        });
-    }
-
-})(function(UI){
-
-    "use strict";
-
-    UI.component('formPassword', {
-
-        defaults: {
-            lblShow: 'Show',
-            lblHide: 'Hide'
-        },
-
-        boot: function() {
-            // init code
-            UI.$html.on('click.formpassword.uikit', '[data-uk-form-password]', function(e) {
-
-                var ele = UI.$(this);
-
-                if (!ele.data('formPassword')) {
-
-                    e.preventDefault();
-
-                    UI.formPassword(ele, UI.Utils.options(ele.attr('data-uk-form-password')));
-                    ele.trigger('click');
-                }
-            });
-        },
-
-        init: function() {
-
-            var $this = this;
-
-            this.on('click', function(e) {
-
-                e.preventDefault();
-
-                if($this.input.length) {
-                    var type = $this.input.attr('type');
-                    $this.input.attr('type', type=='text' ? 'password':'text');
-                    $this.element.html($this.options[type=='text' ? 'lblShow':'lblHide']);
-                }
-            });
-
-            this.input = this.element.next('input').length ? this.element.next('input') : this.element.prev('input');
-            this.element.html(this.options[this.input.is('[type="password"]') ? 'lblShow':'lblHide']);
-
-
-            this.element.data('formPassword', this);
-        }
-    });
-
-    return UI.formPassword;
-});
-
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
-(function(addon) {
-
-    var component;
-
-    if (window.UIkit2) {
-        component = addon(UIkit2);
-    }
-
-    if (typeof define == 'function' && define.amd) {
         define('uikit-notify', ['uikit'], function(){
             return component || addon(UIkit2);
         });
@@ -4514,364 +4446,14 @@
     return notify;
 });
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
-(function(addon) {
-
-    var component;
-
-    if (window.UIkit2) {
-        component = addon(UIkit2);
-    }
-
-    if (typeof define == 'function' && define.amd) {
-        define('uikit-search', ['uikit'], function(){
-            return component || addon(UIkit2);
-        });
-    }
-
-})(function(UI){
-
-    "use strict";
-
-    UI.component('search', {
-        defaults: {
-            msgResultsHeader   : 'Search Results',
-            msgMoreResults     : 'More Results',
-            msgNoResults       : 'No results found',
-            template           : '<ul class="uk-nav uk-nav-search uk-autocomplete-results">\
-                                      {{#msgResultsHeader}}<li class="uk-nav-header uk-skip">{{msgResultsHeader}}</li>{{/msgResultsHeader}}\
-                                      {{#items && items.length}}\
-                                          {{~items}}\
-                                          <li data-url="{{!$item.url}}">\
-                                              <a href="{{!$item.url}}">\
-                                                  {{{$item.title}}}\
-                                                  {{#$item.text}}<div>{{{$item.text}}}</div>{{/$item.text}}\
-                                              </a>\
-                                          </li>\
-                                          {{/items}}\
-                                          {{#msgMoreResults}}\
-                                              <li class="uk-nav-divider uk-skip"></li>\
-                                              <li class="uk-search-moreresults" data-moreresults="true"><a href="#" onclick="jQuery(this).closest(\'form\').submit();">{{msgMoreResults}}</a></li>\
-                                          {{/msgMoreResults}}\
-                                      {{/end}}\
-                                      {{^items.length}}\
-                                        {{#msgNoResults}}<li class="uk-skip"><a>{{msgNoResults}}</a></li>{{/msgNoResults}}\
-                                      {{/end}}\
-                                  </ul>',
-
-            renderer: function(data) {
-
-                var opts = this.options;
-
-                this.dropdown.append(this.template({items:data.results || [], msgResultsHeader:opts.msgResultsHeader, msgMoreResults: opts.msgMoreResults, msgNoResults: opts.msgNoResults}));
-                this.show();
-            }
-        },
-
-        boot: function() {
-
-            // init code
-            UI.$html.on('focus.search.uikit', '[data-uk-search]', function(e) {
-                var ele =UI.$(this);
-
-                if (!ele.data('search')) {
-                    UI.search(ele, UI.Utils.options(ele.attr('data-uk-search')));
-                }
-            });
-        },
-
-        init: function() {
-            var $this = this;
-
-            this.autocomplete = UI.autocomplete(this.element, this.options);
-
-            this.autocomplete.dropdown.addClass('uk-dropdown-search');
-
-            this.autocomplete.input.on("keyup", function(){
-                $this.element[$this.autocomplete.input.val() ? 'addClass':'removeClass']('uk-active');
-            }).closest("form").on("reset", function(){
-                $this.value = '';
-                $this.element.removeClass('uk-active');
-            });
-
-            this.on('selectitem.uk.autocomplete', function(e, data) {
-                if (data.url) {
-                  location.href = data.url;
-                } else if(data.moreresults) {
-                  $this.autocomplete.input.closest('form').submit();
-                }
-            });
-
-            this.element.data('search', this);
-        }
-    });
-});
-
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
-(function(addon) {
-
-    var component;
-
-    if (window.UIkit2) {
-        component = addon(UIkit2);
-    }
-
-    if (typeof define == 'function' && define.amd) {
-        define('uikit-upload', ['uikit'], function(){
-            return component || addon(UIkit2);
-        });
-    }
-
-})(function(UI){
-
-    "use strict";
-
-    UI.component('uploadSelect', {
-
-        init: function() {
-
-            var $this = this;
-
-            this.on('change', function() {
-                xhrupload($this.element[0].files, $this.options);
-                var twin = $this.element.clone(true).data('uploadSelect', $this);
-                $this.element.replaceWith(twin);
-                $this.element = twin;
-            });
-        }
-    });
-
-    UI.component('uploadDrop', {
-
-        defaults: {
-            'dragoverClass': 'uk-dragover'
-        },
-
-        init: function() {
-
-            var $this = this, hasdragCls = false;
-
-            this.on('drop', function(e){
-
-                if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files) {
-
-                    e.stopPropagation();
-                    e.preventDefault();
-
-                    $this.element.removeClass($this.options.dragoverClass);
-                    $this.element.trigger('dropped.uk.upload', [e.originalEvent.dataTransfer.files]);
-
-                    xhrupload(e.originalEvent.dataTransfer.files, $this.options);
-                }
-
-            }).on('dragenter', function(e){
-                e.stopPropagation();
-                e.preventDefault();
-            }).on('dragover', function(e){
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (!hasdragCls) {
-                    $this.element.addClass($this.options.dragoverClass);
-                    hasdragCls = true;
-                }
-            }).on('dragleave', function(e){
-                e.stopPropagation();
-                e.preventDefault();
-                $this.element.removeClass($this.options.dragoverClass);
-                hasdragCls = false;
-            });
-        }
-    });
-
-
-    UI.support.ajaxupload = (function() {
-
-        function supportFileAPI() {
-            var fi = document.createElement('INPUT'); fi.type = 'file'; return 'files' in fi;
-        }
-
-        function supportAjaxUploadProgressEvents() {
-            var xhr = new XMLHttpRequest(); return !! (xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
-        }
-
-        function supportFormData() {
-            return !! window.FormData;
-        }
-
-        return supportFileAPI() && supportAjaxUploadProgressEvents() && supportFormData();
-    })();
-
-
-    function xhrupload(files, settings) {
-
-        if (!UI.support.ajaxupload){
-            return this;
-        }
-
-        settings = UI.$.extend({}, xhrupload.defaults, settings);
-
-        if (!files.length){
-            return;
-        }
-
-        if (settings.allow !== '*.*') {
-
-            for(var i=0,file;file=files[i];i++) {
-
-                if(!matchName(settings.allow, file.name)) {
-
-                    if(typeof(settings.notallowed) == 'string') {
-                       alert(settings.notallowed);
-                    } else {
-                       settings.notallowed(file, settings);
-                    }
-                    return;
-                }
-            }
-        }
-
-        var complete = settings.complete;
-
-        if (settings.single){
-
-            var count    = files.length,
-                uploaded = 0,
-                allow    = true;
-
-                settings.beforeAll(files);
-
-                settings.complete = function(response, xhr){
-
-                    uploaded = uploaded + 1;
-
-                    complete(response, xhr);
-
-                    if (settings.filelimit && uploaded >= settings.filelimit){
-                        allow = false;
-                    }
-
-                    if (allow && uploaded<count){
-                        upload([files[uploaded]], settings);
-                    } else {
-                        settings.allcomplete(response, xhr);
-                    }
-                };
-
-                upload([files[0]], settings);
-
-        } else {
-
-            settings.complete = function(response, xhr){
-                complete(response, xhr);
-                settings.allcomplete(response, xhr);
-            };
-
-            upload(files, settings);
-        }
-
-        function upload(files, settings){
-
-            // upload all at once
-            var formData = new FormData(), xhr = new XMLHttpRequest();
-
-            if (settings.before(settings, files)===false) return;
-
-            for (var i = 0, f; f = files[i]; i++) { formData.append(settings.param, f); }
-            for (var p in settings.params) { formData.append(p, settings.params[p]); }
-
-            // Add any event handlers here...
-            xhr.upload.addEventListener('progress', function(e){
-                var percent = (e.loaded / e.total)*100;
-                settings.progress(percent, e);
-            }, false);
-
-            xhr.addEventListener('loadstart', function(e){ settings.loadstart(e); }, false);
-            xhr.addEventListener('load',      function(e){ settings.load(e);      }, false);
-            xhr.addEventListener('loadend',   function(e){ settings.loadend(e);   }, false);
-            xhr.addEventListener('error',     function(e){ settings.error(e);     }, false);
-            xhr.addEventListener('abort',     function(e){ settings.abort(e);     }, false);
-
-            xhr.open(settings.method, settings.action, true);
-
-            if (settings.type=='json') {
-                xhr.setRequestHeader('Accept', 'application/json');
-            }
-
-            for (var h in settings.headers) {
-                xhr.setRequestHeader(h, settings.headers[h]);
-            }
-
-            xhr.onreadystatechange = function() {
-
-                settings.readystatechange(xhr);
-
-                if (xhr.readyState==4){
-
-                    var response = xhr.responseText;
-
-                    if (settings.type=='json') {
-                        try {
-                            response = UI.$.parseJSON(response);
-                        } catch(e) {
-                            response = false;
-                        }
-                    }
-
-                    settings.complete(response, xhr);
-                }
-            };
-            settings.beforeSend(xhr);
-            xhr.send(formData);
-        }
-    }
-
-    xhrupload.defaults = {
-        action: '',
-        single: true,
-        method: 'POST',
-        param : 'files[]',
-        params: {},
-        allow : '*.*',
-        type  : 'text',
-        filelimit: false,
-        headers: {},
-
-        // events
-        before          : function(o){},
-        beforeSend      : function(xhr){},
-        beforeAll       : function(){},
-        loadstart       : function(){},
-        load            : function(){},
-        loadend         : function(){},
-        error           : function(){},
-        abort           : function(){},
-        progress        : function(){},
-        complete        : function(){},
-        allcomplete     : function(){},
-        readystatechange: function(){},
-        notallowed      : function(file, settings){ alert('Only the following file types are allowed: '+settings.allow); }
-    };
-
-    function matchName(pattern, path) {
-
-        var parsedPattern = '^' + pattern.replace(/\//g, '\\/').
-            replace(/\*\*/g, '(\\/[^\\/]+)*').
-            replace(/\*/g, '[^\\/]+').
-            replace(/((?!\\))\?/g, '$1.') + '$';
-
-        parsedPattern = '^' + parsedPattern + '$';
-
-        return (path.match(new RegExp(parsedPattern, 'i')) !== null);
-    }
-
-    UI.Utils.xhrupload = xhrupload;
-
-    return xhrupload;
-});
-
 window.UION = window.UI = (function (exports, window, UIkit) {
-  var $definitions = {},
+  var
+    ACTIVE_CLASS = 'uk-active',
+    HIDDEN_CLASS = 'uk-hidden';
+
+  var
+    $counters = {},
+    $definitions = {},
     $listeners = {},
     $windowListeners = {
       mousemove: [windowOnMouseMove],
@@ -4889,17 +4471,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $dragThreshold: 10,
     $globalListenerIds: $globalListenerIds,
     $windowListeners: $windowListeners,
+    $counters: $counters,
 
     listeners: $listeners,
     definitions: $definitions,
     components: $components,
 
-    $$: $$,
-
     message: UIkit.notify,
     confirm: UIkit.modal.confirm,
     prompt: UIkit.modal.prompt,
     alert: UIkit.modal.alert,
+
+    $$: $$,
 
     isArray: isArray,
     isString: isString,
@@ -4941,7 +4524,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
     def: def,
     uid: uid,
-    uidForComponent: uidForComponent,
 
     addListener: addListener,
     removeListener: removeListener
@@ -5195,10 +4777,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     return true;
   }
 
-  function uid() {
-    if (!this._counter) this._counter = 0;
-    this._counter++;
-    return this._counter;
+  function uid(name) {
+    name = name || 0;
+    $counters[name] = ($counters[name] || 0) + 1;
+    return name + $counters[name];
   }
 
   function addListener(element, event, handler, thisArg) {
@@ -5624,12 +5206,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "z-index": "",
       "": ""
     }, 'uk-position-', true),
-    fill: {
-      height: "uk-height-1-1",
-      width: "uk-width-100",
-      screen: ["uk-height-1-1", "uk-width-100"],
+    fill: prefixClassOptions({
+      height: "height-1-1",
+      width: "width-100",
+      screen: ["height-1-1", "width-100"],
       "": ""
-    },
+    }, 'uk-'),
     float: {
       left: "uk-float-left",
       right: "uk-float-right",
@@ -5643,15 +5225,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "": ""
     },
     hidden: {
-      true: "uk-hidden",
+      true: HIDDEN_CLASS,
       false: "",
-      touch: "uk-hidden-touch",
-      notouch: "uk-hidden-notouch",
-      invisible: "uk-invisible",
-      hover: "uk-hidden-hover",
-      small: "uk-hidden-small",
-      medium: "uk-hidden-medium",
-      large: "uk-hidden-large"
+      hover: "uk-hidden-hover"
     },
     margin: prefixClassOptions({
       "none": "remove",
@@ -5676,23 +5252,23 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "right-lg": "large-right",
       "right-sm": "small-right"
     }, 'uk-margin-'),
-    inputWidth: {
+    inputWidth: prefixClassOptions({
       "": "",
-      mini: "uk-form-width-mini",
-      small: "uk-form-width-small",
-      medium: "uk-form-width-medium",
-      large: "uk-form-width-large",
-      full: "uk-width-100"
-    },
-    screen: {
-      "small": "uk-visible-small",
-      "medium": "uk-visible-medium",
-      "large": "uk-visible-large",
-      "except-small": "uk-hidden-small",
-      "except-medium": "uk-hidden-medium",
-      "except-large": "uk-hidden-large",
+      mini: "form-width-mini",
+      small: "form-width-small",
+      medium: "form-width-medium",
+      large: "form-width-large",
+      full: "width-100"
+    }, 'uk-'),
+    screen: prefixClassOptions({
+      "small": "visible-small",
+      "medium": "visible-medium",
+      "large": "visible-large",
+      "except-small": "hidden-small",
+      "except-medium": "hidden-medium",
+      "except-large": "hidden-large",
       "": ""
-    },
+    }, 'uk-'),
     device: prefixClassOptions({
       touch: "notouch",
       notouch: "touch",
@@ -5779,7 +5355,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   }
 
   function windowOnMouseUp(e) {
-    var dragged = exports._dragged;
+    var dragged = exports.$dragged;
     if (dragged) {
       var nodeStyle = dragged.node.style;
       var display = nodeStyle.display;
@@ -5801,7 +5377,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       nodeStyle.top = dragged.originalPos.top;
       nodeStyle.left = dragged.originalPos.left;
       nodeStyle.display = display;
-      exports._dragged = null;
+      exports.$dragged = null;
     }
     exports._selectedForDrag = null;
   }
@@ -5813,7 +5389,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (Math.abs(src.clientX - selectedForDrag.pos.x) > exports.$dragThreshold ||
         Math.abs(src.clientY - selectedForDrag.pos.y) > exports.$dragThreshold) {
         // Begin drag event
-        exports._dragged = selectedForDrag;
+        exports.$dragged = selectedForDrag;
         exports._selectedForDrag = null;
         addClass(selectedForDrag.node, 'uk-active-drag');
 
@@ -5822,8 +5398,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           [selectedForDrag.config, selectedForDrag.node, selectedForDrag.event]);
       }
     }
-    else if (exports._dragged) {
-      var dragged = exports._dragged;
+    else if (exports.$dragged) {
+      var dragged = exports.$dragged;
       dragged.node.style.top = (src.clientY + dragged.mouseOffset.top) + 'px';
       dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
 
@@ -5914,24 +5490,27 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       marginY = marginY || 0;
 
       var variants = {
-        "bottom-left": {top: origin.height + marginY, left: marginX},
-        "bottom-right": {top: origin.height + marginY, left: origin.width - width + marginX},
-        "bottom-center": {top: origin.height + marginY, left: origin.width / 2 - width / 2 + marginX},
-        "top-left": {top: -marginY - height, left: 0},
-        "top-right": {top: -marginY - height, left: origin.width - width},
-        "top-center": {top: -marginY - height, left: origin.width / 2 - width / 2},
-        "left-top": {top: marginY, left: -marginX - width},
-        "left-bottom": {top: origin.height - height, left: -marginX - width},
-        "left-center": {top: origin.height / 2 - height / 2, left: -marginX - width},
-        "right-top": {top: marginY, left: origin.width + marginX},
-        "right-bottom": {top: origin.height - height, left: origin.width + marginX},
-        "right-center": {top: origin.height / 2 - height / 2, left: origin.width + marginX}
+        "bottom-left": topleft(origin.height + marginY, marginX),
+        "bottom-right": topleft(origin.height + marginY, origin.width - width + marginX),
+        "bottom-center": topleft(origin.height + marginY, origin.width / 2 - width / 2 + marginX),
+        "top-left": topleft(-marginY - height, 0),
+        "top-right": topleft(-marginY - height, origin.width - width),
+        "top-center": topleft(-marginY - height, origin.width / 2 - width / 2),
+        "left-top": topleft(marginY, -marginX - width),
+        "left-bottom": topleft(origin.height - height, -marginX - width),
+        "left-center": topleft(origin.height / 2 - height / 2, -marginX - width),
+        "right-top": topleft(marginY, origin.width + marginX),
+        "right-bottom": topleft(origin.height - height, origin.width + marginX),
+        "right-center": topleft(origin.height / 2 - height / 2, origin.width + marginX)
       };
 
-      var htmlStyle = this.el.style;
-      htmlStyle.top = (origin.top - bodyPos.top + variants[position].top) + "px";
-      htmlStyle.left = (origin.left + variants[position].left) + "px";
-      htmlStyle.position = "absolute";
+      this.position(
+        origin.top - bodyPos.top + variants[position].top,
+        origin.left + variants[position].left);
+
+      function topleft(top, left) {
+        return {top: top, left: left};
+      }
     },
     getBoundingClientRect: function () {
       /**
@@ -6035,14 +5614,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
-  function uidForComponent(name) {
-    var names = this._names || {};
-    names[name] = names[name] || 0;
-    names[name]++;
-    this._names = names;
-    return '' + name + names[name];
-  }
-
   function $$(id) {
     if (!id)
       return null;
@@ -6129,16 +5700,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: classSetters(exports.classOptions)
   };
 
-  //
-  (function ($setters) {
-    $setters.order.multipleAllowed = true;
-    $setters.screen.multipleAllowed = true;
-    $setters.margin.multipleAllowed = true;
-    $setters.position.multipleAllowed = true;
-    $setters.hidden.multipleAllowed = true;
-  }(exports.CommonCSS.$setters));
-  //
-
 
   exports.CommonEvents = {
     __name__: "CommonEvents",
@@ -6175,8 +5736,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dropdownPos: 'bottom-center',
       dropdownId: undefined,
       dropdownMarginX: 5,
-      dropdownMarginY: 5,
-      uploadOptions: {}
+      dropdownMarginY: 5
     },
     $setters: {
       disabled: function (value) {
@@ -6221,22 +5781,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         });
         self.dropdownPopup = ui;
       },
-      inline: function (value) {
-        if (value)
-          addClass(this.el, "uk-display-inline");
-      },
       uploader: function (value) {
         if (value) {
           // Must allow default events to open uploader
-          // Add css to mock a file input
-          addClass(this.el, "uk-form-file");
-          this.el.appendChild(this._uploadFileHTML());
+          var $this = this;
+          addClass($this.el, "uk-form-file");
+          var uploader = $this._uploader = createElement('INPUT', {type: 'file', multiple: value == 'multiple' ? value : null});
+          uploader.onchange = function (e) {
+            $this.dispatch('onFileChange', [$this.config, this, e])
+          };
+          $this.el.appendChild(uploader);
         }
       }
     },
     __init__: function (config) {
       var self = this;
-      if (!config.id) config.id = uidForComponent(self.__name__);
+      if (!config.id) config.id = uid(self.__name__);
       var element = document.getElementById(config.id);
 
       assertPropertyValidator(element, 'node ' + config.id + ' exist check', isFalsy);
@@ -6273,19 +5833,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Checks if the element is hidden. (Not to be confused with conceal/reveal.)
        */
-      return !hasClass(this.el, "uk-hidden");
+      return !hasClass(this.el, HIDDEN_CLASS);
     },
     show: function () {
       /**
        * Shows the element.
        */
-      removeClass(this.el, "uk-hidden");
+      removeClass(this.el, HIDDEN_CLASS);
     },
     hide: function () {
       /**
        * Hides the element.
        */
-      addClass(this.el, "uk-hidden");
+      addClass(this.el, HIDDEN_CLASS);
     },
     conceal: function () {
       /**
@@ -6326,48 +5886,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @returns {UI.definitions.element}
        */
       return this.$components.findOne(key, value);
-    },
-    _uploadFileHTML: function () {
-      var config = this.config;
-      var self = this;
-
-      var settings = extend({
-        type: 'json',
-        before: function (settings, files) {
-          self.dispatch("onFilesAdded", [settings, files]);
-          return false;
-        }
-      }, config.uploadOptions);
-
-      var attrs = settings.filelimit > 1 ? {type: "file", multiple: "multiple"} : {type: "file"};
-      var input = createElement("INPUT", attrs);
-      UIkit.uploadSelect(input, settings);
-
-      return input;
     }
   }, exports.Dispatcher, exports.Responder, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.disabled.isBoolean = true;
-    $setters.tooltip.isText = true;
-    $setters.css.isText = true;
-    $setters.dropdown.description = "Configuration object to show in a context menu.";
-    $setters.inline.isBoolean = true;
-    $setters.uploader.isBoolean = true;
-
-    $setters._meta = extend({
-      dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
-      dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
-      dropdownMarginX: "The left margin of the dropdown from anchor component.",
-      dropdownMarginY: "The top margin of the dropdown from anchor component.",
-      template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
-      style: "A object containing properties to feed into the style attribute of the element"
-    }, $setters._meta || {});
-  }($definitions.element.prototype.$setters));
-  //
-
+  
   $definitions.flexgrid = def({
     __name__: "flexgrid",
     $defaults: {
@@ -6542,13 +6064,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, $definitions.element);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.cells.description = "A list of configuration objects.";
-  }($definitions.flexgrid.prototype.$setters));
-  //
-
 
   exports.FormControl = {
     __name__: 'FormControl',
@@ -6580,12 +6095,15 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             self.getFormControl().parentNode.appendChild(self.help);
           }
         },
+        multiple: function (value) {
+          setAttributes(this.getFormControl(), isString(value) ? {multiple: value} : {});
+        },
         type: function (value) {
           setAttributes(this.getFormControl(), {type: value});
           addClass(this.getFormControl(), "uk-vertical-align-middle");
         },
         value: function (value) {
-          if (value !== undefined)
+          if (isDefined(value))
             this.setValue(value);
         }
       }
@@ -6671,16 +6189,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.getFormControl().value = value;
     }
   };
-
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.help.isText = true;
-    $setters.formClass.options = {"": "", "danger": "danger", "success": "success"};
-    $setters.type.description = "Set the type of the HTML input element.";
-    $setters.value.description = "Initial value of the HTML input element.";
-  }(exports.FormControl.$setters));
-  //
 
   
   exports.ClickEvents = {
@@ -6830,28 +6338,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, $definitions.flexgrid);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.light.isBoolean = true;
-    $setters.bodyWidth.isText = true;
-    $setters.bodyHeight.isText = true;
-    $setters.closeButton.isBoolean = true;
-    $setters.body.description = "Configuration object to put in the modal body.";
-    $setters.header.description = "Configuration object to put in the modal header.";
-    $setters.footer.description = "Configuration object to put in the modal footer.";
-    $setters.caption.isText = true;
-    $setters._meta = extend({
-      bgClose: {isBoolean: true},
-      keyboard: {isBoolean: true},
-      minScrollHeight: {isNumber: true},
-      closeModals: {isBoolean: true},
-      center: {isBoolean: true},
-      dialogClass: {options: ['', 'uk-modal-dialog-blank', 'uk-modal-dialog-full']}
-    }, $setters._meta || {});
-  }($definitions.modal.prototype.$setters));
-  //
-
 
   $definitions.button = def({
     __name__: "button",
@@ -6888,7 +6374,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Change the button state to selected.
        */
       this.config.$selected = true;
-      addClass(this.el, "uk-active");
+      addClass(this.el, ACTIVE_CLASS);
     },
     isSelected: function () {
       /**
@@ -6902,19 +6388,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Change the button state to deselected.
        */
       this.config.$selected = false;
-      removeClass(this.el, "uk-active");
+      removeClass(this.el, ACTIVE_CLASS);
     }
   }, exports.ClickEvents, $definitions.element);
-
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters._meta = extend({
-      iconClass: {isText: true},
-      icon: {isText: true}
-    }, $setters._meta || {});
-  }($definitions.button.prototype.$setters));
-  //
 
 
   $definitions.icon = def({
@@ -6932,15 +6408,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     template: "<i class='{{icon}} {{iconClass}}'>{{content}}</i>"
   }, exports.ClickEvents, $definitions.element);
-
-  //
-  // Define setter options for auto-documentation
-  (function ($) {
-    $._meta = extend({
-      iconClass: {isText: true}
-    }, $._meta || {});
-  }($definitions.icon.prototype.$setters));
-  //
 
 
   $definitions.label = def({
@@ -7036,14 +6503,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, $definitions.element);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.type.multipleAllowed = true;
-    $setters.type.description = "Set the style type of the progress element.";
-  }($definitions.progress.prototype.$setters));
-  //
-
 
   $definitions.image = def({
     __name__: "image",
@@ -7072,7 +6531,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   };
 
   exports.InputControl = {
-    __name__: 'ChangeEvent',
+    __name__: 'InputControl',
     __check__: function (bases) {
       assertBasesCheck('Responder', 'InputControl', bases);
       assertBasesCheck('FormControl', 'InputControl', bases);
@@ -7097,15 +6556,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.autocomplete.isBoolean = true;
-    $setters.autocapitalize.isBoolean = true;
-    $setters.autocorrect.isBoolean = true;
-    $setters.placeholder.isText = true;
-  }(exports.InputControl.$setters));
-  //
 
   $definitions.toggle = def({
     __name__: "toggle",
@@ -7159,8 +6609,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "input",
     $defaults: {
       htmlTag: "INPUT",
-      inputWidth: "medium",
-      inline: false
+      inputWidth: "medium"
     },
     $setters: {
       checked: function (value) {
@@ -7207,36 +6656,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.checked.isBoolean = true;
-  }($definitions.input.prototype.$setters));
-  //
-
-
-  $definitions.password = def({
-    __name__: "password",
-    $defaults: {
-      tagClass: "uk-form-password",
-      inputWidth: "medium"
-    },
-    getFormControl: function () {
-      /**
-       * Gets the HTML input element.
-       * @returns {Element}
-       */
-      return this.el.firstChild;
-    },
-    template: "<input type='password' style='width:100%'><a class='uk-form-password-toggle' data-uk-form-password>Show</a>"
-  }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
-
 
   $definitions.autocomplete = def({
     __name__: "autocomplete",
+    template: '<input style="width:100%">',
     $defaults: {
       tagClass: "uk-autocomplete",
       placeholder: "",
+      type: "text",
       minLength: 0,
       caseSensitive: false,
       sources: [],
@@ -7272,34 +6699,25 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         });
       }
     },
-    template: function (config) {
-      return interpolate(
-        '<input type="text" placeholder="{{placeholder}}" style="width:100%">',
-        {placeholder: config.placeholder});
+    getFormControl: function () {
+      /**
+       * Gets the HTML input element.
+       * @returns {Element}
+       */
+      return this.el.firstChild;
     }
-  }, $definitions.password);
-
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters._meta = extend({
-      caseSensitive: {isBoolean: true},
-      minLength: {isNumber: true},
-      sources: 'An array of sources for the autocomplete.',
-      autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
-    }, $setters._meta || {});
-  }($definitions.input.prototype.$setters));
-  //
+  }, $definitions.input);
 
 
   $definitions.search = def({
     __name__: "search",
+    template: '{{iconTemplate}}<input class="{{inputClass}}">',
     $defaults: {
       tagClass: "uk-search",
       placeholder: "Search...",
       iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>",
       inputClass: "uk-search-field",
-      inputType: "search"
+      type: "search"
     },
     getFormControl: function () {
       /**
@@ -7307,9 +6725,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @returns {Element}
        */
       return this.el.lastChild;
-    },
-    template: '{{iconTemplate}}<input class="{{inputClass}}" type="{{inputType}}" placeholder="{{placeholder}}">'
-  }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
+    }
+  }, $definitions.input);
 
 
   $definitions.dropdown = def({
@@ -7415,7 +6832,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param data The object to assign an id to.
        * @returns {*|string} The id of the object.
        */
-      return data.id || (data.id = uidForComponent("data"));
+      return data.id || (data.id = uid("data"));
     },
     getItem: function (id) {
       /**
@@ -7719,7 +7136,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "stack",
     $defaults: {
       filter: returnTrue,
-      droppable: returnTrue
+      droppable: returnTrue,
+      itemTag: 'DIV',
+      itemTagClass: ''
     },
     $setters: {
       filter: function (value) {
@@ -7751,33 +7170,41 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     render: function () {
       // Do nothing, overwrites render function.
     },
-    _containerHTML: function () {
+    containerElement: function () {
       return this.el;
     },
-    _itemHTML: function () {
-      return createElement("DIV");
+    itemElement: function (item) {
+      return createElement(this.itemTagString(item), {class: this.itemClass(item)});
     },
-    _innerHTML: function () {
-      return {id: uidForComponent("item")};
+    itemClass: function (item) {
+      return classString(isDefined(item.$css) ? item.$css : this.config.itemTagClass);
     },
-    _createItem: function (obj) {
-      var item = this._itemHTML(obj);
-      setAttributes(item, {'data-id': obj.id});
-      this._innerHTML(item, obj);
-      this._itemNodes[obj.id] = item;
-      return item;
+    itemTagString: function () {
+      return this.config.itemTag;
+    },
+    buildItemElement: function () {
+    },
+    attachItemEvents: function () {
+    },
+    createItemElement: function (item) {
+      var el = this.itemElement(item);
+      setAttributes(el, {'data-id': item.id});
+      this.buildItemElement(el, item);
+      this.attachItemEvents(el, item);
+      this._itemNodes[item.id] = el;
+      return el;
     },
     _onAdded: function (obj) {
       var self = this;
       if (obj.$tailNode)
-        self._containerHTML().insertBefore(self._createItem(obj), self.getItemNode(obj.$tailNode.id));
+        self.containerElement().insertBefore(self.createItemElement(obj), self.getItemNode(obj.$tailNode.id));
       else
-        self._containerHTML().appendChild(self._createItem(obj));
+        self.containerElement().appendChild(self.createItemElement(obj));
 
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
         var parentNode = self.getItemNode(parent.id);
-        parentNode.parentNode.replaceChild(self._createItem(parent), parentNode);
+        parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
       }
 
       self.dispatch("onDOMChanged", [obj, "added"]);
@@ -7788,9 +7215,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var parent = self.getItem(obj.$parent);
         parent.$children.remove(obj);
         var parentNode = self.getItemNode(parent.id);
-        parentNode.parentNode.replaceChild(self._createItem(parent), parentNode);
+        parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
       }
-      self._containerHTML().removeChild(self.getItemNode(obj.id));
+      self.containerElement().removeChild(self.getItemNode(obj.id));
       delete self._itemNodes[obj.id];
 
       self.dispatch("onDOMChanged", [obj, "deleted"]);
@@ -7801,9 +7228,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self._itemNodes = {};
       self.each(function (node) {
         var $this = this;
-        $this._itemNodes[node.id] = $this._createItem(node);
+        $this._itemNodes[node.id] = $this.createItemElement(node);
         if ($this.filter(node))
-          $this._containerHTML().appendChild($this._itemNodes[node.id]);
+          $this.containerElement().appendChild($this._itemNodes[node.id]);
       }, self);
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -7812,7 +7239,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var $this = this;
       
       forInLoop(function (key, node) {
-        if (node.parentNode) $this._containerHTML().removeChild(node);
+        if (node.parentNode) $this.containerElement().removeChild(node);
       }, $this._itemNodes);
       
       $this.dispatch("onDOMChanged", [null, "clear"]);
@@ -7847,23 +7274,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.$batch = name;
       this.each(function (item) {
         if (name.indexOf(item.batch) != -1)
-          removeClass(this._itemNodes[item.id], "uk-hidden");
+          removeClass(this._itemNodes[item.id], HIDDEN_CLASS);
         else
-          addClass(this._itemNodes[item.id], "uk-hidden");
+          addClass(this._itemNodes[item.id], HIDDEN_CLASS);
       }, this);
     }
   }, exports.LinkedList, $definitions.element);
-
-  //
-  (function ($setters) {
-    $setters.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
-    $setters.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
-
-    $setters._meta = extend({
-      data: 'An array of component objects.'
-    }, $setters._meta || {});
-  }($definitions.stack.prototype.$setters));
-  //
 
 
   $definitions.list = def({
@@ -7874,7 +7290,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false,
       closeButton: false,
       listStyle: "list",
-      itemClass: "",
       dropdownEvent: "onItemClick"
     },
     $setters: extend(
@@ -7905,6 +7320,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       {
         accordion: function (value) {
           if (value) setAttributes(this.el, {"data-uk-nav": ""});
+          else this.el.removeAttribute("data-uk-nav");
         },
         tab: function (value) {
           if (value) {
@@ -8077,7 +7493,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (isString(item))
         item = this.getItem(item);
       item.$selected = true;
-      addClass(this.getItemNode(item.id), "uk-active");
+      addClass(this.getItemNode(item.id), ACTIVE_CLASS);
     },
     deselectAll: function () {
       /**
@@ -8087,7 +7503,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var node = this.getItemNode(item.id);
         item.$selected = false;
         assert(node, "Node with id " + item.id + " does not exist");
-        removeClass(node, "uk-active");
+        removeClass(node, ACTIVE_CLASS);
       }, this);
     },
     closeItem: function (item) {
@@ -8117,97 +7533,92 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       self.dispatch("onItemClosed", [item]);
     },
-    _itemHTML: function (itemConfig) {
-      var itemClass = itemConfig.$css || this.config.itemClass;
-
-      var li = createElement(this.config.itemTag,
-        {
-          class: classString(itemClass)
-          + (!itemConfig.view && itemConfig.header ? "uk-nav-header" : "")
-          + (!itemConfig.view && itemConfig.divider ? "uk-nav-divider" : "")
-        });
-
-      if (!itemConfig.header && !itemConfig.divider) {
-        this._attachNodeEvents(li, itemConfig);
+    itemClass: function (item) {
+      var cls = classString(isDefined(item.$css) ? item.$css : this.config.itemTagClass);
+      if (!item.view) {
+        if (item.header) cls += " uk-nav-header";
+        if (item.divider) cls += " uk-nav-divider";
       }
-      return li;
+      return cls;
     },
-    _innerHTML: function (parentNode, config) {
-      if (config.view) {
-        var ui = exports.new(config);
-        this.$components.push(ui);
-        parentNode.appendChild(ui.el);
+    buildItemElement: function (el, item) {
+      var self = this;
+      if (item.view) {
+        var ui = exports.new(item);
+        self.$components.push(ui);
+        el.appendChild(ui.el);
       }
-      else if (config.header) {
-        parentNode.innerHTML = config.label;
+      else if (item.header) {
+        el.innerHTML = item.label;
       }
-      else if (config.divider) {
+      else if (item.divider) {
       }
       else {
-        var link = new $definitions.link(config);
-        this.$components.push(link);
+        var link = new $definitions.link(item);
+        self.$components.push(link);
 
-        parentNode.appendChild(link.el);
+        el.appendChild(link.el);
 
-        if (config.closeButton) {
-          this._addCloseHTML(link.el, config);
+        if (self.config.closeButton && item.$close) {
+          self._close = exports.new({
+            view: "link",
+            htmlTag: "SPAN",
+            tagClass: "uk-close",
+            on: {
+              onClick: function () {
+                self.closeItem(item);
+              }
+            }
+          }, link.el);
         }
       }
       return ui;
     },
-    _addCloseHTML: function (node, item) {
-      if (item.$close) {
-        var $this = this;;
-        $this._close = UI.new({
-          view: "link",
-          htmlTag: "SPAN",
-          tagClass: "uk-close",
-          on: {
-            onClick: function () {
-              $this.closeItem(item);
-            }
-          }
-        }, node);
-      }
-    },
-    _attachNodeEvents: function (node, itemConfig) {
+    attachItemEvents: function (el, item) {
+      if (item.header || item.divider) return;
+
       var self = this;
-      addListener(node, "click", function (e) {
-        if (!exports._dragged) {
-          this.dispatch("onItemClick", [itemConfig, node, e]);
-        }
-      }, self);
+      var on = self.config.on || {};
 
-      if (self.context && itemConfig.context !== false) {
-        addListener(node, "contextmenu", function (e) {
-          this.dispatch("onItemContext", [itemConfig, node, e]);
-        }, self);
+      if (on.onItemClick) {
+        addListener(el, "click", function (e) {
+          if (!exports.$dragged) self.dispatch("onItemClick", [item, el, e]);
+        });
       }
 
-      if (self.droppable && itemConfig.$droppable !== false) {
-        node.config = itemConfig;
-        node.master = self;
-        node.$droppable = true;
+      if (on.onItemContext) {
+        addListener(el, "contextmenu", function (e) {
+          self.dispatch("onItemContext", [item, el, e]);
+        });
       }
 
-      if (self.draggable && itemConfig.$draggable !== false) {
-        setAttributes(node, {draggable: 'false'});
+      if (self.droppable && item.$droppable !== false) {
+        el.config = item;
+        el.master = self;
+        el.$droppable = true;
+      }
 
-        addListener(node, "dragstart", function (e) {
+      if (self.draggable && item.$draggable !== false) {
+        setAttributes(el, {draggable: 'false'});
+
+        addListener(el, "dragstart", function (e) {
           preventEvent(e);
         }, self);
+
+        if (UIkit.support.touch) addListener(el, "touchstart", onMouseDown, self);
+        addListener(el, "mousedown", onMouseDown, self);
 
         function onMouseDown(e) {
           if (isFunction(this.draggable) && !this.draggable(e)) {
             return;
           }
           var ev = e.touches && e.touches[0] || e;
-          var offset = node.getBoundingClientRect();
+          var offset = el.getBoundingClientRect();
           exports._selectedForDrag = {
             target: this,
-            config: itemConfig,
-            node: node,
-            originalPos: {top: node.style.top, left: node.style.left},
+            config: item,
+            node: el,
+            originalPos: {top: el.style.top, left: el.style.left},
             pos: {x: ev.clientX, y: ev.clientY},
             mouseOffset: {
               left: offset.left - ev.clientX,
@@ -8216,24 +7627,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             event: e
           };
         }
-
-        if (UIkit.support.touch) addListener(node, "touchstart", onMouseDown, self);
-        addListener(node, "mousedown", onMouseDown, self);
       }
-    }
+    },
   }, $definitions.stack);
-
-  //
-  (function ($setters) {
-    $setters.listStyle.multipleAllowed = true;
-    $setters.accordion.isBoolean = true;
-    $setters.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
-    $setters._meta = extend({
-      selectable: {isBoolean: true},
-      itemClass: {isText: true}
-    }, $setters._meta || {});
-  }($definitions.list.prototype.$setters));
-  //
 
 
   $definitions.tree = def({
@@ -8264,8 +7660,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.addListener("onItemDragEnd", self._dragEnd);
       self.addListener("onItemDrop", self._dragLeave);
     },
-    _innerHTML: function (parentNode, config) {
-      parentNode.innerHTML = this.template(config);
+    buildItemElement: function (el, item) {
+      el.innerHTML = this.template(item);
     },
     _dragStart: function (item) {
       var $this = this;
@@ -8277,15 +7673,15 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         this._showChildren(item);
     },
     _dragOver: function (item) {
-      if (this.config.droppable(item, exports._dragged.config, exports._dragged.node))
-        addClass(this.getItemNode(item.id), "uk-active");
+      if (this.config.droppable(item, exports.$dragged.config, exports.$dragged.node))
+        addClass(this.getItemNode(item.id), ACTIVE_CLASS);
     },
     _dragLeave: function (item) {
-      removeClass(this.getItemNode(item.id), "uk-active");
+      removeClass(this.getItemNode(item.id), ACTIVE_CLASS);
     },
     _showChildren: function (item) {
       item.$children.until(function (child, queue) {
-        removeClass(this.getItemNode(child.id), "uk-hidden");
+        removeClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch && !child.$closed) {
           for (var i = 0; i < child.$children.length; i++) {
@@ -8297,7 +7693,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _hideChildren: function (item) {
       item.$children.until(function (child, queue) {
-        addClass(this.getItemNode(child.id), "uk-hidden");
+        addClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch) {
           for (var i = 0; i < child.$children.length; i++) {
@@ -8367,7 +7763,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       item.$closed = false;
       var node = self.getItemNode(item.id);
-      node.parentNode.replaceChild(self._createItem(item), node);
+      node.parentNode.replaceChild(self.createItemElement(item), node);
 
       self._showChildren(item);
 
@@ -8389,7 +7785,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       item.$closed = true;
       var node = self.getItemNode(item.id);
-      node.parentNode.replaceChild(self._createItem(item), node);
+      node.parentNode.replaceChild(self.createItemElement(item), node);
 
       self._hideChildren(item);
 
@@ -8440,27 +7836,15 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, $definitions.list);
 
-  //
-  (function ($setters) {
-    $setters._meta = extend({
-      indentWidth: {isNumber: true},
-      dataTransfer: 'The data representation of an item, only for FireFox.',
-      draggable: {isBoolean: true},
-      orderAfter: 'Low level function that determines ordering of tree items.',
-      droppable: 'Function that determines if an item can be dropped upon.'
-    }, $setters._meta || {});
-  }($definitions.tree.prototype.$setters));
-  //
-
 
   $definitions.table = def({
     __name__: "table",
     $defaults: {
       tagClass: "uk-table",
       htmlTag: "TABLE",
+      itemTag: "TR",
       flex: false,
       size: "",
-      layout: "",
       listStyle: ""
     },
     __init__: function () {
@@ -8532,37 +7916,23 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
       }
     ),
-    _innerHTML: function (node, obj) {
+    buildItemElement: function (el, item) {
       var td, column;
       var self = this;
       for (var i = 0; i < self.config.columns.length; i++) {
         column = self.config.columns[i];
         td = createElement("TD", {class: column.$css ? classString(column.$css) : ""});
 
-        if (column.align)
-          td.style.textAlign = column.align;
+        if (column.align) td.style.textAlign = column.align;
 
-        template(column.template, obj, self, td);
-        node.appendChild(td);
+        template(column.template, item, self, td);
+        el.appendChild(td);
       }
-      self._attachNodeEvents(node, obj);
     },
-    _itemHTML: function () {
-      return createElement("TR");
-    },
-    _containerHTML: function () {
+    containerElement: function () {
       return this._body;
     }
   }, $definitions.list);
-
-  //
-  (function ($setters) {
-    $setters.tableStyle.multipleAllowed = true;
-    $setters.columns.description = "A list of schema objects containing data display info. Example: [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
-    $setters.header.description = "A list of header objects containing the header and alignment info. Example: [{header: 'Awesome', align: 'center'}]";
-    $setters.footer.description = "A list of footer objects containing the footer title.";
-  }($definitions.table.prototype.$setters));
-  //
 
 
   $definitions.select = def({
@@ -8570,9 +7940,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $defaults: {
       tagClass: "",
       htmlTag: "SELECT",
+      itemTag: "OPTION",
       flex: false,
       size: "",
-      layout: "",
       listStyle: ""
     },
     select: function (item) {
@@ -8596,18 +7966,16 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       return this.setActive('value', value);
     },
-    template: function (itemConfig) {
-      return itemConfig.label;
+    template: function (item) {
+      return item.label;
     },
-    _innerHTML: function (parentNode, config) {
-      parentNode.innerHTML = this.template(config);
+    buildItemElement: function (el, item) {
+      el.innerHTML = this.template(item);
     },
-    _itemHTML: function (itemConfig) {
-      var attrs = {value: itemConfig.value};
-      if (itemConfig.selected) {
-        attrs.selected = itemConfig.selected;
-      }
-      return createElement("OPTION", attrs);
+    itemElement: function (item) {
+      var attrs = {value: item.value, class: this.itemClass(item)};
+      if (item.selected) attrs.selected = item.selected;
+      return createElement(this.itemTagString(), attrs);
     }
   }, exports.ChangeEvent, exports.FormControl, $definitions.list);
 
@@ -8708,20 +8076,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }, $definitions.element);
 
-  //
-  // Define setter options for auto-documentation
-  (function ($setters) {
-    $setters.formStyle.multipleAllowed = true;
-    $setters.fieldset.description = 'Fieldset object';
-    $setters.fieldsets.description = 'An array of Fieldset objects';
-  }($definitions.form.prototype.$setters));
-  //
-
 
   $definitions.fieldset = def({
     __name__: "fieldset",
     $defaults: {
-      htmlTag: "FIELDSET"
+      htmlTag: "FIELDSET",
+      itemTag: "DIV",
+      itemTagClass: "uk-form-row",
     },
     $setters: classSetters({
       layout: prefixClassOptions({
@@ -8730,38 +8091,29 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         "": ""
       }, 'uk-form-', true)
     }),
-    _itemHTML: function (itemConfig) {
-      if (itemConfig.title) {
-        return createElement("LEGEND",
-          {class: itemConfig.$itemCSS ? classString(itemConfig.$itemCSS) : ""});
-      }
-      else {
-        return createElement("DIV",
-          {class: itemConfig.$itemCSS ? classString(itemConfig.$itemCSS) : "uk-form-row"});
-      }
+    itemTagString: function (item) {
+      return item.title ? "LEGEND" : this.config.itemTag;
     },
-    _innerHTML: function (parentNode, config) {
-      if (config.title) {
-        parentNode.innerHTML = config.label;
+    buildItemElement: function (el, item) {
+      if (item.title) {
+        el.innerHTML = item.label;
       }
       else {
-        var ui = exports.new(config);
+        var ui = exports.new(item);
         this.$components.push(ui);
 
-        if (config.formLabel) {
-          ui.label = createElement("LABEL", {class: "uk-form-label", for: config.id});
-          ui.label.innerHTML = config.formLabel;
-          if (config.inline) addClass(ui.label, "uk-display-inline");
-          parentNode.appendChild(ui.label);
+        if (item.formLabel) {
+          ui.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
+          ui.label.innerHTML = item.formLabel;
+          if (item.inline) addClass(ui.label, "uk-display-inline");
+          el.appendChild(ui.label);
         }
-
-        var controlContainer = parentNode;
-        if (!config.inline) {
+        var controlContainer = el;
+        if (!item.inline) {
           controlContainer = createElement("DIV", {class: "uk-form-controls"});
-          addClass(controlContainer, config.$css);
-          parentNode.appendChild(controlContainer);
+          addClass(controlContainer, item.$css);
+          el.appendChild(controlContainer);
         }
-
         controlContainer.appendChild(ui.el);
       }
     },
@@ -8844,6 +8196,160 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   return exports;
 })({}, window, window.UIkit);
 
-//
-UI.debug = true;
-//
+(function (exports) {
+  var $definitions = exports.definitions;
+  var extend = exports.extend;
+
+  (function ($setters) {
+    $setters.order.multipleAllowed = true;
+    $setters.screen.multipleAllowed = true;
+    $setters.margin.multipleAllowed = true;
+    $setters.position.multipleAllowed = true;
+    $setters.hidden.multipleAllowed = true;
+  }(exports.CommonCSS.$setters));
+
+
+  (function ($setters) {
+    $setters.disabled.isBoolean = true;
+    $setters.tooltip.isText = true;
+    $setters.css.isText = true;
+    $setters.dropdown.description = "Configuration object to show in a context menu.";
+    $setters.uploader.isBoolean = true;
+
+    $setters._meta = extend({
+      dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
+      dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
+      dropdownMarginX: "The left margin of the dropdown from anchor component.",
+      dropdownMarginY: "The top margin of the dropdown from anchor component.",
+      template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
+      style: "A object containing properties to feed into the style attribute of the element"
+    }, $setters._meta || {});
+  }($definitions.element.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.cells.description = "A list of configuration objects.";
+  }($definitions.flexgrid.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.help.isText = true;
+    $setters.formClass.options = {"": "", "danger": "danger", "success": "success"};
+    $setters.type.description = "Set the type of the HTML input element.";
+    $setters.value.description = "Initial value of the HTML input element.";
+  }(exports.FormControl.$setters));
+
+
+  (function ($setters) {
+    $setters.light.isBoolean = true;
+    $setters.bodyWidth.isText = true;
+    $setters.bodyHeight.isText = true;
+    $setters.closeButton.isBoolean = true;
+    $setters.body.description = "Configuration object to put in the modal body.";
+    $setters.header.description = "Configuration object to put in the modal header.";
+    $setters.footer.description = "Configuration object to put in the modal footer.";
+    $setters.caption.isText = true;
+    $setters._meta = extend({
+      bgClose: {isBoolean: true},
+      keyboard: {isBoolean: true},
+      minScrollHeight: {isNumber: true},
+      closeModals: {isBoolean: true},
+      center: {isBoolean: true},
+      dialogClass: {options: ['', 'uk-modal-dialog-blank', 'uk-modal-dialog-full']}
+    }, $setters._meta || {});
+  }($definitions.modal.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters._meta = extend({
+      iconClass: {isText: true},
+      icon: {isText: true}
+    }, $setters._meta || {});
+  }($definitions.button.prototype.$setters));
+
+
+  (function ($) {
+    $._meta = extend({
+      iconClass: {isText: true}
+    }, $._meta || {});
+  }($definitions.icon.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.type.multipleAllowed = true;
+    $setters.type.description = "Set the style type of the progress element.";
+  }($definitions.progress.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.autocomplete.isBoolean = true;
+    $setters.autocapitalize.isBoolean = true;
+    $setters.autocorrect.isBoolean = true;
+    $setters.placeholder.isText = true;
+  }(exports.InputControl.$setters));
+
+  
+  (function ($setters) {
+    $setters.checked.isBoolean = true;
+  }($definitions.input.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters._meta = extend({
+      caseSensitive: {isBoolean: true},
+      minLength: {isNumber: true},
+      sources: 'An array of sources for the autocomplete.',
+      autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
+    }, $setters._meta || {});
+  }($definitions.input.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
+    $setters.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
+
+    $setters._meta = extend({
+      data: 'An array of component objects.'
+    }, $setters._meta || {});
+  }($definitions.stack.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.listStyle.multipleAllowed = true;
+    $setters.accordion.isBoolean = true;
+    $setters.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+    $setters._meta = extend({
+      selectable: {isBoolean: true},
+      itemClass: {isText: true}
+    }, $setters._meta || {});
+  }($definitions.list.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters._meta = extend({
+      indentWidth: {isNumber: true},
+      dataTransfer: 'The data representation of an item, only for FireFox.',
+      draggable: {isBoolean: true},
+      orderAfter: 'Low level function that determines ordering of tree items.',
+      droppable: 'Function that determines if an item can be dropped upon.'
+    }, $setters._meta || {});
+  }($definitions.tree.prototype.$setters));
+
+  
+  (function ($setters) {
+    $setters.tableStyle.multipleAllowed = true;
+    $setters.columns.description = "A list of schema objects containing data display info. Example: [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
+    $setters.header.description = "A list of header objects containing the header and alignment info. Example: [{header: 'Awesome', align: 'center'}]";
+    $setters.footer.description = "A list of footer objects containing the footer title.";
+  }($definitions.table.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters.formStyle.multipleAllowed = true;
+    $setters.fieldset.description = 'Fieldset object';
+    $setters.fieldsets.description = 'An array of Fieldset objects';
+  }($definitions.form.prototype.$setters));
+
+  
+  exports.debug = true;
+}(UI));

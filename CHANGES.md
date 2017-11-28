@@ -37,6 +37,8 @@ Version 0.20.0
 - `firstResponder` renamed to `responder`
 - Add `Responder` class to handle responding to HTML events
 - `form` `layout` setter merged with `formStyle`
+- Changes to api `onFilesAdded`
+- Multiple file uploads added as option to `uploader` attribute
 
 Version 0.10.0
 -----------
