@@ -39,6 +39,7 @@ Version 0.20.0
 - `form` `layout` setter merged with `formStyle`
 - Changes to api `onFilesAdded`
 - Multiple file uploads added as option to `uploader` attribute
+- `position` method signature changed to `position(top, left)`
 
 Version 0.10.0
 -----------

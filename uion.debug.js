@@ -5490,25 +5490,25 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       marginY = marginY || 0;
 
       var variants = {
-        "bottom-left": topleft(origin.height + marginY, marginX),
-        "bottom-right": topleft(origin.height + marginY, origin.width - width + marginX),
-        "bottom-center": topleft(origin.height + marginY, origin.width / 2 - width / 2 + marginX),
-        "top-left": topleft(-marginY - height, 0),
-        "top-right": topleft(-marginY - height, origin.width - width),
-        "top-center": topleft(-marginY - height, origin.width / 2 - width / 2),
-        "left-top": topleft(marginY, -marginX - width),
-        "left-bottom": topleft(origin.height - height, -marginX - width),
-        "left-center": topleft(origin.height / 2 - height / 2, -marginX - width),
-        "right-top": topleft(marginY, origin.width + marginX),
-        "right-bottom": topleft(origin.height - height, origin.width + marginX),
-        "right-center": topleft(origin.height / 2 - height / 2, origin.width + marginX)
+        "bottom-left": pos(origin.height + marginY, marginX),
+        "bottom-right": pos(origin.height + marginY, origin.width - width + marginX),
+        "bottom-center": pos(origin.height + marginY, origin.width / 2 - width / 2 + marginX),
+        "top-left": pos(-marginY - height, 0),
+        "top-right": pos(-marginY - height, origin.width - width),
+        "top-center": pos(-marginY - height, origin.width / 2 - width / 2),
+        "left-top": pos(marginY, -marginX - width),
+        "left-bottom": pos(origin.height - height, -marginX - width),
+        "left-center": pos(origin.height / 2 - height / 2, -marginX - width),
+        "right-top": pos(marginY, origin.width + marginX),
+        "right-bottom": pos(origin.height - height, origin.width + marginX),
+        "right-center": pos(origin.height / 2 - height / 2, origin.width + marginX)
       };
 
       this.position(
         origin.top - bodyPos.top + variants[position].top,
         origin.left + variants[position].left);
 
-      function topleft(top, left) {
+      function pos(top, left) {
         return {top: top, left: left};
       }
     },
@@ -5519,16 +5519,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       return this.el.getBoundingClientRect();
     },
-    position: function (pos) {
+    position: function (top, left) {
       /**
        * Sets the position of the element.
-       * @param pos Position information object.
-       * @example position({top: 0, left: 0})
+       * @param top Top position in pixels.
+       * @param left Left position in pixels.
+       * @example position(10, 10)
        */
-      var htmlStyle = this.el.style;
-      htmlStyle.top = (pos.top || 0) + "px";
-      htmlStyle.left = (pos.left || 0) + "px";
-      htmlStyle.position = "absolute";
+      var style = this.el.style;
+      style.top = (top || 0) + "px";
+      style.left = (left || 0) + "px";
+      style.position = "absolute";
     },
 
     moveWithinBoundary: function (boundary, pivot, padding, offset) {
@@ -6661,6 +6662,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "autocomplete",
     template: '<input style="width:100%">',
     $defaults: {
+      htmlTag: "DIV",
       tagClass: "uk-autocomplete",
       placeholder: "",
       type: "text",
@@ -6713,6 +6715,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "search",
     template: '{{iconTemplate}}<input class="{{inputClass}}">',
     $defaults: {
+      htmlTag: "DIV",
       tagClass: "uk-search",
       placeholder: "Search...",
       iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>",
@@ -8111,7 +8114,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var controlContainer = el;
         if (!item.inline) {
           controlContainer = createElement("DIV", {class: "uk-form-controls"});
-          addClass(controlContainer, item.$css);
           el.appendChild(controlContainer);
         }
         controlContainer.appendChild(ui.el);
