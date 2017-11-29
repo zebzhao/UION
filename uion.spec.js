@@ -133,8 +133,6 @@ describe('class system', function () {
 });
 
 describe('list', function () {
-  var master = UI.list();
-
   it('should take arguments', function () {
     var i = UI.list([1, 2, 3]);
     expect(i.length).toBe(3);
@@ -148,66 +146,37 @@ describe('list', function () {
     expect(j.each(function (v, i) {
       return this[i]
     })).toEqual([1, 2, 3]);
-    j.remap(function (v) {
-      return v * 2
-    });
     expect(j.each(function (v) {
       return v
-    })).toEqual([2, 4, 6]);
-  });
-
-  it('should insert at i', function () {
-    master.insertAt(-10, "yes");
-    expect(master.indexOf("yes")).toBe(0);
-    master.insertAt(10, "no");
-    expect(master.indexOf("no")).toBe(1);
-    master.insertAt(1, "maybe");
-    expect(master.indexOf("maybe")).toBe(1);
+    })).toEqual([1, 2, 3]);
   });
 
   it('should remove at i', function () {
-    master.remove("maybe");
-    expect(master[0]).toBe("yes");
-    expect(master[1]).toBe("no");
-    master.removeAt(1);
-    expect(master.length).toBe(1);
-    expect(master.removeAt(master.length)).toBeFalsy();
+    var list = UI.list(['maybe', 'yes', 'no']);
+    list.remove("maybe");
+    expect(list[0]).toBe("yes");
+    expect(list[1]).toBe("no");
+    list.removeAt(1);
+    expect(list.length).toBe(1);
+    expect(list.removeAt(list.length)).toBeFalsy();
   });
 
   it('should find things', function () {
-    master.push({id: "a"});
-    master.push({id: "b"});
-    master.push({id: "a"});
-    expect(master.findWhere('id', 'a').length).toEqual(2);
-    expect(master.indexWhere('id', 'a')).toEqual([1, 3]);
-    master.removeWhere('id', 'a');
-    expect(master.findWhere('id', 'a').length).toEqual(0);
-  });
-
-  it('should remove one thing', function () {
-    var value = {id: "c"};
-    expect(master.contains(value)).toBeFalsy();
-    master.push(value);
-    expect(master.contains(value)).toBeTruthy();
-    master.removeOne('id', 'c');
-    expect(function () {
-      master.removeOne('id', 'c')
-    }).toThrow();
-  });
-
-  it('should replace one thing', function () {
-    var value = {id: "d"};
-    var newValue = {id: "r"};
-    master.push(value);
-    master.replace(value, newValue);
-    expect(master.contains(newValue)).toBeTruthy();
+    var list = UI.list();
+    list.push({id: "a"});
+    list.push({id: "b"});
+    list.push({id: "a"});
+    expect(list.findWhere('id', 'a').length).toEqual(2);
+    list.removeWhere('id', 'a');
+    expect(list.findWhere('id', 'a').length).toEqual(1);
   });
 
   it('should find one thing', function () {
-    master.push({id: "a"});
-    master.push({id: "a"});
-    expect(master.findOne('id', 'a').id).toBe('a');
-    master.removeWhere('id', 'a');
+    var list = UI.list();
+    list.push({id: "a"});
+    list.push({id: "a"});
+    expect(list.findOne('id', 'a').id).toBe('a');
+    list.removeWhere('id', 'a');
   });
 
   it('should iterate until', function () {

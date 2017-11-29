@@ -295,12 +295,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     compiled.$setters = $setters;
 
     function Constructor(config) {
-      defaults(config, this.$defaults);
-      defaults(this, config);
-      this.template = config.template || this.template;
-      if (this.__init__) this.__init__(config);
-      if (this.__after__) this.__after__(config);
-      if (this.dispatch) this.dispatch("onInitialized");
+      var self = this;
+      defaults(config, self.$defaults);
+      defaults(self, config);
+      self.template = config.template || self.template;
+      if (self.__init__) self.__init__(config);
+      if (self.__after__) self.__after__(config);
+      if (self.dispatch) self.dispatch("onInitialized");
     }
     Constructor.prototype = compiled;
 
@@ -493,73 +494,29 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Removes a specific element.
        * @param value Element to remove.
-       * @returns {boolean} True if removed, false if index does not exist.
+       * @returns {number} Index of the removed element.
        */
       var index = (thisArg || this).indexOf(value);
       if (index >= 0) {
         this.splice(index, 1);
         return index;
       }
-      return false;
-    },
-    contains: function (value) {
-      /**
-       * Checks if a specific element exists.
-       * @param value Element to check for.
-       * @returns {boolean}
-       */
-      return this.indexOf(value) != -1;
-    },
-    replace: function (oldValue, newValue) {
-      /**
-       * Replace an existing element in the list with another element.
-       * @param oldValue The element to replace.
-       * @param newValue The element to replace it with.
-       */
-      this[this.indexOf(oldValue)] = newValue;
-    },
-    insertAt: function (index, item) {
-      /**
-       * Inserts an element at a specific index, pushing all other elements forward.
-       * @param index The index to insert to.
-       * @param item The element to insert.
-       */
-      index = index || 0;
-      this.splice(index, 0, item);
+      return -1;
     },
     removeWhere: function (key, value) {
-      var i = 0;
-      var results = [];
-      while (i < this.length) {
+      /**
+       * Removes a specific element that matches a key, value combination.
+       * @param key Key to match.
+       * @param value Value to match.
+       * @returns {number} Index of the removed element.
+       */
+      for (var i=0; i < this.length; i++) {
         if (value == this[i][key]) {
-          results.push(this.splice(i, 1));
-        }
-        else {
-          i += 1;
+          this.splice(i, 1);
+          return i;
         }
       }
-      return results;
-    },
-    removeOne: function (key, value) {
-      var i = 0;
-      while (i < this.length) {
-        if (value == this[i][key]) {
-          return this.splice(i, 1);
-        }
-        else {
-          i += 1;
-        }
-      }
-      fail(interpolate("{{key}}: {{value}} cannot be removed in {{array}}",
-        {key: key, value: value, array: this}));
-    },
-    indexWhere: function (key, value) {
-      var results = [];
-      for (var i = 0; i < this.length; i++) {
-        if (this[i][key] == value)
-          results.push(i);
-      }
-      return results;
+      return -1;
     },
     findWhere: function (key, value) {
       var results = [];
@@ -576,17 +533,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           return this[i];
       }
       if (error)
-        fail(interpolate("{{key}}: {{value}} not found in {{array}}",
+        fail(interpolate("Key, value ({{key}}, {{value}}) not found in {{array}}",
           {key: key, value: value, array: this}));
-    },
-    copy: function () {
-      return this.slice();
-    },
-    first: function () {
-      return this[0];
-    },
-    last: function () {
-      return this[this.length - 1];
     },
     until: function (operator, thisArg) {
       var copy = this.slice();
@@ -609,53 +557,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
       }
     },
-    any: function (operator, thisArg) {
-      for (var i = 0; i < this.length; i++) {
-        if (operator.call(thisArg || this, this[i], i)) {
-          return true;
-        }
-      }
-      return false;
-    },
-    all: function (operator, thisArg) {
-      for (var i = 0; i < this.length; i++) {
-        if (!operator.call(thisArg || this, this[i], i)) {
-          return false;
-        }
-      }
-      return true;
-    },
     each: function (operator, thisArg) {
       var result = [];
       for (var i = 0; i < this.length; i++) {
         result[i] = operator.call(thisArg || this, this[i], i);
       }
       return result;
-    },
-    remap: function (operator, thisArg) {
-      for (var i = 0; i < this.length; i++) {
-        this[i] = operator.call(thisArg || this, this[i]);
-      }
-    },
-    filter: function (operator, thisArg) {
-      var results = [];
-      for (var i = 0; i < this.length; i++) {
-        if (operator.call(thisArg || this, this[i])) {
-          results.push(this[i]);
-        }
-      }
-      return results;
-    },
-    insertSorted: function (item, cmp, thisArg) {
-      for (var sort, i = this.length - 1; i >= 0; i--) {
-        sort = cmp.call(thisArg || this, item, this[i]);
-        if (sort >= 0) {
-          this.insertAt(i, item);
-          return i;
-        }
-      }
-      this.push(item);
-      return i;
     }
   };
 
@@ -689,8 +596,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       false: "unselectable"
     },
     order: prefixClassOptions({
-      first: "first",
-      last: "last",
+      first: "",
+      last: "",
       "first-small": "",
       "last-small": "",
       "first-medium": "",
@@ -764,18 +671,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       screen: ["height-1-1", "width-100"],
       "": ""
     }, 'uk-'),
-    float: {
-      left: "uk-float-left",
-      right: "uk-float-right",
+    float: prefixClassOptions({
+      left: "",
+      right: "",
       clearfix: "uk-clearfix",
       "": ""
-    },
-    scroll: {
-      xy: "uk-overflow-container",
-      y: "uk-overflow-ycontainer",
-      text: "uk-scrollable-text",
+    }, 'uk-float-', true, ['clearfix']),
+    scroll: prefixClassOptions({
+      xy: "overflow-container",
+      y: "overflow-ycontainer",
+      text: "scrollable-text",
       "": ""
-    },
+    }, 'uk-'),
     hidden: {
       true: HIDDEN_CLASS,
       false: "",
@@ -806,12 +713,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }, 'uk-margin-'),
     inputWidth: prefixClassOptions({
       "": "",
-      mini: "form-width-mini",
-      small: "form-width-small",
-      medium: "form-width-medium",
-      large: "form-width-large",
-      full: "width-100"
-    }, 'uk-'),
+      mini: "",
+      small: "",
+      medium: "",
+      large: "",
+      full: "uk-width-100"
+    }, 'uk-form-width-', true, ['full']),
     screen: prefixClassOptions({
       "small": "visible-small",
       "medium": "visible-medium",
@@ -1202,13 +1109,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     return result;
   }
 
-  function prefixClassOptions(obj, prefix, mirrorKey) {
+  function prefixClassOptions(obj, prefix, mirrorKey, exclude) {
     return forIn(function (key, value) {
-      if (isArray(value)) {
+      if (isArray(exclude) && exclude.indexOf(key) != -1) {
+        return value;
+      }
+      else if (isArray(value)) {
         return forEach(function (string) {
           return !string.length ? string : prefix + string;
         }, value);
-      } else {
+      }
+      else {
         value = mirrorKey ? key : value;
         return !value.length ? value : prefix + value;
       }
@@ -1372,7 +1283,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       template(this.template, this.config, this, this.el);
     },
-    template: function (config, component, parent) {
+    template: function () {
       /**
        * The template function of the final HTML.
        * @param config The configuration JSON.
@@ -1519,10 +1430,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @returns {object} The child component
        */
       var ui = config.element ? config : exports.new(config);
-      this.$components.push(ui);
+      var self = this;
+      self.$components.push(ui);
 
-      if (!this.config.singleView)
-        this.el.appendChild(ui.el);
+      if (!self.config.singleView)
+        self.el.appendChild(ui.el);
 
       return ui;
     },
@@ -1867,8 +1779,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @dispatch onOpen, onOpened
        * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
        */
-      var config = this.config;
-      this.dispatch("onOpen", [config, this.el, args]);
+      var self = this;
+      var config = self.config;
+      self.dispatch("onOpen", [config, self.el, args]);
       UIkit.modal('#' + config.id, {
         center: config.center,
         bgclose: config.bgClose,
@@ -1876,7 +1789,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         modal: config.closeModals,
         minScrollHeight: config.minScrollHeight
       }).show();
-      this.dispatch("onOpened", [config, this.el, args]);
+      self.dispatch("onOpened", [config, self.el, args]);
     },
     close: function (args) {
       /**
@@ -2112,22 +2025,27 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
   $definitions.toggle = def({
     __name__: "toggle",
-    $setters: classSetters({
-      type: prefixClassOptions({
-        "success": "",
-        "danger": "",
-        "warning": "",
-        "": ""
-      }, 'uk-toggle-', true)
-    }),
+    $setters: extend(
+      classSetters({
+        type: prefixClassOptions({
+          "success": "",
+          "danger": "",
+          "warning": "",
+          "": ""
+        }, 'uk-toggle-', true)
+      }),
+      {
+        checked: function (value) {
+          this.getFormControl().checked = value;
+        }
+      }
+    ),
     $defaults: {
       htmlTag: "LABEL",
-      tagClass: "uk-toggle"
+      tagClass: "uk-toggle",
+      type: 'checkbox'
     },
-    template: function (config) {
-      return interpolate('<input type="checkbox"{{checked}}><div class="uk-toggle-slider"></div>',
-        {checked: config.checked ? " checked" : ""});
-    },
+    template: '<input><div class="uk-toggle-slider"></div>',
     getFormControl: function () {
       /**
        * Get the HTML input element.
@@ -2192,20 +2110,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Get the value of the HTML input element.
        * @returns {string|boolean}
        */
-      if (this.config.type == "checkbox") {
-        return this.getFormControl().checked;
-      }
-      else return this.getFormControl().value;
+      var self = this;
+      if (self.config.type == "checkbox")
+        return self.getFormControl().checked;
+      else
+        return self.getFormControl().value;
     },
     setValue: function (value) {
       /**
        * Set the value of the HTML input element.
        * @param value
        */
-      if (this.config.type == "checkbox") {
-        this.getFormControl().checked = value;
-      }
-      else this.getFormControl().value = value;
+      var self = this;
+      if (self.config.type == "checkbox")
+        self.getFormControl().checked = value;
+      else
+        self.getFormControl().value = value;
     }
   }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
@@ -2222,11 +2142,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       caseSensitive: false,
       sources: [],
       autocomplete: function (release) {
-        var searchValue = this.getValue();
-        var config = this.config;
+        var self = this;
+        var searchValue = self.getValue();
+        var config = self.config;
         if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
 
-        release(exports.ListMethods.filter.call(this._getSource(),
+        release(exports.ListMethods.filter.call(self._getSource(),
           function (item) {
             var value = config.caseSensitive ? item.value : item.value.toLowerCase();
             return value.indexOf(searchValue) != -1;
@@ -2298,7 +2219,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dropdown: function (value) {
         var self = this;
         var dropdown = createElement("DIV",
-          {class: classString(self._dropdownCSS())});
+          {class: classString(self.dropdownClass())});
 
         if (!value.listStyle) {
           value.listStyle = "dropdown";
@@ -2314,7 +2235,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __init__: function (config) {
       this._dropdown = UIkit.dropdown(this.el, {pos: config.pos, justify: config.justify, mode: config.mode});
     },
-    _dropdownCSS: function () {
+    dropdownClass: function () {
       var config = this.config;
       var result = config.dropdownCSS;
       result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
@@ -2379,7 +2300,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __init__: function () {
       this.headNode = null;
       this.tailNode = null;
-      this._nodeList = [];
+      this.$items = [];
     },
     id: function (data) {
       /**
@@ -2402,7 +2323,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets a count of all objects.
        * @returns {number}
        */
-      return this._nodeList.length;
+      return this.$items.length;
     },
     updateItem: function (item, update) {
       /**
@@ -2469,7 +2390,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       var self = this;
       assertPropertyValidator(item, 'HTMLElement', isObject);
-      assert(self._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
+      assert(self.$items.indexOf(item) == -1, "Circular reference detected with node insert!");
 
       item.id = self.id(item);
 
@@ -2497,7 +2418,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             self.headNode = item;
         }
 
-        self._nodeList.push(item);
+        self.$items.push(item);
 
         self.dispatch("onAdded", [item, node]);
 
@@ -2514,7 +2435,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       var self = this;
       assertPropertyValidator(item, 'item object ' + item, isObject);
-      assert(self._nodeList.indexOf(item) == -1, "Circular reference detected with node insert!");
+      assert(self.$items.indexOf(item) == -1, "Circular reference detected with node insert!");
 
       item.id = self.id(item);
 
@@ -2542,7 +2463,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             self.tailNode = item;
         }
 
-        self._nodeList.push(item);
+        self.$items.push(item);
 
         self.dispatch("onAdded", [item]);
 
@@ -2569,8 +2490,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         self.tailNode = item.$headNode;
       item.$tailNode = item.$headNode = null;
 
-      if (self._nodeList.indexOf(item) != -1)
-        exports.ListMethods.remove.call(self._nodeList, item);
+      if (self.$items.indexOf(item) != -1)
+        exports.ListMethods.remove.call(self.$items, item);
 
       self.dispatch("onDeleted", [item]);
       return item;
@@ -2579,10 +2500,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Remove all items.
        */
-      this.headNode = null;
-      this.tailNode = null;
-      this._nodeList = [];
-      this.dispatch("onClearAll", []);
+      var self = this;
+      self.headNode = null;
+      self.tailNode = null;
+      self.$items = [];
+      self.dispatch("onClearAll", []);
     },
     previous: function (node) {
       return node.$headNode;
@@ -2595,7 +2517,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Checks if an item exists.
        * @param item The item to check for.
        */
-      return this._nodeList.indexOf(item) != -1;
+      return this.$items.indexOf(item) != -1;
     },
     indexOf: function (item, beginNode) {
       /**
@@ -2713,14 +2635,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (config.data) self.setData(config.data);
     },
     __init__: function () {
-      this._itemNodes = {};
+      this.$elements = {};
     },
     getItemNode: function (id) {
       /**
        * Get the wrapper element that used to hold a child component with a specific id. For example, this would be an LI in a list.
        * @returns {Element}
        */
-      return this._itemNodes[id];
+      return this.$elements[id];
     },
     render: function () {
       // Do nothing, overwrites render function.
@@ -2746,7 +2668,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       setAttributes(el, {'data-id': item.id});
       this.buildItemElement(el, item);
       this.attachItemEvents(el, item);
-      this._itemNodes[item.id] = el;
+      this.$elements[item.id] = el;
       return el;
     },
     _onAdded: function (obj) {
@@ -2773,20 +2695,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
       }
       self.containerElement().removeChild(self.getItemNode(obj.id));
-      delete self._itemNodes[obj.id];
+      delete self.$elements[obj.id];
 
       self.dispatch("onDOMChanged", [obj, "deleted"]);
     },
     _onRefresh: function () {
       var self = this;
       self._onClearAll();
-      self._itemNodes = {};
+      self.$elements = {};
       self.each(function (node) {
-        var $this = this;
-        $this._itemNodes[node.id] = $this.createItemElement(node);
-        if ($this.filter(node))
-          $this.containerElement().appendChild($this._itemNodes[node.id]);
-      }, self);
+        self.$elements[node.id] = self.createItemElement(node);
+        if (self.config.filter(node))
+          self.containerElement().appendChild(self.$elements[node.id]);
+      });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
     },
@@ -2795,7 +2716,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       
       forInLoop(function (key, node) {
         if (node.parentNode) $this.containerElement().removeChild(node);
-      }, $this._itemNodes);
+      }, $this.$elements);
       
       $this.dispatch("onDOMChanged", [null, "clear"]);
     },
@@ -2829,9 +2750,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.$batch = name;
       this.each(function (item) {
         if (name.indexOf(item.batch) != -1)
-          removeClass(this._itemNodes[item.id], HIDDEN_CLASS);
+          removeClass(this.$elements[item.id], HIDDEN_CLASS);
         else
-          addClass(this._itemNodes[item.id], HIDDEN_CLASS);
+          addClass(this.$elements[item.id], HIDDEN_CLASS);
       }, this);
     }
   }, exports.LinkedList, $definitions.element);
@@ -2951,14 +2872,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     },
     _onTabClick: function (item, node, e) {
+      var self = this;
       if (item.$tabmenu) {
-        this.dispatch("onTabMenuClick", [item, node, e]);
+        self.dispatch("onTabMenuClick", [item, node, e]);
       }
-      else {
-        // Select tab item
-        if (this.contains(item)) {
-          this.dispatch("onItemSelectionChanged", [item]);
-        }
+      else if (self.contains(item)) {
+        self.dispatch("onItemSelectionChanged", [item]);
       }
     },
     _onItemSelectionChanged: function (item) {
@@ -2966,7 +2885,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.deselectAll();
       self.select(item);
 
-      // Select dropdown item
+      // Select item
       if (self.dropdownList) {
         var linked = self.dropdownList.findOne("$link", item);
         if (linked) {
@@ -2985,7 +2904,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       self.each(function (item) {
         // Show everything for checking y-offset (keep invisible to avoid blink)
-        addClass(this._itemNodes[item.id], "uk-invisible");
+        addClass(this.$elements[item.id], "uk-invisible");
         // Update batch according to $selected state
         if (!item.$tabmenu) {
           item.batch = item.$selected ? "$selected" : undefined;
@@ -3000,10 +2919,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           return false;
         }
         offset = node.offsetTop;
-      }, self._itemNodes);
+      }, self.$elements);
 
       self.each(function (item) {
-        removeClass(this._itemNodes[item.id], "uk-invisible");
+        removeClass(this.$elements[item.id], "uk-invisible");
       }, self);
 
       if (doResponsive) {
@@ -3183,7 +3102,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           };
         }
       }
-    },
+    }
   }, $definitions.stack);
 
 
@@ -3196,11 +3115,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dataTransfer: 'id',
       draggable: true,
       orderAfter: function (other) {
-        var isParent = this.$parent == other.id;
-        var isNestedDeeper = this.$depth < other.$depth;
-        var sameParent = this.$parent == other.$parent;
+        var self = this;
+        var isParent = self.$parent == other.id;
+        var isNestedDeeper = self.$depth < other.$depth;
+        var sameParent = self.$parent == other.$parent;
         return (isParent || isNestedDeeper || (sameParent && (
-        this.label > other.label && this.$branch == other.$branch || this.$branch < other.$branch)));
+        self.label > other.label && self.$branch == other.$branch || self.$branch < other.$branch)));
       },
       droppable: function (item) {
         return item.$branch;
@@ -3435,11 +3355,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         },
         header: function (value) {
           if (value) {
+            var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(this.config.columns, "name", value.name, true);
+              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name, true);
               column.header = value.header;
             }
-            var columns = this.config.columns;
+            var columns = self.config.columns;
             var headersHTML = "";
             for (var c, i = 0; i < columns.length; i++) {
               c = columns[i];
@@ -3450,17 +3371,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
                 })
                 : "<th>" + c.header + "</th>";
             }
-            this._header.innerHTML = "<tr>" + headersHTML + "</tr>";
+            self._header.innerHTML = "<tr>" + headersHTML + "</tr>";
           }
         },
         footer: function (value) {
           if (value) {
+            var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(this.config.columns, "name", value.name);
+              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name);
               column.footer = value.footer;
             }
-            var footers = pluck(this.config.columns, "footer");
-            this._footer.innerHTML = "<tr><td>" + footers.join("</td><td>") + "</td></tr>";
+            var footers = pluck(self.config.columns, "footer");
+            self._footer.innerHTML = "<tr><td>" + footers.join("</td><td>") + "</td></tr>";
           }
         },
         caption: function (value) {
@@ -3505,10 +3427,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Selects an item in the select component.
        * @param item Object to select.
        */
+      var self = this;
       if (isString(item))
-        item = this.getItem(item);
+        item = self.getItem(item);
       item.$selected = true;
-      this.getFormControl().selectedIndex = this.indexOf(item);
+      self.getFormControl().selectedIndex = self.indexOf(item);
     },
     deselectAll: function () {
       // Do nothing, invalid for select component.
@@ -3528,9 +3451,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       el.innerHTML = this.template(item);
     },
     itemElement: function (item) {
-      var attrs = {value: item.value, class: this.itemClass(item)};
-      if (item.selected) attrs.selected = item.selected;
-      return createElement(this.itemTagString(), attrs);
+      var attributes = {value: item.value, class: this.itemClass(item)};
+      if (item.selected) attributes.selected = item.selected;
+      return createElement(this.itemTagString(), attributes);
     }
   }, exports.ChangeEvent, exports.FormControl, $definitions.list);
 
@@ -3607,8 +3530,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @returns {object} Object of key values of the form.
        */
       var result = {};
-      this.$fieldsets.each(function (fieldset) {
-        UI.extend(result, fieldset.getValues());
+      this.$fieldsets.each(function (fs) {
+        UI.extend(result, fs.getValues());
       });
       return result;
     },
@@ -3617,8 +3540,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
        * @param values Object of names and values.
        */
-      this.$fieldsets.each(function (fieldset) {
-        fieldset.setValues(values);
+      this.$fieldsets.each(function (fs) {
+        fs.setValues(values);
       });
     },
     getFieldset: function (index) {
@@ -3637,7 +3560,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $defaults: {
       htmlTag: "FIELDSET",
       itemTag: "DIV",
-      itemTagClass: "uk-form-row",
+      itemTagClass: "uk-form-row"
     },
     $setters: classSetters({
       layout: prefixClassOptions({
@@ -3708,7 +3631,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       var results = {};
 
-      var unprocessed = this.$components.copy();
+      var unprocessed = this.$components.slice();
 
       // Extract all children with `name` attributes, including nested flexgrid children.
       var ui;
@@ -3730,7 +3653,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param values Object of names and values.
        */
       config = config || {};
-      var unprocessed = this.$components.copy();
+      var unprocessed = this.$components.slice();
 
       var ui;
       while (unprocessed.length > 0) {

@@ -15,7 +15,6 @@ gulp.task('build', function () {
     .pipe(concat('uion.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest('.'));
-
 });
 
 gulp.task('build-debug', function () {
