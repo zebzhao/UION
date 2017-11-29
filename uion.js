@@ -1815,7 +1815,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false
     },
     $setters: classSetters({
-      type: prefixClassOptions({
+      color: prefixClassOptions({
         primary: "",
         success: "",
         danger: "",
@@ -1884,7 +1884,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false
     },
     $setters: classSetters({
-      type: {
+      labelStyle: {
         form: "uk-form-label",
         "": ""
       }
@@ -1935,7 +1935,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         small: "",
         "": ""
       }, 'uk-progress-', true),
-      type: prefixClassOptions({
+      color: prefixClassOptions({
         danger: "",
         warning: "",
         success: "",
@@ -2027,7 +2027,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "toggle",
     $setters: extend(
       classSetters({
-        type: prefixClassOptions({
+        color: prefixClassOptions({
           "success": "",
           "danger": "",
           "warning": "",

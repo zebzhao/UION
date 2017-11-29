@@ -78,8 +78,8 @@
 
 
   (function ($setters) {
-    $setters.type.multipleAllowed = true;
-    $setters.type.description = "Set the style type of the progress element.";
+    $setters.color.multipleAllowed = true;
+    $setters.color.description = "Set the style type of the progress element.";
   }($definitions.progress.prototype.$setters));
 
 

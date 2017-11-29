@@ -5731,7 +5731,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       template(this.template, this.config, this, this.el);
     },
-    template: function (config, component, parent) {
+    template: function () {
       /**
        * The template function of the final HTML.
        * @param config The configuration JSON.
@@ -6263,7 +6263,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false
     },
     $setters: classSetters({
-      type: prefixClassOptions({
+      color: prefixClassOptions({
         primary: "",
         success: "",
         danger: "",
@@ -6332,7 +6332,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false
     },
     $setters: classSetters({
-      type: {
+      labelStyle: {
         form: "uk-form-label",
         "": ""
       }
@@ -6383,7 +6383,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         small: "",
         "": ""
       }, 'uk-progress-', true),
-      type: prefixClassOptions({
+      color: prefixClassOptions({
         danger: "",
         warning: "",
         success: "",
@@ -6475,7 +6475,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "toggle",
     $setters: extend(
       classSetters({
-        type: prefixClassOptions({
+        color: prefixClassOptions({
           "success": "",
           "danger": "",
           "warning": "",
@@ -6558,20 +6558,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Get the value of the HTML input element.
        * @returns {string|boolean}
        */
-      if (this.config.type == "checkbox") {
-        return this.getFormControl().checked;
-      }
-      else return this.getFormControl().value;
+      var self = this;
+      if (self.config.type == "checkbox")
+        return self.getFormControl().checked;
+      else
+        return self.getFormControl().value;
     },
     setValue: function (value) {
       /**
        * Set the value of the HTML input element.
        * @param value
        */
-      if (this.config.type == "checkbox") {
-        this.getFormControl().checked = value;
-      }
-      else this.getFormControl().value = value;
+      var self = this;
+      if (self.config.type == "checkbox")
+        self.getFormControl().checked = value;
+      else
+        self.getFormControl().value = value;
     }
   }, exports.InputControl, exports.ChangeEvent, exports.FormControl, $definitions.element);
 
@@ -6588,11 +6590,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       caseSensitive: false,
       sources: [],
       autocomplete: function (release) {
-        var searchValue = this.getValue();
-        var config = this.config;
+        var self = this;
+        var searchValue = self.getValue();
+        var config = self.config;
         if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
 
-        release(exports.ListMethods.filter.call(this._getSource(),
+        release(exports.ListMethods.filter.call(self._getSource(),
           function (item) {
             var value = config.caseSensitive ? item.value : item.value.toLowerCase();
             return value.indexOf(searchValue) != -1;
@@ -6664,7 +6667,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dropdown: function (value) {
         var self = this;
         var dropdown = createElement("DIV",
-          {class: classString(self._dropdownCSS())});
+          {class: classString(self.dropdownClass())});
 
         if (!value.listStyle) {
           value.listStyle = "dropdown";
@@ -6680,7 +6683,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __init__: function (config) {
       this._dropdown = UIkit.dropdown(this.el, {pos: config.pos, justify: config.justify, mode: config.mode});
     },
-    _dropdownCSS: function () {
+    dropdownClass: function () {
       var config = this.config;
       var result = config.dropdownCSS;
       result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
@@ -7080,14 +7083,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (config.data) self.setData(config.data);
     },
     __init__: function () {
-      this._itemNodes = {};
+      this.$elements = {};
     },
     getItemNode: function (id) {
       /**
        * Get the wrapper element that used to hold a child component with a specific id. For example, this would be an LI in a list.
        * @returns {Element}
        */
-      return this._itemNodes[id];
+      return this.$elements[id];
     },
     render: function () {
       // Do nothing, overwrites render function.
@@ -7113,7 +7116,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       setAttributes(el, {'data-id': item.id});
       this.buildItemElement(el, item);
       this.attachItemEvents(el, item);
-      this._itemNodes[item.id] = el;
+      this.$elements[item.id] = el;
       return el;
     },
     _onAdded: function (obj) {
@@ -7140,18 +7143,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
       }
       self.containerElement().removeChild(self.getItemNode(obj.id));
-      delete self._itemNodes[obj.id];
+      delete self.$elements[obj.id];
 
       self.dispatch("onDOMChanged", [obj, "deleted"]);
     },
     _onRefresh: function () {
       var self = this;
       self._onClearAll();
-      self._itemNodes = {};
+      self.$elements = {};
       self.each(function (node) {
-        self._itemNodes[node.id] = self.createItemElement(node);
+        self.$elements[node.id] = self.createItemElement(node);
         if (self.config.filter(node))
-          self.containerElement().appendChild(self._itemNodes[node.id]);
+          self.containerElement().appendChild(self.$elements[node.id]);
       });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -7161,7 +7164,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       
       forInLoop(function (key, node) {
         if (node.parentNode) $this.containerElement().removeChild(node);
-      }, $this._itemNodes);
+      }, $this.$elements);
       
       $this.dispatch("onDOMChanged", [null, "clear"]);
     },
@@ -7195,9 +7198,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.$batch = name;
       this.each(function (item) {
         if (name.indexOf(item.batch) != -1)
-          removeClass(this._itemNodes[item.id], HIDDEN_CLASS);
+          removeClass(this.$elements[item.id], HIDDEN_CLASS);
         else
-          addClass(this._itemNodes[item.id], HIDDEN_CLASS);
+          addClass(this.$elements[item.id], HIDDEN_CLASS);
       }, this);
     }
   }, exports.LinkedList, $definitions.element);
@@ -7317,14 +7320,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     },
     _onTabClick: function (item, node, e) {
+      var self = this;
       if (item.$tabmenu) {
-        this.dispatch("onTabMenuClick", [item, node, e]);
+        self.dispatch("onTabMenuClick", [item, node, e]);
       }
-      else {
-        // Select tab item
-        if (this.contains(item)) {
-          this.dispatch("onItemSelectionChanged", [item]);
-        }
+      else if (self.contains(item)) {
+        self.dispatch("onItemSelectionChanged", [item]);
       }
     },
     _onItemSelectionChanged: function (item) {
@@ -7332,7 +7333,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.deselectAll();
       self.select(item);
 
-      // Select dropdown item
+      // Select item
       if (self.dropdownList) {
         var linked = self.dropdownList.findOne("$link", item);
         if (linked) {
@@ -7351,7 +7352,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       self.each(function (item) {
         // Show everything for checking y-offset (keep invisible to avoid blink)
-        addClass(this._itemNodes[item.id], "uk-invisible");
+        addClass(this.$elements[item.id], "uk-invisible");
         // Update batch according to $selected state
         if (!item.$tabmenu) {
           item.batch = item.$selected ? "$selected" : undefined;
@@ -7366,10 +7367,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           return false;
         }
         offset = node.offsetTop;
-      }, self._itemNodes);
+      }, self.$elements);
 
       self.each(function (item) {
-        removeClass(this._itemNodes[item.id], "uk-invisible");
+        removeClass(this.$elements[item.id], "uk-invisible");
       }, self);
 
       if (doResponsive) {
@@ -7549,7 +7550,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           };
         }
       }
-    },
+    }
   }, $definitions.stack);
 
 
@@ -7562,11 +7563,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dataTransfer: 'id',
       draggable: true,
       orderAfter: function (other) {
-        var isParent = this.$parent == other.id;
-        var isNestedDeeper = this.$depth < other.$depth;
-        var sameParent = this.$parent == other.$parent;
+        var self = this;
+        var isParent = self.$parent == other.id;
+        var isNestedDeeper = self.$depth < other.$depth;
+        var sameParent = self.$parent == other.$parent;
         return (isParent || isNestedDeeper || (sameParent && (
-        this.label > other.label && this.$branch == other.$branch || this.$branch < other.$branch)));
+        self.label > other.label && self.$branch == other.$branch || self.$branch < other.$branch)));
       },
       droppable: function (item) {
         return item.$branch;
@@ -7801,11 +7803,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         },
         header: function (value) {
           if (value) {
+            var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(this.config.columns, "name", value.name, true);
+              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name, true);
               column.header = value.header;
             }
-            var columns = this.config.columns;
+            var columns = self.config.columns;
             var headersHTML = "";
             for (var c, i = 0; i < columns.length; i++) {
               c = columns[i];
@@ -7816,17 +7819,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
                 })
                 : "<th>" + c.header + "</th>";
             }
-            this._header.innerHTML = "<tr>" + headersHTML + "</tr>";
+            self._header.innerHTML = "<tr>" + headersHTML + "</tr>";
           }
         },
         footer: function (value) {
           if (value) {
+            var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(this.config.columns, "name", value.name);
+              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name);
               column.footer = value.footer;
             }
-            var footers = pluck(this.config.columns, "footer");
-            this._footer.innerHTML = "<tr><td>" + footers.join("</td><td>") + "</td></tr>";
+            var footers = pluck(self.config.columns, "footer");
+            self._footer.innerHTML = "<tr><td>" + footers.join("</td><td>") + "</td></tr>";
           }
         },
         caption: function (value) {
@@ -7871,10 +7875,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Selects an item in the select component.
        * @param item Object to select.
        */
+      var self = this;
       if (isString(item))
-        item = this.getItem(item);
+        item = self.getItem(item);
       item.$selected = true;
-      this.getFormControl().selectedIndex = this.indexOf(item);
+      self.getFormControl().selectedIndex = self.indexOf(item);
     },
     deselectAll: function () {
       // Do nothing, invalid for select component.
@@ -7894,9 +7899,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       el.innerHTML = this.template(item);
     },
     itemElement: function (item) {
-      var attrs = {value: item.value, class: this.itemClass(item)};
-      if (item.selected) attrs.selected = item.selected;
-      return createElement(this.itemTagString(), attrs);
+      var attributes = {value: item.value, class: this.itemClass(item)};
+      if (item.selected) attributes.selected = item.selected;
+      return createElement(this.itemTagString(), attributes);
     }
   }, exports.ChangeEvent, exports.FormControl, $definitions.list);
 
@@ -8196,8 +8201,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
 
   (function ($setters) {
-    $setters.type.multipleAllowed = true;
-    $setters.type.description = "Set the style type of the progress element.";
+    $setters.color.multipleAllowed = true;
+    $setters.color.description = "Set the style type of the progress element.";
   }($definitions.progress.prototype.$setters));
 
 

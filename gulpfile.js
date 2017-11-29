@@ -25,7 +25,7 @@ gulp.task('build-debug', function () {
 });
 
 gulp.task('build-less', function () {
-  return gulp.src(['less/**/uikit.less'])
+  return gulp.src(['less/**/uikit.less', 'less/**/icons.less'])
     .pipe(less())
     .pipe(cleanCSS())
     .pipe(gulp.dest('css'))

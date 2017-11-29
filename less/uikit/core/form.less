@@ -75,11 +75,11 @@
 @form-small-font-size:                          round((@global-font-size * 0.85)); // 12px / 14px
 @form-large-font-size:                          round((@global-font-size * 1.14)); // 16px / 18px
 
-@form-danger-border:                            #dc8d99;
-@form-danger-color:                             #d85030;
+@form-danger-border:                            #f0506e;
+@form-danger-color:                             #f0506e;
 
-@form-success-border:                           #8ec73b;
-@form-success-color:                            #659f13;
+@form-success-border:                           #32d296;
+@form-success-color:                            #32d296;
 
 @form-blank-border:                             @global-border;
 @form-blank-border-style:                       dashed;
@@ -147,9 +147,7 @@
 }
 
 .uk-form select:not([multiple]):not([size]) {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%201%201%206%207%206%22%3E%3C%2Fpolygon%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%2013%201%208%207%208%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: 100% 50%;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%201%201%206%207%206%22%3E%3C%2Fpolygon%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%2013%201%208%207%208%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E") no-repeat 100% 50%;
     padding-right: 20px;
 }
 
@@ -357,9 +355,8 @@
     /* 2 */
     border: 0;
     /* 3 */
-    padding: 0;
     /* 4 */
-    padding-bottom: @form-gutter;
+    padding: 0 0 @form-gutter;
     /* 5 */
     font-size: @form-legend-font-size;
     line-height: @form-legend-line-height;
@@ -394,8 +391,7 @@ input:not([type]).uk-form-small {
 
 select.uk-form-large,
 textarea.uk-form-large,
-input[type].uk-form-large,
-input:not([type]).uk-form-large  {
+input.uk-form-large  {
     height: @form-large-height;
     padding: @form-large-padding;
     font-size: @form-large-font-size;
@@ -445,8 +441,7 @@ input:not([type]).uk-form-large  {
  */
 
 .uk-form-blank {
-    border-color: transparent !important;
-    border-style: @form-blank-border-style !important;
+    border: @form-blank-border-style transparent !important;
     background: none !important;
     .hook-form-blank;
 }
