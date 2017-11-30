@@ -6345,27 +6345,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __name__: "icon",
     $defaults: {
       htmlTag: "A",
-      tagClass: "uk-icon-hover",
+      iconStyle: "hover",
       selectable: false,
       content: ""
     },
-    $setters: classSetters(
-      prefixClassOptions({
-        iconStyle: {
-          hover: "",
-          small: "",
-          medium: "",
-          large: "",
-          button: "",
-          justify: "",
-          "": ""
-        }
+    $setters: classSetters({
+      iconStyle: prefixClassOptions({
+        hover: "",
+        small: "",
+        medium: "",
+        large: "",
+        button: "",
+        justify: "",
+        "": ""
       }, 'uk-icon-', true)
-    ),
-    __init__: function (config) {
-      if (config.type == "button")
-        config.tagClass = "uk-icon-button";
-    },
+    }),
     template: "<i class='{{icon}}'>{{content}}</i>"
   }, exports.ClickEvents, $definitions.element);
 

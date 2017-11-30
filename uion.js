@@ -1901,19 +1901,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false,
       content: ""
     },
-    $setters: classSetters(
-      prefixClassOptions({
-        iconStyle: {
-          hover: "",
-          small: "",
-          medium: "",
-          large: "",
-          button: "",
-          justify: "",
-          "": ""
-        }
+    $setters: classSetters({
+      iconStyle: prefixClassOptions({
+        hover: "",
+        small: "",
+        medium: "",
+        large: "",
+        button: "",
+        justify: "",
+        "": ""
       }, 'uk-icon-', true)
-    ),
+    }),
     template: "<i class='{{icon}}'>{{content}}</i>"
   }, exports.ClickEvents, $definitions.element);
 
