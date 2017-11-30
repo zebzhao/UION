@@ -8,6 +8,7 @@
     $setters.margin.multipleAllowed = true;
     $setters.position.multipleAllowed = true;
     $setters.hidden.multipleAllowed = true;
+    $setters.animation.multipleAllowed = true;
   }(exports.CommonCSS.$setters));
 
 
@@ -70,10 +71,8 @@
   }($definitions.button.prototype.$setters));
 
 
-  (function ($) {
-    $._meta = extend({
-      iconClass: {isText: true}
-    }, $._meta || {});
+  (function ($setters) {
+    $setters.iconStyle.multipleAllowed = true;
   }($definitions.icon.prototype.$setters));
 
 
