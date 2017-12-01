@@ -5337,21 +5337,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dragged.node.style.left = (src.clientX + dragged.mouseOffset.left) + 'px';
 
       var dropTarget = findDroppableParent(document.elementFromPoint(src.clientX, src.clientY));
-      var dropTargetConfig = getConfig(dropTarget);
 
-      if (dropTarget && dropTarget.master.config.droppable(dropTargetConfig, dragged.config, dragged.node)) {
+      if (dropTarget && dropTarget.master.config.droppable(dropTarget.config, dragged.config, dragged.node)) {
         var oldDropTarget = exports._dropTarget;
-        var oldDropTargetConfig = getConfig(oldDropTarget);
 
         if (oldDropTarget != dropTarget) {
           if (oldDropTarget) {
-            oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTargetConfig, oldDropTarget, e]);
+            oldDropTarget.master.dispatch('onItemDragLeave', [oldDropTarget.config, oldDropTarget, e]);
           }
-          dropTarget.master.dispatch('onItemDragEnter', [dropTargetConfig, dropTarget, e]);
+          dropTarget.master.dispatch('onItemDragEnter', [dropTarget.config, dropTarget, e]);
           exports._dropTarget = dropTarget;
         }
         else if (oldDropTarget) {
-          oldDropTarget.master.dispatch('onItemDragOver', [oldDropTargetConfig, oldDropTarget, e]);
+          oldDropTarget.master.dispatch('onItemDragOver', [oldDropTarget.config, oldDropTarget, e]);
         }
       }
     }
