@@ -294,7 +294,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     compiled.$events = $events;
     compiled.$setters = $setters;
 
-    function Constructor(config) {
+    function Component(config) {
       var self = this;
       defaults(config, self.$defaults);
       defaults(self, config);
@@ -303,9 +303,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (self.__after__) self.__after__(config);
       if (self.dispatch) self.dispatch("onInitialized");
     }
-    Constructor.prototype = compiled;
+    Component.prototype = compiled;
 
-    return Constructor;
+    return Component;
   }
 
   function echo(input) {
