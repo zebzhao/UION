@@ -46,7 +46,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     isFunction: isFunction,
 
     forIn: forIn,
-    forEach: forEach,
     forInLoop: forInLoop,
 
     assert: assert,
@@ -184,7 +183,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   }
 
   function pluck(array, property) {
-    return forEach(exports.selectors.property(property), array);
+    return array.map(exports.selectors.property(property));
   }
 
   function def(config) {
@@ -196,11 +195,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
   function classString(value) {
     if (isArray(value)) {
-      var noDups = [];
-      for (var i = 0; i < value.length; i++)
-        if (noDups.indexOf(value[i]) == -1)
-          noDups.push(value[i]);
-      return noDups.join(' ');
+      return value.reduce(function (classList, cls) {
+        if (classList.indexOf(cls) == -1) classList.push(cls);
+        return classList;
+      }, []).join(' ');
     }
     else if (isString(value)) {
       return value;
@@ -237,21 +235,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     var $setters = config.$setters || {};
     var $events = config.$events || {};
 
-    var baseNames = [];
-    for (var j = 0; j < bases.length; j++) {
-      assertPropertyValidator(bases[j], config.__name__ + ' base[' + j + ']', isDefined);
+    var baseNames = bases.reduce(function (names, base, index) {
+      assertPropertyValidator(base, config.__name__ + ' base[' + index + ']', isDefined);
 
-      if (bases[j].__name__) {
-        baseNames.push(bases[j].__name__);
+      if (base.__name__) {
+        names.push(base.__name__);
+      } else if (isFunction(base)) {
+        names.push(base.prototype.__name__);
+        return names.concat(base.prototype.__base__);
       }
-      else if (isFunction(bases[j])) {
-        baseNames.push(bases[j].prototype.__name__);
-        baseNames = baseNames.concat(bases[j].prototype.__base__);
-      }
-    }
+      return names;
+    }, []);
 
-    for (var base, i = 0; i < bases.length; i++) {
-      base = bases[i];
+    bases.forEach(function (base) {
       if (isFunction(base)) {
         base = base.prototype;
       }
@@ -274,7 +270,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         defaults($setters, base.$setters);
       }
       defaults(compiled, base);
-    }
+    });
 
     // Override special properties that are carried through the inheritance structure.
     compiled.__init__ = function () {
@@ -383,11 +379,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param params Array of the parameters to pass to the handler. Typically, this follows the order of the component configuration, the HTML element, and the event.
        * @example dispatch('onClick', [config, element, event])
        */
-      var handlers = this._listenersByEvent[type];
+      var self = this;
+      var handlers = self._listenersByEvent[type];
       if (handlers) {
-        for (var i = 0; i < handlers.length; i++) {
-          handlers[i].apply(this, params);
-        }
+        handlers.forEach(function (cb) {
+          cb.apply(self, params);
+        });
       }
     },
     addListener: function (type, func, id) {
@@ -403,7 +400,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       id = id || uid();
 
-      var handlers = this._listenersByEvent[type] || exports.list();
+      var handlers = this._listenersByEvent[type] || [];
       handlers.push(func);
       this._listenersByEvent[type] = handlers;
       this._listeners[id] = {_func: func, _name: type};
@@ -423,6 +420,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var func = this._listeners[id]._func;
 
       var handlers = this._listenersByEvent[name];
+
       handlers.remove(func);
 
       delete this._listeners[id];
@@ -481,99 +479,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       return this.el;
     }
-  };
-
-  exports.ListMethods = {
-    removeAt: function (index) {
-      /**
-       * Remove the element at an index.
-       * @param index The non-negative index of the element. (0-based)
-       * @returns {boolean} True if removed, false if index does not exist.
-       */
-      if (index >= 0 && index < this.length) {
-        return this.splice(index, 1)[0];
-      }
-      return false;
-    },
-    remove: function (value, thisArg) {
-      /**
-       * Removes a specific element.
-       * @param value Element to remove.
-       * @returns {number} Index of the removed element.
-       */
-      var index = (thisArg || this).indexOf(value);
-      if (index >= 0) {
-        this.splice(index, 1);
-        return index;
-      }
-      return -1;
-    },
-    removeWhere: function (key, value) {
-      /**
-       * Removes a specific element that matches a key, value combination.
-       * @param key Key to match.
-       * @param value Value to match.
-       * @returns {number} Index of the removed element.
-       */
-      for (var i=0; i < this.length; i++) {
-        if (value == this[i][key]) {
-          this.splice(i, 1);
-          return i;
-        }
-      }
-      return -1;
-    },
-    findWhere: function (key, value) {
-      var results = [];
-      for (var i = 0; i < this.length; i++) {
-        if (this[i][key] == value)
-          results.push(this[i]);
-      }
-      return results;
-    },
-    findOne: function (key, value, error) {
-      for (var i = 0; i < this.length; i++) {
-        // Apparently 1 == "1" in JS
-        if (this[i][key] === value)
-          return this[i];
-      }
-      if (error)
-        fail(interpolate("Key, value ({{key}}, {{value}}) not found in {{array}}",
-          {key: key, value: value, array: this}));
-    },
-    until: function (operator, thisArg) {
-      var copy = this.slice();
-      var value, i = 0;
-      while (copy.length) {
-        value = copy.shift();
-        if (!operator.call(thisArg, value, copy)) {
-          copy.push(value);
-          i++;
-        }
-        else {
-          i = 0;
-        }
-        if (copy.length == 0) {
-          break;
-        }
-        else if (i > copy.length) {
-          fail("Infinite loop detected.");
-          break;  // Infinite loop detected.
-        }
-      }
-    },
-    each: function (operator, thisArg) {
-      var result = [];
-      for (var i = 0; i < this.length; i++) {
-        result[i] = operator.call(thisArg || this, this[i], i);
-      }
-      return result;
-    }
-  };
-
-
-  exports.list = function (array) {
-    return extend((array || []), exports.ListMethods);
   };
 
 
@@ -795,9 +700,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   }
 
   function addClass(node, name) {
-    forEach(function (cls) {
+    classString(name).split(' ').forEach(function (cls) {
       if (cls) node.classList.add(cls);
-    }, classString(name).split(' '));
+    });
   }
 
   function hasClass(node, name) {
@@ -817,9 +722,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   function buildWindowListener(listeners) {
     assertPropertyValidator(listeners, 'listeners', isArray);
     function executeAllListeners(e) {
-      forEach(function (listener) {
+      listeners.forEach(function (listener) {
         listener.call(window, e);
-      }, listeners);
+      });
     }
     return executeAllListeners;
   }
@@ -1130,12 +1035,31 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     return result;
   }
 
-  function forEach(func, array, thisArg) {
-    var result = [];
-    for (var i = 0; i < array.length; i++) {
-      result[i] = func.call(thisArg, array[i], i);
+  function forEachUntil(predicate, array, thisArg) {
+    var copy = array.slice();
+    var value, i = 0;
+    while (copy.length) {
+      value = copy.shift();
+      if (!predicate.call(thisArg, value, copy)) {
+        copy.push(value);
+        i++;
+      }
+      else {
+        i = 0;
+      }
+      if (copy.length == 0) {
+        break;
+      }
+      else if (i > copy.length) {
+        fail("Infinite loop detected.");
+        break;  // Infinite loop detected.
+      }
     }
-    return result;
+  }
+
+  function removeFromArray(array, value) {
+    var index = array.indexOf(value);
+    if (index !== -1) array.splice(index, 1);
   }
 
   function prefixClassOptions(obj, prefix, mirrorKey, exclude) {
@@ -1144,9 +1068,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         return value;
       }
       else if (isArray(value)) {
-        return forEach(function (string) {
+        return value.map(function (string) {
           return !string.length ? string : prefix + string;
-        }, value);
+        });
       }
       else {
         value = mirrorKey ? key : value;
@@ -1298,7 +1222,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       $components[config.id] = self;
 
-      self.$components = exports.list();
+      self.$components = [];
       self.element = self.el = createElement(config.htmlTag || "DIV", {id: config.id});
 
       if (isString(config.tagClass))
@@ -1381,7 +1305,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param value The compared value.
        * @returns {UI.definitions.element}
        */
-      return this.$components.findOne(key, value);
+      return this.$components.filter(function (item) {
+        return item[key] === value;
+      })[0];
     }
   }, exports.Dispatcher, exports.Responder, exports.CommonEvents, exports.CommonCSS, exports.PropertySetter);
 
@@ -1431,7 +1357,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param thisArg The 'this' object passed to the invoked function.
        * @returns Return an array containing the results of the invoked call.
        */
-      return this.$components.each(func, thisArg);
+      return this.$components.map(func, thisArg);
     },
     insertChild: function (index, config) {
       /**
@@ -1476,17 +1402,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param id Id of the child to remove.
        */
       var self = this;
-      if (id.element) {
-        self.el.removeChild(id.el);
-        self.$components.remove(id);
-      }
-      else if (isString(id)) {
-        self.el.removeChild(self.getChild(id).el);
-        self.$components.removeWhere('id', id);
-      }
-      else {
+      var components = self.$components;
+      var target;
+
+      if (id.el) {
+        target = id;
+      } else if (isString(id)) {
+        target = self.getChild(id);
+      } else {
         fail("flexgrid: unknown argument id " + id + " received in removeChild().");
       }
+
+      self.el.removeChild(target.el);
+      removeFromArray(components, target);
     },
     getChild: function (id) {
       /**
@@ -1494,7 +1422,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param id The string id of the component.
        * @returns {UI.definitions.element}
        */
-      return this.$components.findOne('id', id);
+      return this.getComponent('id', id);
     },
     getChildren: function () {
       /**
@@ -1508,7 +1436,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
        * @returns {array} Array of child components config objects.
        */
-      return this.$components.each(function (item) {
+      return this.$components.map(function (item) {
         return item.config;
       });
     },
@@ -1548,16 +1476,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.$batch = name;
     },
     _setVisible: function (key, value, rerender) {
-      this.$components.each(function (item) {
+      var self = this;
+      var el = self.el;
+      self.$components.forEach(function (item) {
         if (value.indexOf(item.config[key]) != -1) {
-          if (item.el.parentNode != this.el || rerender) {
-            this.el.appendChild(item.el);
+          if (item.el.parentNode != el || rerender) {
+            el.appendChild(item.el);
           }
         }
         else if (item.el.parentNode) {
-          this.el.removeChild(item.el);
+          el.removeChild(item.el);
         }
-      }, this);
+      });
     }
   }, $definitions.element);
 
@@ -2185,11 +2115,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var config = self.config;
         if (!config.caseSensitive) searchValue = searchValue.toLowerCase();
 
-        release(exports.ListMethods.filter.call(self._getSource(),
-          function (item) {
-            var value = config.caseSensitive ? item.value : item.value.toLowerCase();
-            return value.indexOf(searchValue) != -1;
-          }));
+        release(self._getSource().filter(function (item) {
+          var value = config.caseSensitive ? item.value : item.value.toLowerCase();
+          return value.indexOf(searchValue) != -1;
+        }));
       }
     },
     $setters: {
@@ -2530,8 +2459,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         self.tailNode = item.$headNode;
       item.$tailNode = item.$headNode = null;
 
-      if (self.$items.indexOf(item) != -1)
-        exports.ListMethods.remove.call(self.$items, item);
+      removeFromArray(self.$items, item);
 
       self.dispatch("onDeleted", [item]);
       return item;
@@ -2730,7 +2658,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
-        parent.$children.remove(obj);
+        removeFromArray(parent.$children, obj);
         var parentNode = self.getItemNode(parent.id);
         parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
       }
@@ -2846,7 +2774,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             if (value == "responsive") {
               // Create a list of linked data to the actual data
               // This avoids needing to duplicate the data
-              var linkedData = exports.list(self.config.data).each(function (item) {
+              var linkedData = self.config.data.map(function (item) {
                 return {label: item.label, $link: item, $close: item.$close};
               });
 
@@ -3195,7 +3123,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       removeClass(this.getItemNode(item.id), ACTIVE_CLASS);
     },
     _showChildren: function (item) {
-      item.$children.until(function (child, queue) {
+      forEachUntil(function (child, queue) {
         removeClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch && !child.$closed) {
@@ -3204,10 +3132,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           }
         }
         return true;
-      }, this);
+      }, item.$children, this);
     },
     _hideChildren: function (item) {
-      item.$children.until(function (child, queue) {
+      forEachUntil(function (child, queue) {
         addClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch) {
@@ -3216,7 +3144,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           }
         }
         return true;
-      }, this);
+      }, item.$children, this);
     },
     add: function (obj) {
       /**
@@ -3224,7 +3152,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item A child of the tree. The parent id of the object should be specified in its $parent property.
        */
       var parent = null;
-      obj.$children = exports.list();
+      obj.$children = [];
       obj.$branch = !!obj.$branch; // Convert to boolean
 
       var self = this;
@@ -3387,8 +3315,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       {
         columns: function (value) {
           assertPropertyValidator(value, 'columns', isArray);
-          value = exports.list(value);
-          value.each(function (item) {
+          value.forEach(function (item) {
             if (isUndefined(item.template) && item.name) {
               item.template = exports.selectors.property(item.name);
             }
@@ -3398,20 +3325,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           if (value) {
             var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name, true);
+              var column = self.config.columns.filter(function (item) { return  item.name === value.name} );
+              assertPropertyValidator(column, 'column name ' + value.name, isDefined);
               column.header = value.header;
             }
             var columns = self.config.columns;
             var headersHTML = "";
 
-            forEach(function (column) {
+            columns.forEach(function (column) {
               headersHTML += column.align ?
                 interpolate("<th style='text-align: {{align}}'>{{text}}</th>", {
                   align: column.align,
                   text: column.header
                 })
                 : "<th>" + column.header + "</th>";
-            }, columns);
+            });
 
             self._header.innerHTML = "<tr>" + headersHTML + "</tr>";
           }
@@ -3420,7 +3348,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           if (value) {
             var self = this;
             if (isObject(value)) {
-              var column = exports.ListMethods.findOne.call(self.config.columns, "name", value.name);
+              var column = self.config.columns.filter(function (item) { return  item.name === value.name} );
+              assertPropertyValidator(column, 'column name ' + value.name, isDefined);
               column.footer = value.footer;
             }
             var footers = pluck(self.config.columns, "footer");
@@ -3438,7 +3367,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     buildItemElement: function (el, item) {
       var self = this;
 
-      forEach(function (column) {
+      self.config.columns.forEach(function (column) {
         var td = createElement("TD", {class: column.$css ? classString(column.$css) : ""});
 
         if (column.align)
@@ -3446,7 +3375,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
         template(column.template, item, self, td);
         el.appendChild(td);
-      }, self.config.columns);
+      });
     },
     containerElement: function () {
       return this._body;
@@ -3532,22 +3461,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           assertPropertyValidator(value, 'fieldsets', isArray);
           var self = this;
 
-          forEach(function (config) {
+          value.forEach(function (config) {
             var ui = exports.new(config);
             self.$fieldsets.push(ui);
             self.$components.push(ui);
             self.el.appendChild(ui.el);
-          }, value);
+          });
         }
       }),
     __init__: function () {
-      this.$fieldsets = UI.list();
+      this.$fieldsets = [];
     },
     clear: function () {
       /**
        * Clear all values from the form.
        */
-      this.$fieldsets.each(function (fs) {
+      this.$fieldsets.forEach(function (fs) {
         fs.clear();
       });
     },
@@ -3555,7 +3484,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Enable the fieldset of the form.
        */
-      this.$fieldsets.each(function (fs) {
+      this.$fieldsets.forEach(function (fs) {
         fs.enable();
       });
     },
@@ -3563,7 +3492,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Disable the fieldset of the form.
        */
-      this.$fieldsets.each(function (fs) {
+      this.$fieldsets.forEach(function (fs) {
         fs.disable();
       });
     },
@@ -3573,7 +3502,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @returns {object} Object of key values of the form.
        */
       var result = {};
-      this.$fieldsets.each(function (fs) {
+      this.$fieldsets.forEach(function (fs) {
         UI.extend(result, fs.getValues());
       });
       return result;
@@ -3583,7 +3512,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Sets the values for the form components. The keys of the object correspond with the 'name' of child components.
        * @param values Object of names and values.
        */
-      this.$fieldsets.each(function (fs) {
+      this.$fieldsets.forEach(function (fs) {
         fs.setValues(values);
       });
     },
