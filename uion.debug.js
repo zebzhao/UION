@@ -6649,7 +6649,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     },
     __init__: function (config) {
-      this._dropdown = UIkit.dropdown(this.el, {pos: config.pos, justify: config.justify, mode: config.mode});
+      var self = this;
+      var dropdown = self._dropdown = UIkit.dropdown(self.el, {pos: config.pos, justify: config.justify, mode: config.mode});
+      dropdown.on('beforehide.uk.dropdown', function (e) {
+        var args = [self.config, self.el, e];
+        self.dispatch("onClose", args);
+        self._inner.dispatch("onClose", args);
+      })
+      dropdown.on('hide.uk.dropdown', function (e) {
+        var args = [self.config, self.el, e];
+        self.dispatch("onClosed", args);
+        self._inner.dispatch("onClosed", args);
+      });
     },
     dropdownClass: function () {
       var config = getConfig(this);
@@ -6693,17 +6704,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @dispatch onClose, onClosed
        * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
        */
-      var self = this;
-      args = [self.config, self.el, args];
-      self.dispatch("onClose", args);
-      self._inner.dispatch("onClose", args);
-      // Tricky: on mobile browsers HTML update/rendering timings are a bit wonky
-      // Adding a delay helps close dropdown properly on Chrome (mobile)
-      setTimeout(function () {
-        removeClass(self.el, 'uk-open');
-        self.dispatch("onClosed", args);
-        self._inner.dispatch("onClosed", args);
-      }, 10);
+      this._dropdown.hide(true);
     }
   }, $definitions.flexgrid, exports.AbsolutePositionMethods);
 
