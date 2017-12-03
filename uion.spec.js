@@ -132,67 +132,8 @@ describe('class system', function () {
   });
 });
 
-describe('list', function () {
-  it('should take arguments', function () {
-    var i = UI.list([1, 2, 3]);
-    expect(i.length).toBe(3);
-  });
 
-  it('should have iter methods', function () {
-    var j = UI.list([1, 2, 3]);
-    expect(j.each(function (v, i) {
-      return v
-    })).toEqual([1, 2, 3]);
-    expect(j.each(function (v, i) {
-      return this[i]
-    })).toEqual([1, 2, 3]);
-    expect(j.each(function (v) {
-      return v
-    })).toEqual([1, 2, 3]);
-  });
-
-  it('should remove at i', function () {
-    var list = UI.list(['maybe', 'yes', 'no']);
-    list.remove("maybe");
-    expect(list[0]).toBe("yes");
-    expect(list[1]).toBe("no");
-    list.removeAt(1);
-    expect(list.length).toBe(1);
-    expect(list.removeAt(list.length)).toBeFalsy();
-  });
-
-  it('should find things', function () {
-    var list = UI.list();
-    list.push({id: "a"});
-    list.push({id: "b"});
-    list.push({id: "a"});
-    expect(list.findWhere('id', 'a').length).toEqual(2);
-    list.removeWhere('id', 'a');
-    expect(list.findWhere('id', 'a').length).toEqual(1);
-  });
-
-  it('should find one thing', function () {
-    var list = UI.list();
-    list.push({id: "a"});
-    list.push({id: "a"});
-    expect(list.findOne('id', 'a').id).toBe('a');
-    list.removeWhere('id', 'a');
-  });
-
-  it('should iterate until', function () {
-    var list = UI.list([1, 2, 3]);
-    var operator = {
-      func: function () {
-        return true;
-      }
-    };
-    spyOn(operator, 'func').and.callThrough();
-    list.until(operator.func);
-    expect(operator.func.calls.count()).toBe(3);
-  });
-});
-
-describe('html', function () {
+describe('addClass removeClass', function () {
   var node = document.body;
   it('should add and remove css', function () {
     UI.addClass(node, "s1");
