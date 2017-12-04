@@ -1149,12 +1149,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   $definitions.element = def({
     __name__: "element",
     $defaults: {
-      tooltipPos: 'bottom',
+      tooltipPos: "bottom",
       dropdownEvent: "onClick",
-      dropdownPos: 'bottom-center',
-      dropdownId: undefined,
-      dropdownMarginX: 5,
-      dropdownMarginY: 5
+      dropdownOptions: {
+        pos: "bottom-center",
+        marginX: 0,
+        marginY: 0
+      }
     },
     $setters: {
       disabled: function (value) {
@@ -1181,21 +1182,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var self = this;
         var config = self.config;
 
-        var dropdown = {
-          id: config.dropdownId,
+        var dropdownOptions = config.dropdownOptions;
+        var dropdown = extend({
           view: "dropdown",
-          pos: config.dropdownPos,
-          dropdown: value,
-          dropdownCSS: config.dropdownCSS,
-          dropdownAnimation: config.dropdownAnimation
-        };
+          dropdown: value
+        }, dropdownOptions);
 
         var ui = exports.new(dropdown, document.body);
 
         config.on = config.on || {};
         self.addListener(config.dropdownEvent, function (config, node) {
           ui.open(config);
-          ui.positionNextTo(node, dropdown.pos, config.dropdownMarginX, config.dropdownMarginY);
+          ui.positionNextTo(node, dropdown.pos, dropdownOptions.marginX, dropdownOptions.marginY);
           ui.moveWithinBoundary();
         });
         self.dropdownPopup = ui;
@@ -2207,7 +2205,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         var args = [self.config, self.el, e];
         self.dispatch("onClose", args);
         self._inner.dispatch("onClose", args);
-      })
+      });
       dropdown.on('hide.uk.dropdown', function (e) {
         var args = [self.config, self.el, e];
         self.dispatch("onClosed", args);
