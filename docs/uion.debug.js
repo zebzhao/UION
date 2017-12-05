@@ -5334,9 +5334,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         "bottom-left": pos(origin.height + marginY, marginX),
         "bottom-right": pos(origin.height + marginY, origin.width - width + marginX),
         "bottom-center": pos(origin.height + marginY, origin.width / 2 - width / 2 + marginX),
-        "top-left": pos(-marginY - height, 0),
-        "top-right": pos(-marginY - height, origin.width - width),
-        "top-center": pos(-marginY - height, origin.width / 2 - width / 2),
+        "top-left": pos(-marginY - height, marginX),
+        "top-right": pos(-marginY - height, origin.width - width + marginX),
+        "top-center": pos(-marginY - height, origin.width / 2 - width / 2 + marginX),
         "left-top": pos(marginY, -marginX - width),
         "left-bottom": pos(origin.height - height, -marginX - width),
         "left-center": pos(origin.height / 2 - height / 2, -marginX - width),
@@ -8115,9 +8115,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
     $setters._meta = extend({
       dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
-      dropdownPos: {options: ['bottom-center', 'bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'left-top', 'left-bottom', 'left-center', 'right-top', 'right-bottom', 'right-center']},
-      dropdownMarginX: "The left margin of the dropdown from anchor component.",
-      dropdownMarginY: "The top margin of the dropdown from anchor component.",
+      dropdownOptions: "Configuration passed to dropdown component.",
       template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
       style: "A object containing properties to feed into the style attribute of the element"
     }, $setters._meta || {});
