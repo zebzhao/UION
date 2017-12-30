@@ -5973,7 +5973,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         },
         type: function (value) {
           setAttributes(this.getFormControl(), {type: value});
-          addClass(this.getFormControl(), "uk-vertical-align-middle");
         },
         value: function (value) {
           if (isDefined(value))
@@ -6604,7 +6603,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       htmlTag: "DIV",
       tagClass: "uk-search",
       placeholder: "Search...",
-      iconTemplate: "<i class='uk-icon-search uk-margin-right'></i>",
+      iconTemplate: "<i class='uk-icon-search uk-search-icon'></i>",
       inputClass: "uk-search-field",
       type: "search"
     },
@@ -8213,7 +8212,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
     $setters._meta = extend({
       selectable: {isBoolean: true},
-      itemClass: {isText: true}
+      itemTagClass: {isText: true}
     }, $setters._meta || {});
   }($definitions.list.prototype.$setters));
 

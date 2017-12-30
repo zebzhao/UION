@@ -119,7 +119,7 @@
     $setters.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
     $setters._meta = extend({
       selectable: {isBoolean: true},
-      itemClass: {isText: true}
+      itemTagClass: {isText: true}
     }, $setters._meta || {});
   }($definitions.list.prototype.$setters));
 
