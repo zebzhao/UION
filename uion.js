@@ -2980,8 +2980,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       return cls;
     },
     template: function (item) {
-      var self = this;
-
       if (item.$header) {
         return item.label;
       }
@@ -2993,15 +2991,19 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     },
     buildItemElement: function (el, item) {
-      var templateArray = this.template(item);
+      var self = this;
+      var templateArray = self.template(item);
 
       if (!isArray(templateArray)) {
         templateArray = [templateArray];
       }
 
       templateArray.forEach(function (itemTemplate) {
-        if (typeof itemTemplate === "string") {
+        if (isString(itemTemplate)) {
           el.innerHTML = itemTemplate;
+        }
+        else if (isUndefined(itemTemplate) || itemTemplate === null) {
+          // Ignore undefined and nulls
         }
         else if (itemTemplate.nodeName &&
           (itemTemplate.nodeType === 1 || itemTemplate.nodeType === 3)) {
@@ -3362,6 +3364,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     ),
     template: function (item) {
+      var self = this;
       return self.config.columns.map(function (column) {
         var td = createElement("TD", {class: column.$css ? classString(column.$css) : ""});
 
@@ -3536,32 +3539,29 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     itemTagString: function (item) {
       return item.title ? "LEGEND" : getConfig(this).itemTag;
     },
-    template: function (item) {
+    buildItemElement: function (el, item) {
       if (item.$title) {
-        return item.label;
+        el.innerHTML = item.label;
       }
       else {
-        var templates = [];
         var ui = exports.new(item);
+        this.$components.push(ui);
 
         if (item.formLabel) {
           ui.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
           ui.label.innerHTML = item.formLabel;
           if (item.$inline) addClass(ui.label, "uk-display-inline");
-          templates.push(ui.label);
+          el.appendChild(ui.label);
         }
 
         if (!item.$inline) {
           controlContainer = createElement("DIV", {class: "uk-form-controls"});
           controlContainer.appendChild(ui.el);
-          templates.push(controlContainer);
-          this.$components.push(ui);
+          el.appendChild(controlContainer);
         }
         else {
-          templates.push(ui);
+          el.appendChild(ui);
         }
-
-        return templates;
       }
     },
     clear: function () {

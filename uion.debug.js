@@ -7423,44 +7423,48 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     itemClass: function (item) {
       var cls = classString(isDefined(item.$css) ? item.$css : getConfig(this).itemTagClass);
-      if (!item.view) {
-        if (item.header) cls += " uk-nav-header";
-        if (item.divider) cls += " uk-nav-divider";
-      }
+      if (item.$header) cls += " uk-nav-header";
+      if (item.$divider) cls += " uk-nav-divider";
       return cls;
+    },
+    template: function (item) {
+      if (item.$header) {
+        return item.label;
+      }
+      else if (item.$divider) {
+        return '';
+      }
+      else {
+        return exports.new(item);
+      }
     },
     buildItemElement: function (el, item) {
       var self = this;
-      if (item.view) {
-        var ui = exports.new(item);
-        self.$components.push(ui);
-        el.appendChild(ui.el);
-      }
-      else if (item.header) {
-        el.innerHTML = item.label;
-      }
-      else if (item.divider) {
-      }
-      else {
-        var link = new $definitions.link(item);
-        self.$components.push(link);
+      var templateArray = self.template(item);
 
-        el.appendChild(link.el);
+      if (!isArray(templateArray)) {
+        templateArray = [templateArray];
+      }
 
-        if (self.config.closeButton && item.$close) {
-          self._close = exports.new({
-            view: "link",
-            htmlTag: "SPAN",
-            tagClass: "uk-close",
-            on: {
-              onClick: function () {
-                self.closeItem(item);
-              }
-            }
-          }, link.el);
+      templateArray.forEach(function (itemTemplate) {
+        if (isString(itemTemplate)) {
+          el.innerHTML = itemTemplate;
         }
-      }
-      return ui;
+        else if (isUndefined(itemTemplate) || itemTemplate === null) {
+          // Ignore undefined and nulls
+        }
+        else if (itemTemplate.nodeName &&
+          (itemTemplate.nodeType === 1 || itemTemplate.nodeType === 3)) {
+          el.appendChild(itemTemplate);
+        }
+        else if (itemTemplate.el) {
+          el.appendChild(itemTemplate.el);
+          self.$components.push(itemTemplate);
+        }
+        else {
+          fail('Unrecognized object returned by template function.', itemTemplate);
+        }
+      });
     },
     attachItemEvents: function (el, item) {
       if (item.header || item.divider) return;
@@ -7549,9 +7553,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.addListener("onItemDragEnd", self._dragEnd);
       self.addListener("onItemDrop", self._dragLeave);
     },
-    buildItemElement: function (el, item) {
-      el.innerHTML = this.template(item);
-    },
     _dragStart: function (item) {
       var $this = this;
       if (item.$branch)
@@ -7638,7 +7639,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             "file-o",
           label: config.label,
           margin: config.$depth * this.indentWidth
-        })
+        });
     },
     open: function (item) {
       /**
@@ -7810,17 +7811,16 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
       }
     ),
-    buildItemElement: function (el, item) {
+    template: function (item) {
       var self = this;
-
-      self.config.columns.forEach(function (column) {
+      return self.config.columns.map(function (column) {
         var td = createElement("TD", {class: column.$css ? classString(column.$css) : ""});
 
         if (column.align)
           td.style.textAlign = column.align;
 
         template(column.template, item, self, td);
-        el.appendChild(td);
+        return td;
       });
     },
     containerElement: function () {
@@ -7863,9 +7863,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     template: function (item) {
       return item.label;
-    },
-    buildItemElement: function (el, item) {
-      el.innerHTML = this.template(item);
     },
     itemElement: function (item) {
       var attributes = {value: item.value, class: this.itemClass(item)};
@@ -7990,26 +7987,32 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     itemTagString: function (item) {
       return item.title ? "LEGEND" : getConfig(this).itemTag;
     },
-    buildItemElement: function (el, item) {
-      if (item.title) {
-        el.innerHTML = item.label;
+    template: function (item) {
+      if (item.$title) {
+        return item.label;
       }
       else {
+        var templates = [];
         var ui = exports.new(item);
-        this.$components.push(ui);
-
+        
         if (item.formLabel) {
           ui.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
           ui.label.innerHTML = item.formLabel;
-          if (item.inline) addClass(ui.label, "uk-display-inline");
-          el.appendChild(ui.label);
+          if (item.$inline) addClass(ui.label, "uk-display-inline");
+          templates.push(ui.label);
         }
-        var controlContainer = el;
-        if (!item.inline) {
+
+        if (!item.$inline) {
           controlContainer = createElement("DIV", {class: "uk-form-controls"});
-          el.appendChild(controlContainer);
+          controlContainer.appendChild(ui.el);
+          templates.push(controlContainer);
+          this.$components.push(ui);
         }
-        controlContainer.appendChild(ui.el);
+        else {
+          templates.push(ui);
+        }
+
+        return templates;
       }
     },
     clear: function () {
