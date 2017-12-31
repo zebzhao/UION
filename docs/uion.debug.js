@@ -4953,6 +4953,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       true: "",
       false: "unselectable"
     },
+    layout: prefixClassOptions({
+      "": "",
+      column: "",
+      row: "",
+      "row-reverse": "",
+      "column-reverse": ""
+    }, 'uk-flex-', true),
+    spacing: prefixClassOptions({
+      between: "",
+      around: ""
+    }, 'uk-flex-space-', true),
     order: prefixClassOptions({
       first: "",
       last: "",
@@ -5766,19 +5777,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       size: "flex",
       singleView: false
     },
-    $setters: extend(classSetters({
-      layout: prefixClassOptions({
-        "": "",
-        column: "",
-        row: "",
-        "row-reverse": "",
-        "column-reverse": ""
-      }, 'uk-flex-', true),
-      spacing: prefixClassOptions({
-        between: "",
-        around: ""
-      }, 'uk-flex-space-', true)
-    }), {
+    $setters: {
       cells: function (value) {
         assertPropertyValidator(value, 'cells', isArray);
 
@@ -5792,7 +5791,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         if (self.config.singleView && self.config.defaultView)
           self.setChild(self.config.defaultView);
       }
-    }),
+    },
     render: function () {
       // Do nothing, overwrites render function.
     },
@@ -7877,7 +7876,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $defaults: {
       htmlTag: "FORM",
       tagClass: "uk-form",
-      layout: "stacked",
+      formStyle: "stacked",
       fieldset: []
     },
     $events: {
@@ -7896,7 +7895,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         fieldset: function (value) {
           this.set('fieldsets', [{
             view: "fieldset",
-            layout: getConfig(this).layout,
+            formStyle: getConfig(this).formStyle,
             data: value
           }]);
         },
@@ -7978,9 +7977,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       itemTagClass: "uk-form-row"
     },
     $setters: classSetters({
-      layout: prefixClassOptions({
+      formStyle: prefixClassOptions({
         stacked: "",
         horizontal: "",
+        line: "",
         "": ""
       }, 'uk-form-', true)
     }),

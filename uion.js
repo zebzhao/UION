@@ -3428,7 +3428,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $defaults: {
       htmlTag: "FORM",
       tagClass: "uk-form",
-      layout: "stacked",
+      formStyle: "stacked",
       fieldset: []
     },
     $events: {
@@ -3447,7 +3447,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         fieldset: function (value) {
           this.set('fieldsets', [{
             view: "fieldset",
-            layout: getConfig(this).layout,
+            formStyle: getConfig(this).formStyle,
             data: value
           }]);
         },
@@ -3529,9 +3529,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       itemTagClass: "uk-form-row"
     },
     $setters: classSetters({
-      layout: prefixClassOptions({
+      formStyle: prefixClassOptions({
         stacked: "",
         horizontal: "",
+        line: "",
         "": ""
       }, 'uk-form-', true)
     }),
