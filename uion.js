@@ -539,7 +539,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "": "",
       none: "uk-padding-remove"
     },
-    size: prefixClassOptions({
+    flexSize: prefixClassOptions({
       "": "",
       none: "none",
       auto: "auto",
@@ -1326,7 +1326,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $defaults: {
       layout: "row",
       flex: true,
-      size: "flex",
+      flexSize: "flex",
       singleView: false
     },
     $setters: {
@@ -1424,14 +1424,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getChildren: function () {
       /**
        * Get a list of all children. Make a copy if mutating this object.
-       * @returns {array} Array of child components.
+       * @returns {Array} Array of child components.
        */
       return this.$components;
     },
     getItems: function () {
       /**
        * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
-       * @returns {array} Array of child components config objects.
+       * @returns {Array} Array of child components config objects.
        */
       return this.$components.map(function (item) {
         return item.config;
@@ -1650,7 +1650,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       closeModals: false,
       center: true,
       flex: false,
-      size: "",
+      flexSize: "",
       layout: "",
       dialogClass: "",
       headerClass: "",
@@ -2314,7 +2314,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Plucks a property from all child objects.
        * @param key The key of the child objects.
-       * @returns {array}
+       * @returns {Array}
        */
       return this.each(function (item) {
         return item[key]
@@ -2924,6 +2924,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         item = this.getItem(item);
       return item.$selected;
     },
+    getSelected: function () {
+      /**
+       * Return all selected items.
+       * @returns {Array} A list of selected items.
+       */
+      return this.findWhere('$selected', true);
+    },
     select: function (item) {
       /**
        * Selects an active item of the list. This method will not deselect previously selected items.
@@ -3286,7 +3293,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       htmlTag: "TABLE",
       itemTag: "TR",
       flex: false,
-      size: "",
+      flexSize: "",
       listStyle: ""
     },
     __init__: function () {
@@ -3387,7 +3394,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       htmlTag: "SELECT",
       itemTag: "OPTION",
       flex: false,
-      size: "",
+      flexSize: "",
       listStyle: ""
     },
     select: function (item) {
