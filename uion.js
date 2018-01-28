@@ -884,7 +884,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param marginX The amount of x-offset from the anchor element edge.
        * @param marginY The amount of y-offset from the anchor element edge.
        */
-      var parent = node.parentNode ? node.parentNode : document.body;
+      var parent = this.el.parentNode ? this.el.parentNode : document.body;
       var parentPos = parent.getBoundingClientRect(); // Affected by scrolling
       var origin = node.getBoundingClientRect();
       var rect = this.getBoundingClientRect();
@@ -946,7 +946,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param offset The amount of final offset added to the position depending on which edges are hidden.
        * @example moveWithinBoundary({top: 0, bottom: 500, left: 0, right: 1000}, {top: 100, bottom: 100}, {top: 10, left: 10}, {top: 10, left: 20, right: 30, bottom: 40})
        */
-      var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
+      var parent = this.el.parentNode ? this.el.parentNode : document.body;
+      var parentPos = parent.getBoundingClientRect(); // Affected by scrolling
 
       padding = padding || {};
       pivot = pivot || {};
@@ -985,17 +986,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var offsetRight = offset.right || 0;
 
       if (hiddenLeft) {
-        htmlStyle.left = (pivotLeft + offsetLeft) + "px";
+        htmlStyle.left = (pivotLeft + offsetLeft - parentPos.left) + "px";
       }
       else if (hiddenRight) {
-        htmlStyle.left = (pivotRight - rect.width + offsetRight) + "px";
+        htmlStyle.left = (pivotRight - rect.width + offsetRight - parentPos.left) + "px";
       }
 
       if (hiddenTop) {
-        htmlStyle.top = (pivotTop + offsetTop - bodyPos.top) + "px";
+        htmlStyle.top = (pivotTop + offsetTop - parentPos.top) + "px";
       }
       else if (hiddenBottom) {
-        htmlStyle.top = (pivotBottom - rect.height + offsetBottom - bodyPos.top) + "px";
+        htmlStyle.top = (pivotBottom - rect.height + offsetBottom - parentPos.top) + "px";
       }
     }
   };
