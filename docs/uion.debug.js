@@ -5332,7 +5332,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param marginX The amount of x-offset from the anchor element edge.
        * @param marginY The amount of y-offset from the anchor element edge.
        */
-      var bodyPos = document.body.getBoundingClientRect(); // Affected by scrolling
+      var parent = node.parentNode ? node.parentNode : document.body;
+      var parentPos = parent.getBoundingClientRect(); // Affected by scrolling
       var origin = node.getBoundingClientRect();
       var rect = this.getBoundingClientRect();
       var width = rect.width,
@@ -5357,8 +5358,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       };
 
       this.position(
-        origin.top - bodyPos.top + variants[position].top,
-        origin.left + variants[position].left);
+        origin.top - parentPos.top + variants[position].top,
+        origin.left + variants[position].left - parentPos.left);
 
       function pos(top, left) {
         return {top: top, left: left};
