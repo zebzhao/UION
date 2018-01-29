@@ -7120,7 +7120,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.$elements = {};
       self.each(function (node) {
         self.$elements[node.id] = self.createItemElement(node);
-        if (self.config.filter(node))
+        if (self.filter(node))
           self.containerElement().appendChild(self.$elements[node.id]);
       });
 
@@ -7145,7 +7145,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var $this = this;
       $this.clearAll();
       for (var i = 0; i < value.length; i++) {
-        if ($this.config.filter(value[i]))
+        if ($this.filter(value[i]))
           $this.add(value[i]);
       }
       $this.data = value;
