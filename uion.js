@@ -712,16 +712,16 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
   function addClass(node, name) {
     classString(name).split(' ').forEach(function (cls) {
-      if (cls) node.classList.add(cls);
+      if (cls && node && node.classList) node.classList.add(cls);
     });
   }
 
   function hasClass(node, name) {
-    return node.classList.contains(name);
+    return node && node.classList.contains(name);
   }
 
   function removeClass(node, name) {
-    if (name && name.length > 0)
+    if (name && name.length > 0 && node && node.classList)
       node.classList.remove(name);
   }
 
