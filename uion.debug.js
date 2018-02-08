@@ -6240,8 +6240,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     template: function (config) {
       if (config.type == "icon")
         return "<i class='{{icon}} {{iconClass}}'></i><span>{{label}}</span>";
-      else
+      else if (config.label)
         return "<span>{{label}}</span>";
+      else
+        return "";
     },
     select: function () {
       /**
@@ -6702,7 +6704,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @dispatch onClose, onClosed
        * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
        */
-      this._dropdown.hide(true);
+      var self = this;
+      self.dispatch("onClose", args);
+      self._inner.dispatch("onClose", args);
+      self._dropdown.hide(true);
+      self.dispatch("onClosed", args);
+      self._inner.dispatch("onClosed", args);
     }
   }, $definitions.flexgrid, exports.AbsolutePositionMethods);
 
@@ -6744,7 +6751,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     updateItem: function (item, update) {
       /**
        * Updates an item by adding properties found on the update object.
-       * @param item The itemt o update.
+       * @param item The item to update.
        * @param update An object containing properties and values to modify.
        */
       assertPropertyValidator(update, 'update object for ' + item.id, isDefined);
@@ -7255,7 +7262,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         self.addListener("onItemSelectionChanged", self._onItemSelectionChanged);
         if (config.tab == 'responsive') {
           self.addListener("onDOMChanged", self._onDOMChanged);
-          self.add({label: "<i class='uk-icon-bars'></i>", $tabmenu: true, batch: "$menu"}, self.headNode);
+          self.add({label: "<i class='uk-icon-bars'></i>", $tabMenu: true, batch: "$menu"}, self.headNode);
           $windowListeners.resize.push(bind(self.updateFit, self));
           self.dispatch("onDOMChanged", [null, "refresh"]);
         }
@@ -7266,7 +7273,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _onTabAdded: function (item, before) {
       var self = this;
-      if (self.dropdownList && !item.$tabmenu) {
+      if (self.dropdownList && !item.$tabMenu) {
         var linked = {label: item.label, $link: item, $close: item.$close};
         self.dropdownList.add(linked, self.dropdownList.findOne("$link", before));
         // Select dropdown item if item is selected
@@ -7288,7 +7295,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _onTabClick: function (item, node, e) {
       var self = this;
-      if (item.$tabmenu) {
+      if (item.$tabMenu) {
         self.dispatch("onTabMenuClick", [item, node, e]);
       }
       else if (self.contains(item)) {
@@ -7321,7 +7328,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         // Show everything for checking y-offset (keep invisible to avoid blink)
         addClass(this.$elements[item.id], "uk-invisible");
         // Update batch according to $selected state
-        if (!item.$tabmenu) {
+        if (!item.$tabMenu) {
           item.batch = item.$selected ? "$selected" : undefined;
         }
       }, self);
@@ -7414,16 +7421,16 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (self.isSelected(item)) {
         // Select the next tab that's not a tab menu.
         var nextItem = self.previous(item) || self.next(item);
-        nextItem = nextItem && nextItem.$tabmenu ? self.next(item) : nextItem;
+        nextItem = nextItem && nextItem.$tabMenu ? self.next(item) : nextItem;
 
-        if (nextItem && !nextItem.$tabmenu) {
+        if (nextItem && !nextItem.$tabMenu) {
           self.select(nextItem);
           self.dispatch("onItemSelectionChanged", [nextItem]);
         }
       }
 
       // Don't remove if is tab menu
-      if (item && !item.$tabmenu) {
+      if (item && !item.$tabMenu) {
         self.remove(item);
       }
 
@@ -8012,7 +8019,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
 
         if (!item.$inline) {
-          controlContainer = createElement("DIV", {class: "uk-form-controls"});
+          var controlContainer = createElement("DIV", {class: "uk-form-controls"});
           controlContainer.appendChild(ui.el);
           el.appendChild(controlContainer);
         }
