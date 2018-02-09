@@ -116,6 +116,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     return Object.prototype.toString.call(obj) == '[object Function]';
   }
 
+  function isElement(obj) {
+    return obj && obj.nodeName && (obj.nodeType === 1 || obj.nodeType === 3);
+  }
+
   function assert(cond, msg, details) {
     if (!cond) {
       fail(msg, details);
@@ -206,19 +210,27 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     else return String(value);
   }
 
-  function template(template, config, thisArg, parentNode) {
-    if (isFunction(template)) {
-      template = template.call(thisArg, config);
+  function template(templateObject, config, thisArg, parentNode) {
+    if (isFunction(templateObject)) {
+      templateObject = templateObject.call(thisArg, config);
     }
-    if (isString(template)) {
-      parentNode.innerHTML = interpolate(template, config);
+    if (isString(templateObject)) {
+      parentNode.innerHTML = interpolate(templateObject, config);
     }
-    else if (isObject(template)) {
-      if (!template.$ui) {
-        template.$ui = exports.new(template);
-        thisArg.$components.push(template.$ui);
-        parentNode.appendChild(template.$ui.el);
+    else if (isElement(templateObject)) {
+      parentNode.appendChild(templateObject);
+    }
+    else if (isObject(templateObject)) {
+      if (!templateObject.$component) {
+        templateObject.$component = exports.new(templateObject);
+        thisArg.$components.push(templateObject.$component);
+        parentNode.appendChild(templateObject.$component.el);
       }
+    }
+    else if (isArray(templateObject)) {
+      templateObject.forEach(function (obj) {
+        template(obj, config, thisArg, parentNode);
+      });
     }
     else {
       fail('Unrecognized template!', config);
@@ -3020,8 +3032,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         else if (isUndefined(itemTemplate) || itemTemplate === null) {
           // Ignore undefined and nulls
         }
-        else if (itemTemplate.nodeName &&
-          (itemTemplate.nodeType === 1 || itemTemplate.nodeType === 3)) {
+        else if (isElement(itemTemplate)) {
           el.appendChild(itemTemplate);
         }
         else if (itemTemplate.el) {
