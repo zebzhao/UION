@@ -6639,7 +6639,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       pos: "bottom-center",
       padding: "none",
       justify: false,
-      dropdownCSS: "uk-dropdown-small uk-dropdown-close",
+      dropdownCSS: "uk-dropdown-close",
       dropdownAnimation: "fade",
       blank: false
     },
