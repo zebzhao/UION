@@ -33,11 +33,10 @@
 @base-mark-color:                               #444;
 @base-quote-font-style:                         italic;
 
-@base-heading-font-family:                      "Helvetica Neue", Helvetica, Arial, sans-serif;
 @base-heading-font-weight:                      normal;
 @base-heading-color:                            #444;
 @base-heading-text-transform:                   none;
-@base-heading-margin-top:                       15px;
+@base-heading-margin-top:                       0;
 @base-h1-font-size:                             36px;
 @base-h1-line-height:                           42px;
 @base-h2-font-size:                             24px;
@@ -272,11 +271,45 @@ img {
 
 svg:not(:root) { overflow: hidden; }
 
+
+/* Block elements
+ ========================================================================== */
+
+/*
+ * Reset margin
+ */
+
+blockquote,
+figure { margin: 0; }
+
+/*
+ * Margins
+ */
+
+p,
+ol,
+blockquote,
+pre,
+address,
+fieldset,
+figure { margin: 0; }
+
+* + p,
+* + ul,
+* + dt,
+* + ol,
+* + blockquote,
+* + pre,
+* + address,
+* + fieldset,
+* + figure { margin-top: 0; }
+
+
 /* Headings
  ========================================================================== */
 
 h1, h2, h3, h4, h5, h6 {
-    font-family:  @base-heading-font-family;
+    margin: 0;
     font-weight: @base-heading-font-weight;
     color: @base-heading-color;
     text-transform: @base-heading-text-transform;

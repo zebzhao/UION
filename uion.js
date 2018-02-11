@@ -1505,6 +1505,15 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
   exports.FormControl = {
     __name__: 'FormControl',
+    $defaults: {
+      formDangerClass: "uk-form-danger",
+      formSuccessClass: "uk-form-success",
+      helpDangerClass: "uk-text-danger",
+      helpSuccessClass: "uk-text-success",
+      helpTag: "P",
+      helpTagClass: "uk-form-help-block",
+      helpTagClassInline: "uk-form-help-inline"
+    },
     $setters: extend(
       classSetters({
         size: prefixClassOptions({
@@ -1523,12 +1532,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             self.help.parentNode.removeChild(self.help);
           }
           if (value) {
-            if (self.config.inline) {
-              self.help = createElement("SPAN", {class: "uk-form-help-inline"});
-            }
-            else {
-              self.help = createElement("P", {class: "uk-form-help-block"});
-            }
+            self.help = createElement(this.helpTag, {class: (self.config.inline ?
+              this.helpTagClassInline : this.helpTagClass)});
             self.help.innerHTML = value;
             self.getFormControl().parentNode.appendChild(self.help);
           }
@@ -1565,13 +1570,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Clear any of display class applied to the form control.
        */
       var formControl = this.getFormControl();
-      removeClass(formControl, "uk-form-danger");
-      removeClass(formControl, "uk-form-success");
+      removeClass(formControl, this.formDangerClass);
+      removeClass(formControl, this.formSuccessClass);
 
       var helpControl = this.help;
       if (helpControl) {
-        removeClass(helpControl, "uk-text-danger");
-        removeClass(helpControl, "uk-text-success");
+        removeClass(helpControl, this.helpDangerClass);
+        removeClass(helpControl, this.helpSuccessClass);
       }
     },
     setFormClass: function (value) {
@@ -1585,12 +1590,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.clearFormClass();
 
       if (value == 'success') {
-        addClass(formControl, "uk-form-success");
-        if (helpControl) addClass(helpControl, "uk-text-success");
+        addClass(formControl, this.formSuccessClass);
+        if (helpControl) addClass(helpControl, this.helpSuccessClass);
       }
       else if (value == 'danger') {
-        addClass(formControl, "uk-form-danger");
-        if (helpControl) addClass(helpControl, "uk-text-danger");
+        addClass(formControl, this.formDangerClass);
+        if (helpControl) addClass(helpControl, this.helpDangerClass);
       }
     },
     reset: function () {
