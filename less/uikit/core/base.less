@@ -33,8 +33,6 @@
 @base-mark-color:                               #444;
 @base-quote-font-style:                         italic;
 
-@base-margin-vertical:                          15px;
-
 @base-heading-font-family:                      "Helvetica Neue", Helvetica, Arial, sans-serif;
 @base-heading-font-weight:                      normal;
 @base-heading-color:                            #444;
@@ -55,7 +53,7 @@
 
 @base-list-padding-left:                        30px;
 
-@base-hr-margin-vertical:                       @base-margin-vertical;
+@base-hr-margin-vertical:                       15px;
 @base-hr-border:                                #ddd;
 @base-hr-border-width:                          1px;
 
@@ -274,45 +272,10 @@ img {
 
 svg:not(:root) { overflow: hidden; }
 
-
-/* Block elements
- ========================================================================== */
-
-/*
- * Reset margin
- */
-
-blockquote,
-figure { margin: 0; }
-
-/*
- * Margins
- */
-
-p,
-ol,
-blockquote,
-pre,
-address,
-fieldset,
-figure { margin: 0 0 @base-margin-vertical 0; }
-
-* + p,
-* + ul,
-* + dt,
-* + ol,
-* + blockquote,
-* + pre,
-* + address,
-* + fieldset,
-* + figure { margin-top: @base-margin-vertical; }
-
-
 /* Headings
  ========================================================================== */
 
 h1, h2, h3, h4, h5, h6 {
-    margin: 0 0 @base-margin-vertical 0;
     font-family:  @base-heading-font-family;
     font-weight: @base-heading-font-weight;
     color: @base-heading-color;
