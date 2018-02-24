@@ -4815,12 +4815,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
   function removeListener(id) {
     if (!id) return;
-    assertPropertyValidator($listeners[id], 'Event ' + id, isDefined);
-
     var e = $listeners[id];
-    e[0].removeEventListener(e[1], e[2]);
-
-    delete $listeners[id];
+    if (e) {
+      e[0].removeEventListener(e[1], e[2]);
+      delete $listeners[id];
+    }
   }
 
   exports.Dispatcher = {
@@ -4916,18 +4915,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     __after__: function (config) {
       var $this = this;
       var on = config.on || {};
+      $this.$listeners  = [];
       forIn(function (eventName, listenerConfig) {
         if (!listenerConfig.lazy || on[listenerConfig.dispatch]) {
-          addListener($this.responder(), eventName, function (e) {
-            var retVal;
-            var config = getConfig($this);
-            if (isFunction(listenerConfig.callback)) {
-              retVal = listenerConfig.callback.call($this, config, $this.el, e);
-            }
-            if (!listenerConfig.defaultEvent) preventEvent(e);
-            $this.dispatch(listenerConfig.dispatch, [config, $this.el, e]);
-            return retVal;
-          });
+          $this.$listeners.push(
+            addListener($this.responder(), eventName, function (e) {
+              var retVal;
+              var config = getConfig($this);
+              if (isFunction(listenerConfig.callback)) {
+                retVal = listenerConfig.callback.call($this, config, $this.el, e);
+              }
+              if (!listenerConfig.defaultEvent) preventEvent(e);
+              $this.dispatch(listenerConfig.dispatch, [config, $this.el, e]);
+              return retVal;
+            })
+          );
         }
       }, defaults(config.$events || {}, $this.$events));
     },
@@ -5702,6 +5704,15 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       extend(self.el.style, config.style || {});
 
       self.render();
+    },
+    dispose: function () {
+      var self = this;
+      self.dispatch("onDispose");
+      self.$components.forEach(function (component) {
+        component.dispose();
+      });
+      delete $components[getConfig(self).id];
+      self.$listeners.forEach(removeListener);
     },
     render: function () {
       /**
@@ -7070,11 +7081,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.addListener("onDeleted", self._onDeleted);
       self.addListener("onRefresh", self._onRefresh);
       self.addListener("onClearAll", self._onClearAll);
+      self.addListener("onDispose", self._onClearAll);
 
       if (config.data) self.setData(config.data);
     },
     __init__: function () {
       this.$elements = {};
+      this.$itemListeners = {};
+      this.$itemComponents = {};  // Mapping of item ids to component objects;
     },
     getItemNode: function (id) {
       /**
@@ -7110,6 +7124,24 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this.$elements[item.id] = el;
       return el;
     },
+    _onDispose: function () {
+      var self = this;
+      forInLoop(function (key, node) {
+        if (node.parentNode) self.containerElement().removeChild(node);
+      }, self.$elements);
+
+      forInLoop(function (id, listeners) {
+        listeners.forEach(removeListener);
+      }, self.$itemListeners);
+
+      forInLoop(function (id, component) {
+        component.dispose();
+      }, self.$itemComponents);
+
+      self.$itemListeners = {};
+      self.$elements = {};
+      self.$itemComponents = {};
+    },
     _onAdded: function (obj) {
       var self = this;
       if (obj.$tailNode)
@@ -7136,12 +7168,25 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.containerElement().removeChild(self.getItemNode(obj.id));
       delete self.$elements[obj.id];
 
+      // Dispose item global listeners
+      var itemListeners = self.$itemListeners[obj.id];
+      if (itemListeners) {
+        itemListeners.forEach(removeListener);
+        delete self.$itemListeners[obj.id];
+      }
+
+      // Dispose item component
+      var itemComponent = self.$itemComponents[obj.id];
+      if (itemComponent) {
+        itemComponent.dispose();
+        delete self.$itemComponents[obj.id];
+      }
+
       self.dispatch("onDOMChanged", [obj, "deleted"]);
     },
     _onRefresh: function () {
       var self = this;
       self._onClearAll();
-      self.$elements = {};
       self.each(function (node) {
         self.$elements[node.id] = self.createItemElement(node);
         if (self.filter(node))
@@ -7151,13 +7196,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.dispatch("onDOMChanged", [null, "refresh"]);
     },
     _onClearAll: function () {
-      var $this = this;
-      
-      forInLoop(function (key, node) {
-        if (node.parentNode) $this.containerElement().removeChild(node);
-      }, $this.$elements);
-      
-      $this.dispatch("onDOMChanged", [null, "clear"]);
+      this._onDispose();  // This just cleans up the item listeners and global references
+      this.dispatch("onDOMChanged", [null, "clear"]);
     },
     setData: function (value) {
       /**
@@ -7490,6 +7530,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
         else if (itemTemplate.el) {
           el.appendChild(itemTemplate.el);
+          self.$itemComponents[item.id] = itemTemplate;
           self.$components.push(itemTemplate);
         }
         else {
@@ -7501,18 +7542,25 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (item.header || item.divider) return;
 
       var self = this;
+      var listenerId;
       var on = self.config.on || {};
 
+      var $listeners = self.$itemListeners[item.id] = self.$itemListeners[item.id] || [];
+
       if (on.onItemClick) {
-        addListener(el, "click", function (e) {
+        listenerId = addListener(el, "click", function (e) {
           if (!exports.$dragged) self.dispatch("onItemClick", [item, el, e]);
         });
+        $listeners.push(listenerId);
+        self.$listeners.push(listenerId);
       }
 
       if (on.onItemContext) {
-        addListener(el, "contextmenu", function (e) {
+        listenerId = addListener(el, "contextmenu", function (e) {
           self.dispatch("onItemContext", [item, el, e]);
         });
+        $listeners.push(listenerId);
+        self.$listeners.push(listenerId);
       }
 
       if (self.droppable && item.$droppable !== false) {
@@ -7524,12 +7572,22 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (self.draggable && item.$draggable !== false) {
         setAttributes(el, {draggable: 'false'});
 
-        addListener(el, "dragstart", function (e) {
+        listenerId = addListener(el, "dragstart", function (e) {
           preventEvent(e);
         }, self);
 
-        if (UIkit.support.touch) addListener(el, "touchstart", onMouseDown, self);
-        addListener(el, "mousedown", onMouseDown, self);
+        $listeners.push(listenerId);
+        self.$listeners.push(listenerId);
+
+        if (UIkit.support.touch) {
+          listenerId = addListener(el, "touchstart", onMouseDown, self);
+          $listeners.push(listenerId);
+          self.$listeners.push(listenerId);
+        }
+
+        listenerId = addListener(el, "mousedown", onMouseDown, self);
+        $listeners.push(listenerId);
+        self.$listeners.push(listenerId);
 
         function onMouseDown(e) {
           if (isFunction(this.draggable) && !this.draggable(e)) {
@@ -8024,23 +8082,24 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         el.innerHTML = item.label;
       }
       else {
-        var ui = exports.new(item);
-        this.$components.push(ui);
+        var component = exports.new(item);
+        this.$itemComponents[item.id] = component;
+        this.$components.push(component);
 
         if (item.formLabel) {
-          ui.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
-          ui.label.innerHTML = item.formLabel;
-          if (item.$inline) addClass(ui.label, "uk-display-inline");
-          el.appendChild(ui.label);
+          component.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
+          component.label.innerHTML = item.formLabel;
+          if (item.$inline) addClass(component.label, "uk-display-inline");
+          el.appendChild(component.label);
         }
 
         if (!item.$inline) {
           var controlContainer = createElement("DIV", {class: "uk-form-controls"});
-          controlContainer.appendChild(ui.el);
+          controlContainer.appendChild(component.el);
           el.appendChild(controlContainer);
         }
         else {
-          el.appendChild(ui);
+          el.appendChild(component);
         }
       }
     },
