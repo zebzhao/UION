@@ -5667,8 +5667,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
         config.on = config.on || {};
         self.addListener(config.dropdownEvent, function (config, node) {
+          var relativeNode = $$(dropdownOptions.relativeTo) || node;
           ui.open(config);
-          ui.positionNextTo(node, dropdown.pos, dropdownOptions.marginX, dropdownOptions.marginY);
+          ui.positionNextTo(relativeNode, dropdown.pos, dropdownOptions.marginX, dropdownOptions.marginY);
           ui.moveWithinBoundary();
         });
         self.dropdownPopup = ui;
