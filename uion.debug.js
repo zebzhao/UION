@@ -4512,6 +4512,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     echo: echo,
     delay: delay,
     interpolate: interpolate,
+    capitalize: capitalize,
     template: template,
 
     createElement: createElement,
@@ -4611,6 +4612,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       else console.log(type + ": " + message);
       if (explanation) console.log(explanation);
     }
+  }
+
+  function capitalize(str) {
+    return (str + '').replace(/^([a-z])|\s+([a-z])/g, function ($1) {
+      return $1.toUpperCase();
+    });
   }
 
   function interpolate(str, obj) {
