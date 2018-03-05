@@ -2705,10 +2705,16 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _onAdded: function (obj) {
       var self = this;
+      var node = self.createItemElement(obj);
+
+      if (self._checkItemHidden(obj)) {
+        addClass(node, HIDDEN_CLASS);
+      }
+
       if (obj.$tailNode)
-        self.containerElement().insertBefore(self.createItemElement(obj), self.getItemNode(obj.$tailNode.id));
+        self.containerElement().insertBefore(node, self.getItemNode(obj.$tailNode.id));
       else
-        self.containerElement().appendChild(self.createItemElement(obj));
+        self.containerElement().appendChild(node);
 
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
@@ -2748,10 +2754,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     _onRefresh: function () {
       var self = this;
       self._onClearAll();
-      self.each(function (node) {
-        self.$elements[node.id] = self.createItemElement(node);
-        if (self.filter(node))
-          self.containerElement().appendChild(self.$elements[node.id]);
+      self.each(function (item) {
+        var node = self.$elements[item.id] = self.createItemElement(item);
+        self.containerElement().appendChild(node);
+        if (self._checkItemHidden(item)) addClass(node, HIDDEN_CLASS);
       });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -2760,20 +2766,27 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       this._onDispose();  // This just cleans up the item listeners and global references
       this.dispatch("onDOMChanged", [null, "clear"]);
     },
-    setData: function (value) {
+    _checkItemHidden: function (item) {
+      return !this.filter(item);
+    },
+    setData: function (data) {
       /**
        * Sets the data for the component.
-       * @param value An array of component configuration objects. The default view object is 'link' if none is specified.
+       * @param data An array of component configuration objects. The default view object is 'link' if none is specified.
        */
-      assertPropertyValidator(value, 'setData argument value', isArray);
+      assertPropertyValidator(data, 'setData argument data', isArray);
 
       var $this = this;
       $this.clearAll();
-      for (var i = 0; i < value.length; i++) {
-        if ($this.filter(value[i]))
-          $this.add(value[i]);
-      }
-      $this.data = value;
+
+      data.forEach(function (item) {
+        $this.add(item);
+        if ($this._checkItemHidden(item)) {
+          addClass(node, HIDDEN_CLASS);
+        }
+      });
+
+      $this.data = data;
     },
     getBatch: function () {
       /**
@@ -3243,6 +3256,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         return true;
       }, item.$children, this);
     },
+    _checkItemHidden: function (item) {
+      var parent = this.getItem(item.$parent);
+      var closed = false;
+
+      while (parent) {
+        if (parent.$closed) {
+          closed = true;
+          break;
+        } else {
+          parent = this.getItem(parent.$parent);
+        }
+      }
+
+      return !this.filter(item) || closed;
+    },
     add: function (obj) {
       /**
        * Add a child to the tree.
@@ -3257,7 +3285,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         obj.$depth = 0;
       }
       else {
-        parent = self.findOne('id', obj.$parent);
+        parent = self.getItem(obj.$parent);
         obj.$depth = parent.$depth + 1;
         parent.$branch = true;
         parent.$children.push(obj);
