@@ -2707,7 +2707,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       var node = self.createItemElement(obj);
 
-      if (self._checkItemHidden(obj)) {
+      obj.$hidden = self._checkItemHidden(obj);
+
+      if (obj.$hidden) {
         addClass(node, HIDDEN_CLASS);
       }
 
@@ -2718,8 +2720,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
-        var parentNode = self.getItemNode(parent.id);
-        parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
+        if (parent.$children.length === 1) {
+          var parentNode = self.getItemNode(parent.id);
+          var newParentNode = self.createItemElement(parent);
+          if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
+          parentNode.parentNode.replaceChild(newParentNode, parentNode);
+        }
       }
 
       self.dispatch("onDOMChanged", [obj, "added"]);
@@ -2729,8 +2735,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
         removeFromArray(parent.$children, obj);
-        var parentNode = self.getItemNode(parent.id);
-        parentNode.parentNode.replaceChild(self.createItemElement(parent), parentNode);
+        if (parent.$children.length === 0) {
+          var parentNode = self.getItemNode(parent.id);
+          var newParentNode = self.createItemElement(parent);
+          if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
+          parentNode.parentNode.replaceChild(newParentNode, parentNode);
+        }
       }
       self.containerElement().removeChild(self.getItemNode(obj.id));
       delete self.$elements[obj.id];
@@ -2757,7 +2767,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.each(function (item) {
         var node = self.$elements[item.id] = self.createItemElement(item);
         self.containerElement().appendChild(node);
-        if (self._checkItemHidden(item)) addClass(node, HIDDEN_CLASS);
+        item.$hidden = self._checkItemHidden(item);
+        if (item.$hidden) addClass(node, HIDDEN_CLASS);
       });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -2781,9 +2792,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       data.forEach(function (item) {
         $this.add(item);
-        if ($this._checkItemHidden(item)) {
-          addClass(node, HIDDEN_CLASS);
-        }
+        item.$hidden = $this._checkItemHidden(item);
+        if (item.$hidden) addClass(node, HIDDEN_CLASS);
       });
 
       $this.data = data;
