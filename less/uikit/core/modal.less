@@ -39,13 +39,14 @@
 @modal-background:                              rgba(0,0,0,0.6);
 
 @modal-dialog-margin-vertical:                  50px;
-@modal-dialog-padding:                          20px;
+@modal-dialog-padding:                          0;
 @modal-dialog-width:                            450px;
 @modal-dialog-background:                       #fff;
 @modal-dialog-box-shadow:                       0 5px 15px rgba(0,0,0,0.15);
 
 @modal-dialog-large-width:                      600px;
 @modal-dialog-large-width-large:                930px;
+@modal-dialog-border-rounded:                   3px;
 
 @modal-header-margin-bottom:                    0;
 
@@ -129,7 +130,8 @@
     margin: @modal-dialog-margin-vertical auto;
     padding: @modal-dialog-padding;
     width: @modal-dialog-width;
-    max-width: ~"calc(100% - 20px)";
+    border-radius: @modal-dialog-border-rounded;
+    max-width: ~"calc(100% - 32px)";
     /* 3 */
     background: @modal-dialog-background;
     /* 4 */
@@ -141,16 +143,22 @@
     .hook-modal-dialog;
 }
 
-/* Phone landscape and smaller */
-@media (max-width: @breakpoint-small-max) {
+@media (min-width: @breakpoint-mini-max) {
+    .uk-modal-dialog-full {
+        height: inherit; /* Hack to fix known vh vw issues in Safari */
+        max-height: ~"calc(100vh - 96px)";
+    }
+}
 
+/* Phone landscape and smaller */
+@media (max-width: @breakpoint-mini-max) {
     /*
      * Fit in small screen
      */
 
     .uk-modal-dialog {
         width: auto;
-        margin: 10px auto;
+        margin: @global-margin auto;
     }
 
     .uk-modal-dialog.uk-modal-dialog-full {
@@ -201,7 +209,7 @@
  ========================================================================== */
 
 .uk-modal-dialog-lightbox {
-    margin: 15px auto;
+    margin: @global-margin auto;
     padding: 0;
     max-width: 95%;
     max-width: ~"calc(100% - 30px)";
@@ -246,8 +254,8 @@
 
 .uk-modal-dialog-blank > .uk-close:first-child {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: @global-margin;
+    right: @global-margin;
     z-index: 1;
     margin: 0;
     float: none;
