@@ -2792,8 +2792,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       data.forEach(function (item) {
         $this.add(item);
-        item.$hidden = $this._checkItemHidden(item);
-        if (item.$hidden) addClass(node, HIDDEN_CLASS);
       });
 
       $this.data = data;
