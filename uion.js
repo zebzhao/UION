@@ -47,6 +47,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
     forIn: forIn,
     forInLoop: forInLoop,
+    forEachUntil: forEachUntil,
 
     assert: assert,
     assertPropertyValidator: assertPropertyValidator,
@@ -2720,7 +2721,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
 
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
-        if (parent.$children.length === 1) {
+        if (parent && parent.$children && parent.$children.length === 1) {
           var parentNode = self.getItemNode(parent.id);
           var newParentNode = self.createItemElement(parent);
           if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
@@ -2734,12 +2735,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
-        removeFromArray(parent.$children, obj);
-        if (parent.$children.length === 0) {
-          var parentNode = self.getItemNode(parent.id);
-          var newParentNode = self.createItemElement(parent);
-          if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
-          parentNode.parentNode.replaceChild(newParentNode, parentNode);
+        if (parent && parent.$children) {
+          removeFromArray(parent.$children, obj);
+          if (parent.$children.length === 0) {
+            var parentNode = self.getItemNode(parent.id);
+            var newParentNode = self.createItemElement(parent);
+            if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
+            parentNode.parentNode.replaceChild(newParentNode, parentNode);
+          }
         }
       }
       self.containerElement().removeChild(self.getItemNode(obj.id));
