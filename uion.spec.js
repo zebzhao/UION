@@ -66,6 +66,10 @@ describe('helper basis', function () {
     expect(UI.interpolate(templateString,
       {test: {awesome: 'cool', ride: {ride: 'know'}}, cool: 'sixty', cool2: '-two'})).toEqual('cool, know, sixty-two');
   });
+
+  it('should polyfill keyboardevent', function () {
+    expect(UI.polyfillKeyboardEvent({keyCode: 13}).key).toBe('Enter');
+  });
 });
 
 describe('dispatcher', function () {

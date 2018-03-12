@@ -45,6 +45,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     isBoolean: isBoolean,
     isFunction: isFunction,
 
+    polyfillKeyboardEvent: polyfillKeyboardEvent,
+
     forIn: forIn,
     forInLoop: forInLoop,
     forEachUntil: forEachUntil,
@@ -165,6 +167,113 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       else console.log(type + ": " + message);
       if (explanation) console.log(explanation);
     }
+  }
+
+  var keyLookup = (function () {
+    var keys = {
+      3: 'Cancel',
+      6: 'Help',
+      8: 'Backspace',
+      9: 'Tab',
+      12: 'Clear',
+      13: 'Enter',
+      16: 'Shift',
+      17: 'Control',
+      18: 'Alt',
+      19: 'Pause',
+      20: 'CapsLock',
+      27: 'Escape',
+      28: 'Convert',
+      29: 'NonConvert',
+      30: 'Accept',
+      31: 'ModeChange',
+      32: ' ',
+      33: 'PageUp',
+      34: 'PageDown',
+      35: 'End',
+      36: 'Home',
+      37: 'ArrowLeft',
+      38: 'ArrowUp',
+      39: 'ArrowRight',
+      40: 'ArrowDown',
+      41: 'Select',
+      42: 'Print',
+      43: 'Execute',
+      44: 'PrintScreen',
+      45: 'Insert',
+      46: 'Delete',
+      48: ['0', ')'],
+      49: ['1', '!'],
+      50: ['2', '@'],
+      51: ['3', '#'],
+      52: ['4', '$'],
+      53: ['5', '%'],
+      54: ['6', '^'],
+      55: ['7', '&'],
+      56: ['8', '*'],
+      57: ['9', '('],
+      91: 'OS',
+      93: 'ContextMenu',
+      106: '*',
+      107: '+',
+      109: '-',
+      110: '.',
+      111: '/',
+      144: 'NumLock',
+      145: 'ScrollLock',
+      181: 'VolumeMute',
+      182: 'VolumeDown',
+      183: 'VolumeUp',
+      186: [';', ':'],
+      187: ['=', '+'],
+      188: [',', '<'],
+      189: ['-', '_'],
+      190: ['.', '>'],
+      191: ['/', '?'],
+      192: ['`', '~'],
+      219: ['[', '{'],
+      220: ['\\', '|'],
+      221: [']', '}'],
+      222: ["'", '"'],
+      224: 'Meta',
+      225: 'AltGraph',
+      246: 'Attn',
+      247: 'CrSel',
+      248: 'ExSel',
+      249: 'EraseEof',
+      250: 'Play',
+      251: 'ZoomOut'
+    };
+
+    // Function keys (F1-24).
+    var i;
+    for (i = 1; i < 25; i++) {
+      keys[111 + i] = 'F' + i;
+    }
+
+    // Printable ASCII characters.
+    var letter = '';
+    for (i = 65; i < 91; i++) {
+      letter = String.fromCharCode(i);
+      keys[i] = [letter.toLowerCase(), letter.toUpperCase()];
+    }
+
+    // Numbers on numeric keyboard.
+    for (i = 96; i < 106; i++) {
+      letter = String.fromCharCode(i - 48);
+      keys[i] = letter;
+    }
+
+    return keys;
+  }());
+
+  function polyfillKeyboardEvent(keyEvent) {
+    var key = keyLookup[keyEvent.which || keyEvent.keyCode];
+    if (isArray(key)) {
+      key = key[+keyEvent.shiftKey];
+    }
+    keyEvent.key = key;
+    return keyEvent;
   }
 
   function capitalize(str) {
@@ -474,6 +583,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $events: {},
     __after__: function (config) {
       var $this = this;
+      var keyTest = /^key/;
       var on = config.on || {};
       $this.$listeners  = [];
       forIn(function (eventName, listenerConfig) {
@@ -482,6 +592,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
             addListener($this.responder(), eventName, function (e) {
               var retVal;
               var config = getConfig($this);
+              if (keyTest.test(e.type)) polyfillKeyboardEvent(e);
               if (isFunction(listenerConfig.callback)) {
                 retVal = listenerConfig.callback.call($this, config, $this.el, e);
               }
@@ -2091,6 +2202,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: {
       checked: function (value) {
         this.getFormControl().checked = value;
+      },
+      readonly: function (value) {
+        setAttributes(this.getFormControl(), {readonly: value});
       }
     },
     reset: function () {
