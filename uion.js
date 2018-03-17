@@ -268,7 +268,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   }());
 
   function polyfillKeyboardEvent(keyEvent) {
-    var key = keyLookup[keyEvent.which || keyEvent.keyCode];
+    var key = keyLookup[keyEvent.which || keyEvent.keyCode] || keyEvent.key;
     if (isArray(key)) {
       key = key[+keyEvent.shiftKey];
     }
@@ -339,9 +339,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
     else if (isObject(templateObject)) {
       if (!templateObject.$component) {
-        templateObject.$component = exports.new(templateObject);
+        templateObject.$component = exports.new(templateObject, parentNode);
         thisArg.$components.push(templateObject.$component);
-        parentNode.appendChild(templateObject.$component.el);
       }
     }
     else if (isArray(templateObject)) {
@@ -419,12 +418,13 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     compiled.$events = $events;
     compiled.$setters = $setters;
 
-    function Component(config) {
+    function Component(config, callback) {
       var self = this;
       defaults(config, self.$defaults);
       defaults(self, config);
       self.template = config.template || self.template;
       if (self.__init__) self.__init__(config);
+      if (callback) callback(self.el);
       if (self.__after__) self.__after__(config);
       if (self.dispatch) self.dispatch("onInitialized");
     }
@@ -1135,22 +1135,17 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   };
 
 
-  exports.new = function (config, parent) {
-    var node = makeView(config);
-    if (parent)
-      parent.appendChild(node.element);
-    return node;
+  exports.new = function (config, callback) {
+    if (callback && !isFunction(callback)) callback = callback.appendChild.bind(callback);
+    return makeView(config, callback);
 
-    function makeView(config) {
-      if (config.view) {
-        var view = config.view;
-        assertPropertyValidator($definitions[view], 'definition ' + view, isDefined);
-        return new $definitions[view](config);
-      }
-      else if (config.cells)
-        return new $definitions.flexgrid(config);
-      else
-        return new $definitions.element(config);
+    function makeView(config, callback) {
+      var view;
+      if (config.view) view = config.view;
+      else if (config.cells) view = 'flexgrid';
+      else view = 'element';
+      assertPropertyValidator($definitions[view], 'definition ' + view, isDefined);
+      return new $definitions[view](config, callback);
     }
   };
 
@@ -1509,20 +1504,30 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param config The configuration object representing the new child.
        * @returns {object} The child component
        */
-      var ui = config.element ? config : exports.new(config);
       var self = this;
-      self.$components.splice(index, 0, ui);
+      var ui;
 
-      if (!self.config.singleView) {
-        if (index > 0)
-          self.el.insertAfter(ui.el, self.$components[index - 1].el);
-        else if (index + 1 < self.$components.length)
-          self.el.insertBefore(ui.el, self.$components[index + 1].el);
-        else
-          self.el.appendChild(ui.el)
+      if (config.el) {
+        ui = config;
+        appendChild(ui.el);
+      } else {
+        ui = exports.new(config, appendChild);
       }
 
+      self.$components.splice(index, 0, ui);
+
       return ui;
+
+      function appendChild(element) {
+        if (!self.config.singleView) {
+          if (index > 0)
+            self.el.insertAfter(element, self.$components[index - 1].el);
+          else if (index + 1 < self.$components.length)
+            self.el.insertBefore(element, self.$components[index + 1].el);
+          else
+            self.el.appendChild(element)
+        }
+      }
     },
     addChild: function (config) {
       /**
@@ -1530,14 +1535,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param config Configuration of the new child.
        * @returns {object} The child component
        */
-      var ui = config.element ? config : exports.new(config);
       var self = this;
-      self.$components.push(ui);
-
-      if (!self.config.singleView)
-        self.el.appendChild(ui.el);
-
-      return ui;
+      var component = config.element ? config : exports.new(config, function (el) {
+        if (!self.config.singleView) self.el.appendChild(el);
+      });
+      self.$components.push(component);
+      return component;
     },
     removeChild: function (id) {
       /**
@@ -1848,29 +1851,26 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         }
       },
       body: function (value) {
-        var innerBody = exports.new(value);
         var self = this;
+        var innerBody = exports.new(value, function (el) {
+          if (self._footer.parentNode) {
+            self._body.insertBefore(el, self._footer);
+          } else {
+            self._body.appendChild(el);
+          }
+        });
         self.bodyContent = innerBody;
         self.$components.push(self.bodyContent);
-
-        if (self._footer.parentNode) {
-          self._body.insertBefore(innerBody.el, self._footer);
-        }
-        else {
-          self._body.appendChild(innerBody.el);
-        }
       },
       header: function (value) {
-        var innerHeader = exports.new(value);
         var self = this;
-        self._header.appendChild(innerHeader.el);
+        var innerHeader = exports.new(value, self._header);
         self.headerContent = innerHeader;
         self.$components.push(self.headerContent);
       },
       footer: function (value) {
-        var innerFooter = exports.new(value);
         var self = this;
-        self._footer.appendChild(innerFooter.el);
+        var innerFooter = exports.new(value, self._footer);
         self.footerContent = innerFooter;
         self.$components.push(self.footerContent);
       },
@@ -2338,16 +2338,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: {
       dropdown: function (value) {
         var self = this;
-        var dropdown = createElement("DIV",
+        var dropdownContainer = createElement("DIV",
           {class: classString(self.dropdownClass())});
 
         if (!value.listStyle) {
           value.listStyle = "dropdown";
         }
-
-        var ui = exports.new(value);
-        dropdown.appendChild(ui.el);
-        self.el.appendChild(dropdown);
+        self.el.appendChild(dropdownContainer);
+        var ui = exports.new(value, dropdownContainer);
         self._inner = ui;
         self.$components.push(self._inner);
       }
@@ -3708,10 +3706,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           var self = this;
 
           value.forEach(function (config) {
-            var ui = exports.new(config);
+            var ui = exports.new(config, self.el);
             self.$fieldsets.push(ui);
             self.$components.push(ui);
-            self.el.appendChild(ui.el);
           });
         }
       }),
@@ -3796,24 +3793,24 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         el.innerHTML = item.label;
       }
       else {
-        var component = exports.new(item);
+        var component = exports.new(item, function (componentElement) {
+          if (!item.$inline) {
+            var controlContainer = createElement("DIV", {class: "uk-form-controls"});
+            controlContainer.appendChild(componentElement);
+            el.appendChild(controlContainer);
+          }
+          else {
+            el.appendChild(componentElement);
+          }
+        });
         this.$itemComponents[item.id] = component;
         this.$components.push(component);
 
         if (item.formLabel) {
-          component.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
-          component.label.innerHTML = item.formLabel;
-          if (item.$inline) addClass(component.label, "uk-display-inline");
-          el.appendChild(component.label);
-        }
-
-        if (!item.$inline) {
-          var controlContainer = createElement("DIV", {class: "uk-form-controls"});
-          controlContainer.appendChild(component.el);
-          el.appendChild(controlContainer);
-        }
-        else {
-          el.appendChild(component);
+          var label = component.label = createElement("LABEL", {class: "uk-form-label", for: item.id});
+          label.innerHTML = item.formLabel;
+          if (item.$inline) addClass(label, "uk-display-inline");
+          el.insertBefore(label, el.firstChild);
         }
       }
     },
