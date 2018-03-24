@@ -7263,6 +7263,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.$itemListeners = {};
       self.$elements = {};
       self.$itemComponents = {};
+      self.$components = [];
     },
     _onAdded: function (obj) {
       var self = this;
