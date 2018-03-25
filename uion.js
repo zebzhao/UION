@@ -746,10 +746,18 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "none": "remove",
       "top-rm": "top-remove",
       "bottom-rm": "bottom-remove",
+      "left-rm": "left-remove",
+      "right-rm": "right-remove",
       "": "",
-      "all-sm": ["small-left", "small-right", "small-top", "small-bottom"],
-      "all": ["left", "right", "top", "bottom"],
-      "all-lg": ["large-left", "large-right", "large-top", "large-bottom"],
+      "all-sm": ["small-x", "small-y"],
+      "all": ["x", "y"],
+      "all-lg": ["large-x", "large-y"],
+      "x": "x",
+      "x-sm": "small-x",
+      "x-lg": "large-x",
+      "y": "y",
+      "y-sm": "small-y",
+      "y-lg": "large-y",
       "lg": "large",
       "sm": "small",
       "top": "top",
@@ -2736,7 +2744,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   $definitions.stack = def({
     __name__: "stack",
     $defaults: {
-      filter: returnTrue,
+      filter: function (item) {
+        return !item.$parentClosed;
+      },
       droppable: returnTrue,
       itemTag: 'DIV',
       itemTagClass: ''
@@ -2879,12 +2889,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _onRefresh: function () {
       var self = this;
-      self._onClearAll();
       self.each(function (item) {
-        var node = self.$elements[item.id] = self.createItemElement(item);
-        self.containerElement().appendChild(node);
+        var node = self.getItemNode(item.id);
         item.$hidden = self._checkItemHidden(item);
         if (item.$hidden) addClass(node, HIDDEN_CLASS);
+        else removeClass(node, HIDDEN_CLASS);
       });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -3358,6 +3367,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _showChildren: function (item) {
       forEachUntil(function (child, queue) {
+        child.$parentClosed = false;
         removeClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch && !child.$closed) {
@@ -3370,6 +3380,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _hideChildren: function (item) {
       forEachUntil(function (child, queue) {
+        child.$parentClosed = true;
         addClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
         if (item.$branch) {
@@ -3380,10 +3391,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         return true;
       }, item.$children, this);
     },
-    _checkItemHidden: function (item) {
+    _checkParentClosed: function (item) {
       var parent = this.getItem(item.$parent);
       var closed = false;
-
       while (parent) {
         if (parent.$closed) {
           closed = true;
@@ -3392,8 +3402,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           parent = this.getItem(parent.$parent);
         }
       }
-
-      return !this.filter(item) || closed;
+      return closed;
     },
     add: function (obj) {
       /**
@@ -3410,6 +3419,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
       else {
         parent = self.getItem(obj.$parent);
+        obj.$parentClosed = self._checkParentClosed(obj);
         obj.$depth = parent.$depth + 1;
         parent.$branch = true;
         parent.$children.push(obj);
