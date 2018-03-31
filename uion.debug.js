@@ -7867,6 +7867,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item A child of the tree. The parent id of the object should be specified in its $parent property.
        */
       obj.$branch = !!obj.$branch; // Convert to boolean
+      if (obj.$branch) obj.$children = [];
 
       var self = this;
       if (!obj.$parent) {
@@ -7875,10 +7876,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       else {
         var parent = self.getItem(obj.$parent);
         obj.$parentClosed = self._checkParentClosed(obj);
-		obj.$depth = parent.$depth + 1;
-		obj.$hidden = this._checkItemHidden(obj);
-		parent.$branch = true;
-		parent.$children = parent.$children || [];
+        obj.$depth = parent.$depth + 1;
+        obj.$hidden = this._checkItemHidden(obj);
+        parent.$branch = true;
+        parent.$children = parent.$children || [];
         parent.$children.push(obj);
       }
       var refChild = self.findLast(self.config.orderAfter, parent, obj);
