@@ -70,6 +70,23 @@
 
 
   (function ($setters) {
+    $setters._meta = extend({
+      href: {isText: true, placeholder: 'Href attribute'},
+      src: {isText: true, placeholder: 'Src attribute'},
+      target: {isText: true, placeholder: 'Target attribute'}
+    }, $setters._meta || {});
+  }($definitions.image.prototype.$setters));
+
+
+  (function ($setters) {
+    $setters._meta = extend({
+      href: {isText: true, placeholder: 'Href attribute'},
+      target: {isText: true, placeholder: 'Target attribute'}
+    }, $setters._meta || {});
+  }($definitions.link.prototype.$setters));
+
+
+  (function ($setters) {
     $setters.iconStyle.multipleAllowed = true;
   }($definitions.icon.prototype.$setters));
 

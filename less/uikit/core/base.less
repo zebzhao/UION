@@ -14,31 +14,31 @@
 @base-body-background:                          #fff;
 @base-body-font-family:                         Ubuntu,-apple-system,BlinkMacSystemFont,Lato,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 @base-body-font-weight:                         normal;
-@base-body-font-size:                           14px;
-@base-body-line-height:                         20px;
-@base-body-color:                               #444;
+@base-body-font-size:                           @global-font-size;
+@base-body-line-height:                         @global-line-height;
+@base-body-color:                               @global-color;
 
 @base-link-color:                               @global-link-color;
 @base-link-text-decoration:                     none;
 @base-link-hover-color:                         @global-link-hover-color;
 @base-link-hover-text-decoration:               none;
 
-@base-code-color:                               #D05;
+@base-code-color:                               @global-danger-background;
 @base-code-font-size:                           12px;
 @base-code-font-family:                         Consolas, monospace, serif;
-@base-em-color:                                 #D05;
+@base-em-color:                                 @global-primary-background;
 @base-ins-background:                           #ffa;
-@base-ins-color:                                #444;
+@base-ins-color:                                @global-color;
 @base-mark-background:                          #ffa;
-@base-mark-color:                               #444;
+@base-mark-color:                               @global-color;
 @base-quote-font-style:                         italic;
 
 @base-heading-font-weight:                      normal;
-@base-heading-color:                            #444;
+@base-heading-color:                            @global-color;
 @base-heading-text-transform:                   none;
 @base-heading-margin-top:                       0;
-@base-h1-font-size:                             36px;
-@base-h1-line-height:                           42px;
+@base-h1-font-size:                             32px;
+@base-h1-line-height:                           40px;
 @base-h2-font-size:                             24px;
 @base-h2-line-height:                           30px;
 @base-h3-font-size:                             18px;
@@ -50,13 +50,13 @@
 @base-h6-font-size:                             12px;
 @base-h6-line-height:                           18px;
 
-@base-list-padding-left:                        30px;
+@base-list-padding-left:                        @global-margin-large;
 
-@base-hr-margin-vertical:                       15px;
-@base-hr-border:                                #ddd;
+@base-hr-margin-vertical:                       @global-margin;
+@base-hr-border:                                @global-border;
 @base-hr-border-width:                          1px;
 
-@base-blockquote-padding-left:                  15px;
+@base-blockquote-padding-left:                  @global-margin;
 @base-blockquote-border:                        #ddd;
 @base-blockquote-border-width:                  5px;
 @base-blockquote-font-size:                     16px;
@@ -64,8 +64,8 @@
 @base-blockquote-font-style:                    italic;
 
 @base-pre-padding:                              10px;
-@base-pre-background:                           #f5f5f5;
-@base-pre-color:                                #444;
+@base-pre-color:                                @global-color;
+@base-pre-background:                           @global-default-active-background;
 @base-pre-font-size:                            12px;
 @base-pre-line-height:                          18px;
 @base-pre-font-family:                          @base-code-font-family;
@@ -447,9 +447,9 @@ blockquote {
 
 pre {
     padding: @base-pre-padding;
-    background: @base-pre-background;
     font: @base-pre-font-size e("/") @base-pre-line-height @base-pre-font-family;
     color: @base-pre-color;
+    background: @base-pre-background;
     -moz-tab-size: 4;
     tab-size: 4;
     /* 1 */

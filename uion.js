@@ -324,7 +324,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     else if (isString(value)) {
       return value;
     }
-    else return String(value);
+    else if (isBoolean(value)) {
+      return String(value);
+    }
+    else return '';
   }
 
   function template(templateObject, config, thisArg, parentNode) {
@@ -686,6 +689,27 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       bottom: "",
       "": ""
     }, 'uk-flex-', true),
+    card: prefixClassOptions({
+      true: ["uk-card", "uk-card-box"],
+      primary: ["uk-card", "uk-card-box", "uk-card-box-primary"],
+      secondary: ["uk-card", "uk-card-box", "uk-card-box-secondary"],
+      title: "",
+      badge: "",
+      teaser: "",
+      header: "",
+      body: "",
+      space: "",
+      divider: "",
+      "": ""
+    }, 'uk-card-', true, ["true", "primary", "secondary"]),
+    badge: prefixClassOptions({
+      true: "badge",
+      notification: "badge-notification",
+      success: ["badge", "badge-success"],
+      warning: ["badge", "badge-warning"],
+      danger: ["badge", "badge-danger"],
+      "": ""
+    }, 'uk-', true),
     display: prefixClassOptions({
       block: "",
       inline: "",
@@ -1975,6 +1999,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       getConfig(this).$selected = false;
       removeClass(this.el, ACTIVE_CLASS);
+    },
+    getLabel: function () {
+      /**
+       * Gets the label value of the button.
+       * @returns {string}
+       */
+      return getConfig(this).label;
+    },
+    setLabel: function (value) {
+      /**
+       * Sets the label (HTML accepted) of the button component.
+       * @param value
+       */
+      getConfig(this).label = value;
+      this.render();
     }
   }, exports.ClickEvents, $definitions.element);
 
@@ -2020,7 +2059,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     getValue: function () {
       /**
-       * Gets the text value (HTML accepted) of the label.
+       * Gets the text value of the label.
        * @returns {string}
        */
       return getConfig(this).label;
@@ -2805,7 +2844,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       return createElement(this.itemTagString(item), {class: this.itemClass(item)});
     },
     itemClass: function (item) {
-      return classString(isDefined(item.$css) ? item.$css : getConfig(this).itemTagClass);
+      var itemClass = classString(getConfig(this).itemTagClass);
+      itemClass += item.$selected ? ' ' + ACTIVE_CLASS : '';
+      itemClass += ' ' + classString(item.$css);
+      return itemClass;
     },
     itemTagString: function () {
       return getConfig(this).itemTag;
@@ -2976,6 +3018,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           "dropdown": ["nav", "nav-dropdown", "nav-side"],
           "stripped": ["nav", "list", "list-stripped"],
           "line": ["list", "list-line"],
+          "navbar": "navbar-nav",
           "subnav": "subnav",
           "subnav-line": ["subnav", "subnav-line"],
           "subnav-pill": ["subnav", "subnav-pill"],
@@ -3173,15 +3216,20 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       item.$selected = true;
       addClass(this.getItemNode(item.id), ACTIVE_CLASS);
     },
+    deselect: function (item) {
+      if (isString(item))
+        item = this.getItem(item);
+      var node = this.getItemNode(item.id);
+      item.$selected = false;
+      assert(node, "Node with id " + item.id + " does not exist");
+      removeClass(node, ACTIVE_CLASS);
+    },
     deselectAll: function () {
       /**
        * Deselects all items in the list, use this for single-selection lists.
        */
       this.each(function (item) {
-        var node = this.getItemNode(item.id);
-        item.$selected = false;
-        assert(node, "Node with id " + item.id + " does not exist");
-        removeClass(node, ACTIVE_CLASS);
+        this.deselect(item);
       }, this);
     },
     closeItem: function (item) {
@@ -3212,7 +3260,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       self.dispatch("onItemClosed", [item]);
     },
     itemClass: function (item) {
-      var cls = classString(isDefined(item.$css) ? item.$css : getConfig(this).itemTagClass);
+      var cls = UI.definitions.stack.prototype.itemClass.call(this, item);
       if (item.$header) cls += " uk-nav-header";
       if (item.$divider) cls += " uk-nav-divider";
       return cls;

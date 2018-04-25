@@ -11,7 +11,6 @@
 //
 // States:          `uk-active`
 //
-// Uses:            Panel: `uk-panel`
 //
 // Markup:
 //
@@ -33,12 +32,6 @@
 @offcanvas-bar-width:                           270px;
 @offcanvas-bar-shadow:                          0 5px 10px rgba(0,0,0,0.15);
 @offcanvas-bar-background:                      white;
-
-@offcanvas-panel-margin:                        20px 15px;
-@offcanvas-panel-color:                         #777;
-@offcanvas-panel-link-color:                    #ccc;
-@offcanvas-panel-link-hover-color:              #fff;
-@offcanvas-panel-title-color:                   @offcanvas-panel-link-color;
 
 
 /* ========================================================================
@@ -143,29 +136,11 @@
 }
 
 
-/* Panel in offcanvas
- ========================================================================== */
-
-.uk-offcanvas .uk-panel {
-    margin: @offcanvas-panel-margin;
-    color: @offcanvas-panel-color;
-    .hook-offcanvas-panel;
-}
-
-.uk-offcanvas .uk-panel-title { color: @offcanvas-panel-title-color; }
-
-.uk-offcanvas .uk-panel a:not([class]) { color: @offcanvas-panel-link-color; }
-.uk-offcanvas .uk-panel a:not([class]):hover { color: @offcanvas-panel-link-hover-color; }
-
-
 // Hooks
 // ========================================================================
-
-.hook-offcanvas-misc;
 
 .hook-offcanvas() {}
 .hook-offcanvas-bar() {
     box-shadow: @offcanvas-bar-shadow;
 }
 .hook-offcanvas-panel() {}
-.hook-offcanvas-misc() {}
