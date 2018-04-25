@@ -1,4 +1,4 @@
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(core) {
 
     var uikit;
@@ -45,7 +45,7 @@
 
     var UI = {}, _UI = window.UIkit || undefined;
 
-    UI.version = '2.27.4';
+    UI.version = '2.27.5';
 
     UI.noConflict = function() {
         // restore UIkit version
@@ -2658,8 +2658,12 @@
             this.element.attr('aria-hidden', this.element.hasClass('uk-open'));
 
             this.on('click', '.uk-modal-close', function(e) {
+
                 e.preventDefault();
-                $this.hide();
+
+                var modal = UI.$(e.target).closest('.uk-modal');
+                if (modal[0] === $this.element[0]) $this.hide();
+
             }).on('click', function(e) {
 
                 var target = UI.$(e.target);
@@ -3258,7 +3262,9 @@
 
                 var target = UI.$(e.target);
 
-                if (!e.type.match(/swipe/)) {
+                if (e.type.match(/swipe/)) {
+                    if (target.parents('.uk-offcanvas-bar:first').length) return;
+                } else {
 
                     if (!target.hasClass('uk-offcanvas-close')) {
                         if (target.hasClass('uk-offcanvas-bar')) return;
@@ -3915,7 +3921,7 @@
 
 })(UIkit2);
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4256,7 +4262,7 @@
     return UI.autocomplete;
 });
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -5180,11 +5186,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "": ""
     }, 'uk-float-', true, ['clearfix']),
     scroll: prefixClassOptions({
-      xy: "overflow-container",
-      y: "overflow-ycontainer",
-      text: "scrollable-text",
+      xy: "container",
+	  y: "ycontainer",
+	  x: "xcontainer",
+      text: "uk-scrollable-text",
       "": ""
-    }, 'uk-'),
+    }, 'uk-overflow-', false, ['text']),
     hidden: {
       true: HIDDEN_CLASS,
       false: "",
@@ -7319,7 +7326,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
-        if (parent && parent.$children) {
+        if (parent && parent.$branch) {
           removeFromArray(parent.$children, obj);
           if (parent.$children.length === 0) {
             var parentNode = self.getItemNode(parent.id);
@@ -7825,10 +7832,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _showChildren: function (item) {
       forEachUntil(function (child, queue) {
-        child.$parentClosed = false;
+		child.$parentClosed = false;
+		child.$hidden = this._checkItemHidden(child);
         removeClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
-        if (item.$branch && !child.$closed) {
+        if (child.$branch && !child.$closed) {
           for (var i = 0; i < child.$children.length; i++) {
             queue.push(child.$children[i]);
           }
@@ -7838,10 +7846,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     },
     _hideChildren: function (item) {
       forEachUntil(function (child, queue) {
-        child.$parentClosed = true;
+		child.$parentClosed = true;
+		child.$hidden = this._checkItemHidden(child);
         addClass(this.getItemNode(child.id), HIDDEN_CLASS);
 
-        if (item.$branch) {
+        if (child.$branch) {
           for (var i = 0; i < child.$children.length; i++) {
             queue.push(child.$children[i]);
           }
@@ -7867,19 +7876,20 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Add a child to the tree.
        * @param item A child of the tree. The parent id of the object should be specified in its $parent property.
        */
-      var parent = null;
-      obj.$children = [];
       obj.$branch = !!obj.$branch; // Convert to boolean
+      if (obj.$branch) obj.$children = [];
 
       var self = this;
       if (!obj.$parent) {
         obj.$depth = 0;
       }
       else {
-        parent = self.getItem(obj.$parent);
+        var parent = self.getItem(obj.$parent);
         obj.$parentClosed = self._checkParentClosed(obj);
         obj.$depth = parent.$depth + 1;
+        obj.$hidden = this._checkItemHidden(obj);
         parent.$branch = true;
+        parent.$children = parent.$children || [];
         parent.$children.push(obj);
       }
       var refChild = self.findLast(self.config.orderAfter, parent, obj);
@@ -7922,11 +7932,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var self = this;
       self.dispatch("onOpen", [item.id]);
 
-      item.$closed = false;
+	  item.$closed = false;
+
       var node = self.getItemNode(item.id);
       node.parentNode.replaceChild(self.createItemElement(item), node);
 
-      self._showChildren(item);
+	  self._showChildren(item);
+
+	  item.$hidden = this._checkItemHidden(item);
 
       self.dispatch("onOpened", [item.id]);
 
@@ -7948,7 +7961,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var node = self.getItemNode(item.id);
       node.parentNode.replaceChild(self.createItemElement(item), node);
 
-      self._hideChildren(item);
+	  self._hideChildren(item);
+	  
+	  item.$hidden = this._checkItemHidden(item);
 
       self.dispatch("onClosed", [item.id]);
     },
