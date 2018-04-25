@@ -18,9 +18,9 @@
 @base-body-line-height:                         20px;
 @base-body-color:                               #444;
 
-@base-link-color:                               @global-primary-background;
+@base-link-color:                               @global-link-color;
 @base-link-text-decoration:                     none;
-@base-link-hover-color:                         darken(@global-primary-background, 15%);
+@base-link-hover-color:                         @global-link-hover-color;
 @base-link-hover-text-decoration:               none;
 
 @base-code-color:                               #D05;
@@ -101,6 +101,14 @@ html {
  */
 
 body { margin: 0; }
+
+
+/*
+ * Removes tap highlight on some browsers
+ */
+button, a {
+    -webkit-tap-highlight-color: transparent;
+}
 
 
 /* Links

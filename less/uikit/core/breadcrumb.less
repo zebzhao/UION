@@ -26,6 +26,8 @@
 @breadcrumb-divider-margin:                     8px;
 @breadcrumb-disabled-color:                     #999;
 
+@breadcrumb-color:                              #c0c4cc;
+@breadcrumb-font-weight:                        500;
 
 /* ========================================================================
    Component: Breadcrumb
@@ -62,6 +64,10 @@
 .uk-breadcrumb > li > a,
 .uk-breadcrumb > li > span { display: inline-block; }
 
+.uk-breadcrumb > li > a {
+    transition: color .2s cubic-bezier(.645,.045,.355,1);
+}
+
 .uk-breadcrumb > li:nth-child(n+2):before {
     content: @breadcrumb-divider;
     display: inline-block;
@@ -81,6 +87,10 @@
 
 .hook-breadcrumb-misc;
 
-.hook-breadcrumb() {}
-.hook-breadcrumb-divider() {}
+.hook-breadcrumb() {
+    font-weight: @breadcrumb-font-weight;
+}
+.hook-breadcrumb-divider() {
+    color: @breadcrumb-color;
+}
 .hook-breadcrumb-misc() {}

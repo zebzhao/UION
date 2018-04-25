@@ -36,8 +36,6 @@
 
 @dropdown-z-index:                              970;
 @dropdown-width:                                200px;
-@dropdown-margin-top:                           5px;
-@dropdown-padding:                              0;
 @dropdown-background:                           @global-background;
 @dropdown-color:                                @global-color;
 @dropdown-font-size:                            1rem;
@@ -46,15 +44,13 @@
 @dropdown-divider-border-width:                 1px;
 @dropdown-divider-border:                       @global-border;
 
-@dropdown-small-horizontal-padding:             5px;
-
 @dropdown-navbar-margin:                        0;
 @dropdown-navbar-background:                    #f5f5f5;
 @dropdown-navbar-color:                         #444;
 @dropdown-navbar-animation:                     uk-slide-top-fixed;
 
 @dropdown-scrollable-height:                    200px;
-@dropdown-box-shadow:                           0 5px 15px rgba(0, 0, 0, 0.08);
+@dropdown-box-shadow:                           0 2px 12px 0 rgba(0,0,0,.1);
 
 
 /* ========================================================================
@@ -87,7 +83,7 @@
  */
 
 .uk-dropdown {
-    padding: @dropdown-padding;
+    padding: 10px 0;
     background: @dropdown-background;
     color: @dropdown-color;
     /* 1 */
@@ -98,115 +94,13 @@
 
 /*
  * 1. Show dropdown
- * 2. Set animation
- * 3. Needed for scale animation
  */
 
 .uk-open > .uk-dropdown,
 .uk-open > .uk-dropdown-blank {
     /* 1 */
     display: block;
-    /* 3 */
-    -webkit-transform-origin: 0 0;
-    transform-origin: 0 0;
 }
-
-/* Alignment modifiers
- ========================================================================== */
-
-/*
- * Modifier
- */
-
-.uk-dropdown-top { margin-top: (-1 * @dropdown-margin-top); }
-.uk-dropdown-bottom { margin-top: @dropdown-margin-top; }
-.uk-dropdown-left { margin-left: (-1 * @dropdown-margin-top); }
-.uk-dropdown-right { margin-left: @dropdown-margin-top; }
-
-
-/* Nav in dropdown
- ========================================================================== */
-
-.uk-dropdown .uk-nav { margin: 0 (-@dropdown-padding); }
-
-
-/* Grid and panel in dropdown
- ========================================================================== */
-
-/*
-* Vertical gutter
-*/
-
-/*
- * Grid
- * Higher specificity to override large gutter
- */
-
-.uk-grid .uk-dropdown-grid + .uk-dropdown-grid { margin-top: @dropdown-padding; }
-
-/* Panels */
-.uk-dropdown-grid > [class*='uk-width-'] > .uk-panel + .uk-panel { margin-top: @dropdown-padding; }
-
-/* Tablet and bigger */
-@media (min-width: @breakpoint-medium) {
-
-    /*
-     * Horizontal gutter
-     */
-
-    .uk-dropdown:not(.uk-dropdown-stack) > .uk-dropdown-grid {
-        margin-left: -@dropdown-padding ;
-        margin-right: -@dropdown-padding;
-    }
-
-    .uk-dropdown:not(.uk-dropdown-stack) > .uk-dropdown-grid > [class*='uk-width-'] {
-        padding-left: @dropdown-padding;
-        padding-right: @dropdown-padding;
-    }
-
-    /*
-     * Column divider
-     */
-
-    .uk-dropdown:not(.uk-dropdown-stack) > .uk-dropdown-grid > [class*='uk-width-']:nth-child(n+2) { border-left: @dropdown-divider-border-width solid @dropdown-divider-border; }
-
-    /*
-     * Width multiplier for dropdown columns
-     */
-
-    .uk-dropdown-width-2:not(.uk-dropdown-stack) { width: (@dropdown-width * 2); }
-    .uk-dropdown-width-3:not(.uk-dropdown-stack) { width: (@dropdown-width * 3); }
-    .uk-dropdown-width-4:not(.uk-dropdown-stack) { width: (@dropdown-width * 4); }
-    .uk-dropdown-width-5:not(.uk-dropdown-stack) { width: (@dropdown-width * 5); }
-
-}
-
-/* Phone landscape and smaller */
-@media (max-width: @breakpoint-small-max) {
-
-    /*
-     * Stack columns and take full width
-     */
-
-    .uk-dropdown-grid > [class*='uk-width-'] { width: 100%; }
-
-    /*
-     * Vertical gutter
-     */
-
-    .uk-dropdown-grid > [class*='uk-width-']:nth-child(n+2) { margin-top: @dropdown-padding; }
-
-}
-
-/*
-* Stack grid columns
-*/
-
-.uk-dropdown-stack > .uk-dropdown-grid > [class*='uk-width-'] { width: 100%; }
-
-.uk-dropdown-stack > .uk-dropdown-grid > [class*='uk-width-']:nth-child(n+2) { margin-top: @dropdown-padding; }
-
-
 
 /* Modifier `uk-dropdown-small`
  ========================================================================== */
@@ -218,15 +112,8 @@
 .uk-dropdown-small {
     min-width: 150px;
     width: auto;
-    padding: 0 @dropdown-small-horizontal-padding 0;
     white-space: nowrap;
 }
-
-/*
- * Nav in dropdown
- */
-
-.uk-dropdown-small .uk-nav { margin: 0 (-@dropdown-small-horizontal-padding); }
 
 
 /* Modifier: `uk-dropdown-navbar`
@@ -275,6 +162,7 @@
 .hook-dropdown() {
     box-shadow: @dropdown-box-shadow;
     border: 1px solid @dropdown-border;
+    border-radius: @global-border-radius;
 }
 .hook-dropdown-navbar() {}
 .hook-dropdown-overlay() {}

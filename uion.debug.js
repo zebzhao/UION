@@ -6787,8 +6787,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       pos: "bottom-center",
       padding: "none",
       justify: false,
+      dropdownDelay: 0,
       dropdownCSS: "uk-dropdown-close",
-      dropdownAnimation: "fade",
+      dropdownAnimation: "uk-animation-scale-up-y uk-animation-top-center",
+      dropdownRect: null,
       blank: false
     },
     $setters: {
@@ -6825,7 +6827,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       var result = config.dropdownCSS;
       result += config.blank ? " uk-dropdown-blank" : " uk-dropdown";
       result += config.scrollable ? " uk-dropdown-scrollable" : "";
-      result += " " + exports.classOptions.animation[config.dropdownAnimation];
+      result += " " + config.dropdownAnimation;
       return result;
     },
     getBoundingClientRect: function () {
@@ -6833,7 +6835,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
        * @returns {*|ClientRect}
        */
-      return this.el.firstChild.getBoundingClientRect();
+      return this.config.dropdownRect || this.el.firstChild.getBoundingClientRect();
     },
     isOpened: function () {
       /**
@@ -6842,19 +6844,30 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        */
       return hasClass(this.el, 'uk-open');
     },
-    open: function (args) {
+    open: function (args, cb) {
       /**
        * Opens the dropdown.
        * @dispatch onOpen, onOpened
        * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
        */
       var self = this;
-      args = [self.config, self.el, args];
-      self.dispatch("onOpen", args);
-      self._inner.dispatch("onOpen", args);
-      self._dropdown.show();
-      self.dispatch("onOpened", args);
-      self._inner.dispatch("onOpened", args);
+      var config = self.config;
+      args = [config, self.el, args];
+
+      if (config.dropdownDelay) {
+        setTimeout(open, config.dropdownDelay);
+      } else {
+        open();
+      }
+
+      function open() {
+        self.dispatch("onOpen", args);
+        self._inner.dispatch("onOpen", args);
+        self._dropdown.show();
+        self.dispatch("onOpened", args);
+        self._inner.dispatch("onOpened", args);
+        if (cb && cb.call) cb.call(self);
+      }
     },
     close: function (args) {
       /**
@@ -7407,13 +7420,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         listStyle: prefixClassOptions({
           "nav": "nav",
           "side": ["nav", "nav-side"],
-          "offcanvas": ["nav", "nav-offcanvas"],
           "dropdown": ["nav", "nav-dropdown", "nav-side"],
           "stripped": ["nav", "list", "list-stripped"],
           "line": ["list", "list-line"],
           "subnav": "subnav",
-          "navbar": "navbar-nav",
-          "navbar-center": "navbar-center",
           "subnav-line": ["subnav", "subnav-line"],
           "subnav-pill": ["subnav", "subnav-pill"],
           "list": "list",

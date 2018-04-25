@@ -83,6 +83,15 @@
 }
 
 /*
+ * Fade with scale
+ */
+
+.uk-animation-scale-up-y {
+    -webkit-animation-name: uk-fade-scale-y;
+    animation-name: uk-fade-scale-y;
+}
+
+/*
  * Fade with slide
  */
 
@@ -331,6 +340,32 @@
 
 /* Keyframes: Fade with scale
  ========================================================================== */
+
+/*
+ * Scale y only
+ */
+
+@-webkit-keyframes uk-fade-scale-y {
+    0% {
+        opacity: 0;
+        -webkit-transform: scaleY(0.2);
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: scaleY(1);
+    }
+}
+
+@keyframes uk-fade-scale-y {
+    0% {
+        opacity: 0;
+        transform: scaleY(0.2);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
 
 /*
  * Scale by 0.2
@@ -587,11 +622,3 @@
         transform: translateY(0);
     }
 }
-
-
-// Hooks
-// ========================================================================
-
-.hook-animation-misc;
-
-.hook-animation-misc() {}
