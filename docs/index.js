@@ -379,6 +379,32 @@ function wrapInForm(input) {
   }
 }
 
+window.onload = function () {
+  handleHashChange();
+  UI.removeClass(document.body, "uk-hidden");
+}
+window.onhashchange = handleHashChange;
+
+function handleHashChange() {
+  var value = location.hash.substring(1);
+  if (Model.components[value]) {
+    var view = Model.aliases[value] || value;
+    // If link is empty, assume it points to a component
+    UI.addClass(document.getElementById('gettingStarted'), 'uk-hidden');
+    $$('methodList').parseMethods(UI.definitions[view]);
+    $$('cssForm').parseProperties(UI.definitions[view]);
+    $$('miscForm').parseProperties(UI.definitions[view]);
+    var config = $$('codeView').parseCode(value);
+    $$('componentView').parseConfig(config, view);
+    $$('mainTitle').setValue(UI.capitalize(value));
+    $$('mainView').show();
+  }
+  else {
+    $$('mainView').hide();
+    UI.removeClass(document.getElementById('gettingStarted'), 'uk-hidden');
+  }
+}
+
 UI.new({
   css: 'uk-block-secondary',
   flexSize: 'none',
@@ -438,23 +464,7 @@ function sidebarTemplate() {
       onItemClick: function (item) {
         var value = item.value;
         this.setActiveLabel(item.label);
-
-        if (value) {
-          var view = Model.aliases[value] || value;
-          // If link is empty, assume it points to a component
-          UI.addClass(document.getElementById('gettingStarted'), 'uk-hidden');
-          $$('methodList').parseMethods(UI.definitions[view]);
-          $$('cssForm').parseProperties(UI.definitions[view]);
-          $$('miscForm').parseProperties(UI.definitions[view]);
-          var config = $$('codeView').parseCode(value);
-          $$('componentView').parseConfig(config, view);
-          $$('mainTitle').setValue(item.label);
-          $$('mainView').show();
-        }
-        else {
-          $$('mainView').hide();
-          UI.removeClass(document.getElementById('gettingStarted'), 'uk-hidden');
-        }
+        location.hash = value || "";
       }
     }
   };
@@ -505,7 +515,7 @@ UI.new({
                 case 'component':
                   view.showBatch(['tab', 'component']);
                   break;
-    
+
                 case 'code':
                 view.showBatch(['tab', 'code']);
                   // Apply syntax highlighting
@@ -548,15 +558,15 @@ UI.new({
                 }
               }
             }
-    
+
             this.config.code = JSON.stringify(objectModel, null, "  ")
               .replace(/&/g, '&amp;')
               .replace(/"/g, '&quot;')
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;');
-    
+
             this.render();
-    
+
             return objectModel;
           }
         }
@@ -587,7 +597,7 @@ UI.new({
                 case 'properties':
                   view.showBatch(['tab', 'props']);
                   break;
-    
+
                 case 'methods':
                 view.showBatch(['tab', 'methods']);
                   break;
@@ -618,7 +628,7 @@ UI.new({
                 var name = component.prototype.__name__;
                 var model = Model.properties[name];
                 var properties = Object.keys(setters);
-    
+
                 this.getFieldset().setData(properties.sort().filter(function (cssName) {
                   return setters[cssName].options;
                 }).map(function (cssName) {
@@ -659,13 +669,13 @@ UI.new({
                             }
                             this.select(item);
                           }
-    
+
                           if (item.value) {
                             var empty = this.findOne('value', '');
                             empty.selected = false;
                             this.getComponent('id', empty.id).render();
                           }
-    
+
                           model[cssName] = UI.pluck(this.getSelected(), 'value').join(' ');
                           this.getComponent('id', item.id).render();
                           this.masterComponent.setLabel(
@@ -691,11 +701,11 @@ UI.new({
                 var name = component.prototype.__name__;
                 var model = Model.properties[name];
                 UI.extend(meta, component.prototype.$setters);
-    
+
                 var properties = Object.keys(meta).filter(function (n) {
                   return n.charAt(0) != '$' && n.charAt(0) != '_';
                 });
-    
+
                 this.getFieldset().setData(properties.sort().filter(function (n) {
                   return !UI.isFunction(meta[n]) || !meta[n].options;
                 }).map(function (n) {
@@ -703,7 +713,7 @@ UI.new({
                     formLabel: UI.interpolate('<code>{{name}}</code>', {name: n})
                   })
                 }));
-    
+
                 function getViewConfig(property, propName) {
                   if (UI.isString(property)) {
                     return {view: 'label', label: property};
