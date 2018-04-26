@@ -10,7 +10,6 @@
 //
 // Modifiers:       `uk-card-box`
 //                  `uk-card-box-primary`
-//                  `uk-card-box-secondary`
 //                  `uk-card-header`
 //                  `uk-card-space`
 //                  `uk-card-divider`
@@ -56,15 +55,11 @@
 @card-box-border-width:                        1px;
 @card-box-color:                               @global-color;
 
-@card-box-primary-background:                  @global-primary-background;
-@card-box-primary-color:                       @global-contrast-color;
+@card-box-primary-background:                  fade(@global-primary-background, 10%);
+@card-box-primary-border:                      #50bfff;
+@card-box-primary-color:                       @global-color;
 @card-box-primary-hover-color:                 @card-box-primary-color;
-@card-box-primary-title-color:                 @global-primary-background;
-
-@card-box-secondary-background:                #f9fafc;
-@card-box-secondary-color:                     @global-color;
-@card-box-secondary-hover-color:               @card-box-secondary-color;
-@card-box-secondary-title-color:               @global-color;
+@card-box-primary-title-color:                 @card-box-primary-color;
 
 @card-header-title-padding:                    @global-margin;
 @card-header-title-border:                     @global-border;
@@ -202,6 +197,7 @@
 
 .uk-card-box-primary {
     background-color: @card-box-primary-background;
+    border-left: 5px solid @card-box-primary-border;
     color: @card-box-primary-color;
     .hook-card-box-primary;
 }
@@ -212,23 +208,6 @@
 }
 
 .uk-card-box-primary .uk-card-title { color: @card-box-primary-title-color; }
-
-/*
- * Sub-modifier: `uk-card-box-secondary`
- */
-
-.uk-card-box-secondary {
-    background-color: @card-box-secondary-background;
-    color: @card-box-secondary-color;
-    .hook-card-box-secondary;
-}
-
-.uk-card-box-secondary:hover {
-    color: @card-box-secondary-hover-color;
-    .hook-card-box-secondary-hover;
-}
-
-.uk-card-box-secondary .uk-card-title { color: @card-box-secondary-title-color; }
 
 
 /* Modifier: `uk-card-header`
@@ -292,6 +271,4 @@
 .hook-card-box-hover() {}
 .hook-card-box-primary() {}
 .hook-card-box-primary-hover() {}
-.hook-card-box-secondary() {}
-.hook-card-box-secondary-hover() {}
 .hook-card-header() {}

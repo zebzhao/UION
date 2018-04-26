@@ -1,14 +1,19 @@
-@toggle-background-color:                   darken(@global-muted-color, 10%);
-@toggle-active-background-color:            lighten(@global-primary-background, 15%);
-@toggle-success-active-background-color:    lighten(@global-success-background, 15%);
-@toggle-danger-active-background-color:     lighten(@global-danger-background, 15%);
-@toggle-warning-active-background-color:    @global-warning-background;
-@toggle-active-bg-color-lighten:            25%;
-@toggle-width:                              41px;
-@toggle-height:                             24px;
-@toggle-button-background-color:            white;
-@toggle-button-shadow:                      0 1px 5px 0 rgba(0,0,0,0.25);
 
+// Variables
+// ========================================================================
+
+@toggle-background-color:                   #dcdfe6;
+@toggle-active-background-color:            @global-primary-background;
+@toggle-success-active-background-color:    @global-success-background;
+@toggle-danger-active-background-color:     @global-danger-background;
+@toggle-warning-active-background-color:    @global-warning-background;
+@toggle-width:                              32px;
+@toggle-height:                             16px;
+@toggle-button-background-color:            white;
+@toggle-button-shadow:                      0 1px 5px 0 rgba(0,0,0,.3);
+
+/* Toggle
+ ========================================================================== */
 
 /* The switch - the box around the slider */
 .uk-toggle {
@@ -28,14 +33,14 @@
 .uk-toggle-slider {
   position: absolute;
   cursor: pointer;
-  top: 6px;
+  top: 4px;
   left: 0;
   right: 0;
-  bottom: 6px;
+  bottom: 4px;
   background-color: @toggle-background-color;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 14px;
+  border-radius: @toggle-height;
+  -webkit-transition: .3s;
+  transition: .3s;
 }
 
 .uk-toggle-slider:before {
@@ -44,46 +49,39 @@
   height: @toggle-height;
   width: @toggle-height;
   left: 0;
-  bottom: -6px;
+  bottom: -4px;
   background-color: @toggle-button-background-color;
   box-shadow: @toggle-button-shadow;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: @toggle-height / 2;
+  border-radius: @toggle-height;
+  -webkit-transition: .3s;
+  transition: .3s;}
+
+.uk-toggle-slider:hover:before {
+  height: round(@toggle-height*1.125);
+  width: round(@toggle-height*1.125);
+  bottom: -5px;
+  left: -1px;
 }
 
 .uk-toggle-success {
   input:checked + .uk-toggle-slider {
-    background-color: lighten(@toggle-success-active-background-color, @toggle-active-bg-color-lighten);
-  }
-  input:checked + .uk-toggle-slider:before {
     background-color: @toggle-success-active-background-color;
   }
 }
 
 .uk-toggle-danger {
   input:checked + .uk-toggle-slider {
-    background-color: lighten(@toggle-danger-active-background-color, @toggle-active-bg-color-lighten);
-  }
-  input:checked + .uk-toggle-slider:before {
     background-color: @toggle-danger-active-background-color;
   }
 }
 
 .uk-toggle-warning {
   input:checked + .uk-toggle-slider {
-    background-color: lighten(@toggle-warning-active-background-color, @toggle-active-bg-color-lighten);
-  }
-  input:checked + .uk-toggle-slider:before {
     background-color: @toggle-warning-active-background-color;
   }
 }
 
 input:checked + .uk-toggle-slider {
-  background-color: lighten(@toggle-active-background-color, @toggle-active-bg-color-lighten);
-}
-
-input:checked + .uk-toggle-slider:before {
   background-color: @toggle-active-background-color;
 }
 

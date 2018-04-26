@@ -26,21 +26,21 @@
 // Variables
 // ========================================================================
 
-@alert-margin-vertical:                         15px;
-@alert-padding:                                 10px;
-@alert-background:                              #ebf7fd;
-@alert-color:                                   #2d7091;
+@alert-margin-vertical:                         @global-margin;
+@alert-padding:                                 @global-margin-small;
+@alert-background:                              fade(@global-primary-background, 10%);
+@alert-color:                                   @global-primary-background;
 
-@alert-success-background:                      #f2fae3;
-@alert-success-color:                           #659f13;
+@alert-success-background:                      fade(@global-success-background, 10%);
+@alert-success-color:                           @global-success-background;
 
-@alert-warning-background:                      #fffceb;
-@alert-warning-color:                           #e28327;
+@alert-warning-background:                      fade(@global-warning-background, 10%);
+@alert-warning-color:                           @global-warning-background;
 
-@alert-danger-background:                       #fff1f0;
-@alert-danger-color:                            #d85030;
+@alert-danger-background:                       fade(@global-danger-background, 10%);
+@alert-danger-color:                            @global-danger-background;
 
-@alert-large-padding:                           20px;
+@alert-large-padding:                           @global-margin-large;
 
 
 /* ========================================================================

@@ -16,24 +16,24 @@
 // Variables
 // ========================================================================
 
-@table-margin-vertical:                         15px;
+@table-margin-vertical:                         @global-margin;
 @table-gutter:                                  20px;
-@table-padding-vertical:                        8px;
-@table-padding-horizontal:                      8px;
+@table-padding-vertical:                        @global-margin-small;
+@table-padding-horizontal:                      @global-margin-small;
 
-@table-heading-color:                           #999;
+@table-heading-color:                           @global-color;
 @table-heading-font-size:                       12px;
 @table-heading-font-weight:                     normal;
 
-@table-caption-color:                           #999;
+@table-caption-color:                           @global-color;
 @table-caption-font-size:                       12px;
 
-@table-striped-background:                      #f5f5f5;
+@table-striped-background:                      @global-default-active-background;
 
-@table-condensed-padding-vertical:              4px;
-@table-condensed-padding-horizontal:            8px;
+@table-condensed-padding-vertical:              @global-margin-mini;
+@table-condensed-padding-horizontal:            @global-margin-small;
 
-@table-hover-background:                        #EEE;
+@table-hover-background:                        #ecf5ff;
 
 @table-active-background:                       @table-hover-background;
 
@@ -156,17 +156,18 @@
 /* Modifier: `uk-table-hover`
  ========================================================================== */
 
+.uk-table-hover tbody tr {
+    transition: background-color .25s ease;
+}
+
 .uk-table-hover tbody tr:hover {
     background: @table-hover-background;
     .hook-table-hover;
 }
 
 
-
 // Hooks
 // ========================================================================
-
-.hook-table-misc;
 
 .hook-table-th() {}
 .hook-table() {}
@@ -174,4 +175,3 @@
 .hook-table-striped() {}
 .hook-table-condensed() {}
 .hook-table-hover() {}
-.hook-table-misc() {}

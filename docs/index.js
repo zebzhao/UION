@@ -318,6 +318,7 @@ var Model = {
     table: function () {
       return {
         view: 'table',
+        tableStyle: ['hover', 'striped'],
         header: true,
         footer: true,
         columns: [
@@ -392,8 +393,8 @@ function handleHashChange() {
     // If link is empty, assume it points to a component
     UI.addClass(document.getElementById('gettingStarted'), 'uk-hidden');
     $$('methodList').parseMethods(UI.definitions[view]);
-    $$('cssForm').parseProperties(UI.definitions[view]);
-    $$('miscForm').parseProperties(UI.definitions[view]);
+    $$('inheritedTable').parseProperties(UI.definitions[view]);
+    $$('propertiesTable').parseProperties(UI.definitions[view]);
     var config = $$('codeView').parseCode(value);
     $$('componentView').parseConfig(config, view);
     $$('mainTitle').setValue(UI.capitalize(value));
@@ -494,7 +495,6 @@ UI.new({
       card: true,
       flexSize: 'none',
       layout: 'column',
-      margin: 'bottom-lg',
       cells: [
         {
           batch: 'tab',
@@ -576,6 +576,7 @@ UI.new({
       id: 'apiView',
       flexSize: 'none',
       layout: 'column',
+      margin: 'y-lg',
       card: true,
       cells: [
         {
@@ -611,162 +612,177 @@ UI.new({
           card: 'body',
           cells: [
             {
-              view: 'label', margin: 'top-lg', css: 'uk-alert',
-              label: '<span class="uk-badge uk-badge-warning">TIP</span>&nbsp;&nbsp;Changing these properties will affect the displayed component.'
-            },
-            {
-              view: 'label', margin: 'top',
-              label: '<strong>CSS</strong>'
-            },
-            {
-              id: 'cssForm',
-              view: 'form',
+              id: 'propertiesTable',
+              view: 'table',
+              header: true,
               margin: 'top',
-              formStyle: 'horizontal',
+              columns: [
+                {
+                  header: 'Name',
+                  template: '<code class="uk-text-nowrap">{{name}}</code>'
+                },
+                {
+                  header: 'Type',
+                  template: '<span class="uk-badge uk-badge-notification">{{type}}</code>'
+                },
+                {
+                  header: 'Description',
+                  name: 'desc'
+                },
+                {
+                  header: 'Options',
+                  template: function (item) {
+                    return item.options ? {
+                      view: 'button',
+                      label: 'Show',
+                      size: 'small',
+                      dropdown: {
+                        view: 'list',
+                        data: Object.keys(item.options).sort()
+                          .map(function (option) {
+                            return {
+                              view: 'link',
+                              label: option,
+                              value: option
+                            }
+                          })
+                      }
+                    } : '';
+                  }
+                }
+              ],
+              parseProperties: function (component) {
+                var meta = UI.extend({}, component.prototype.$setters.$$meta);
+                var setters = component.prototype.$setters;
+                var name = component.prototype.__name__;
+                var model = Model.properties[name];
+
+                var properties = Object.keys(meta)
+                  .filter(function (n) {
+                    return n.charAt(0) != '$' && n.charAt(0) != '_';
+                  })
+                  .map(function (n) {
+                    return {
+                      name: n,
+                      type: meta[n].$$type || 'string',
+                      desc: UI.isString(meta[n]) ? meta[n] : meta[n].$$desc || ''
+                    }
+                  });
+
+                properties = properties.concat(Object.keys(setters)
+                  .filter(function (s) {
+                    return setters[s].__class__ === name;
+                  })
+                  .map(function (s) {
+                    return {
+                      name: s,
+                      type: setters[s].$$type || (setters[s].options ? 'string | string[]' : 'any'),
+                      desc: setters[s].$$desc || '',
+                      options: setters[s].options
+                    }
+                  })
+                );
+
+                this.setData(properties);
+              }
+            },
+            {
+              view: 'label', margin: 'top-lg bottom', htmlTag: 'h4',
+              label: 'Inherited'
+            },
+            {
+              id: 'inheritedTable',
+              view: 'table',
+              margin: 'top',
+              columns: [
+                {
+                  header: 'Name',
+                  template: function (item) {
+                    return item.header ?
+                      '<div style="margin: 16px 0 8px -8px"><b>{{name}}</b></div>' :
+                      '<code class="uk-text-nowrap">{{name}}</code>';
+                  }
+                },
+                {
+                  header: 'Type',
+                  template: function (item) {
+                    return item.type ? '<span class="uk-badge uk-badge-notification">{{type}}</code>' : '';
+                  }
+                },
+                {
+                  header: 'Description',
+                  name: 'desc'
+                },
+                {
+                  header: 'Options',
+                  template: function (item) {
+                    return item.options ? {
+                      view: 'button',
+                      css: 'uk-text-nowrap',
+                      label: 'Show',
+                      size: 'small',
+                      dropdownOptions: {
+                        marginY: Object.keys(item.options).length > 12 ? -300 : 8
+                      },
+                      dropdown: {
+                        view: 'list',
+                        data: Object.keys(item.options).sort()
+                          .map(function (option) {
+                            return {
+                              view: 'link',
+                              label: option,
+                              value: option
+                            }
+                          })
+                      }
+                    } : '';
+                  }
+                }
+              ],
               parseProperties: function (component) {
                 var setters = component.prototype.$setters;
                 var name = component.prototype.__name__;
                 var model = Model.properties[name];
-                var properties = Object.keys(setters);
+                var bases = {};
+                var baseOrder = {};
 
-                this.getFieldset().setData(properties.sort().filter(function (cssName) {
-                  return setters[cssName].options;
-                }).map(function (cssName) {
-                  var cssValue = model[cssName] || '';
-                  var setter = setters[cssName];
-                  var labelTemplate = '{{label}}&nbsp<i class="uk-icon-chevron-down"></i>';
-                  return {
-                    formLabel: UI.interpolate('<code>{{name}}</code>', {name: cssName}),
-                    view: 'button',
-                    label: UI.interpolate(labelTemplate, {label: model[cssName] || ''}),
-                    style: {
-                      minWidth: '120px',
-                    },
-                    dropdown: {
-                      view: 'list',
-                      data: Object.keys(setter.options).sort().map(function (option) {
-                        return {
-                          view: 'link',
-                          label: option || '[empty]',
-                          value: option,
-                          $selected: option ? cssValue.toString().indexOf(option) != -1 : model[cssName] == ''
-                        }
-                      }),
-                      on: {
-                        onOpen: function (config, node, masterConfig) {
-                          this.masterComponent = $$(masterConfig.id);
-                        },
-                        onClosed: function () {
-                          this.masterComponent = null;
-                        },
-                        onItemClick: function (item) {
-                          if (this.isSelected(item)) {
-                            this.deselect(item);
-                          }
-                          else {
-                            if (item.value == '' || !setter.multipleAllowed) {
-                              this.deselectAll();
-                            }
-                            this.select(item);
-                          }
-
-                          if (item.value) {
-                            var empty = this.findOne('value', '');
-                            empty.selected = false;
-                            this.getComponent('id', empty.id).render();
-                          }
-
-                          model[cssName] = UI.pluck(this.getSelected(), 'value').join(' ');
-                          this.getComponent('id', item.id).render();
-                          this.masterComponent.setLabel(
-                            UI.interpolate(labelTemplate, {label: model[cssName].split(' ').join(', ')})
-                          );
-                          var config = $$('codeView').parseCode(name);
-                          $$('componentView').parseConfig(config, name);
-                        }
-                      }
-                    }
-                  }
-                }));
-              }
-            },
-            {view: 'label', margin: 'top-lg', label: '<strong>MISC</strong>'},
-            {
-              id: 'miscForm',
-              view: 'form',
-              margin: 'top',
-              formStyle: 'horizontal',
-              parseProperties: function (component) {
-                var meta = UI.extend({}, component.prototype.$setters._meta);
-                var name = component.prototype.__name__;
-                var model = Model.properties[name];
-                UI.extend(meta, component.prototype.$setters);
-
-                var properties = Object.keys(meta).filter(function (n) {
-                  return n.charAt(0) != '$' && n.charAt(0) != '_';
+                component.prototype.__base__.forEach(function (name, i) {
+                  baseOrder[name] = ('00' + i).substr(-3);
                 });
 
-                this.getFieldset().setData(properties.sort().filter(function (n) {
-                  return !UI.isFunction(meta[n]) || !meta[n].options;
-                }).map(function (n) {
-                  return UI.extend(getViewConfig(meta[n], n), {
-                    formLabel: UI.interpolate('<code>{{name}}</code>', {name: n})
+                var properties = Object.keys(setters)
+                  .filter(function (s) {
+                    return setters[s].__class__ !== name;
                   })
-                }));
+                  .map(function (s) {
+                    bases[setters[s].__class__] = true;
+                    return {
+                      name: s,
+                      sortKey: baseOrder[setters[s].__class__] + '_' + s,
+                      type: setters[s].$$type || (setters[s].options ? 'string | string[]' : 'any'),
+                      desc: setters[s].$$desc || '',
+                      options: setters[s].options
+                    }
+                  })
+                  .concat(Object.keys(bases).map(function (b) {
+                    return {
+                      name: b,
+                      sortKey: baseOrder[b],
+                      header: true,
+                      type: '',
+                      desc: ''
+                    }
+                  }));
 
-                function getViewConfig(property, propName) {
-                  if (UI.isString(property)) {
-                    return {view: 'label', label: property};
+                this.setData(properties.sort(function (a, b) {
+                  if (a.sortKey > b.sortKey) {
+                    return 1;
+                  } else if (a.sortKey < b.sortKey) {
+                    return -1;
+                  } else {
+                    return 0;
                   }
-                  else if (property.description) {
-                    return {view: 'label', label: property.description};
-                  }
-                  else if (property.isText) {
-                    return {
-                      view: 'input', size: 'small',
-                      value: model[propName],
-                      placeholder: property.placeholder || '',
-                      on: {
-                        onChange: function () {
-                          model[propName] = this.getValue();
-                          var config = $$('codeView').parseCode(name);
-                          $$('componentView').parseConfig(config, name);
-                        }
-                      }
-                    };
-                  }
-                  else if (property.isBoolean) {
-                    return {
-                      view: 'toggle',
-                      checked: model[propName],
-                      on: {
-                        onClick: function () {
-                          model[propName] = this.getValue();
-                          var config = $$('codeView').parseCode(name);
-                          $$('componentView').parseConfig(config, name);
-                        }
-                      }
-                    };
-                  }
-                  else if (property.options) {
-                    return {
-                      view: 'select', size: 'small',
-                      data: property.options.map(function (n) {
-                        return {label: n, value: n}
-                      }),
-                      on: {
-                        onChange: function () {
-                          model[propName] = this.getValue();
-                          var config = $$('codeView').parseCode(name);
-                          $$('componentView').parseConfig(config, name);
-                        }
-                      }
-                    };
-                  }
-                  else {
-                    return {}
-                  }
-                }
+                }));
               }
             }
           ]
@@ -785,12 +801,14 @@ UI.new({
                 template: [
                   '<dl class="uk-description-list-horizontal">',
                   '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
-                  (method.params && method.params.length ?
-                    '<dt>Parameters</dt><dd class="uk-hidden-small">&nbsp;</dd>{{parameters}}' : ''),
-                  (method.dispatch ? '<dt>Dispatch</dt><dd>{{dispatch}}</dd>' : ''),
-                  (method.returns ? '<dt>Returns</dt><dd>{{returns}}</dd>' : ''),
                   '</dl>',
-                  (method.example ? '<strong>Example</strong><pre>{{example}}</pre>' : '')
+                  '<dl class="uk-description-list-horizontal uk-margin-left">',
+                  (method.params && method.params.length ?
+                    '<dt>Parameters</dt><dd>&nbsp;</dd>{{parameters}}' : ''),
+                  (method.dispatch ? '<dt>Dispatch</dt><dd><code>{{dispatch}}</code></dd>' : ''),
+                  (method.returns ? '<dt>Returns</dt><dd>{{returns}}</dd>' : ''),
+                  (method.example ? '<dt>Example</dt><dd><code>{{example}}</code></dd>' : ''),
+                  '</dl>'
                 ].join(''),
                 name: method.name,
                 summary: method.summary,
@@ -799,7 +817,7 @@ UI.new({
                 example: method.example,
                 parameters: method.params.map(function (n) {
                   return UI.interpolate(
-                    '<dt class="uk-text-muted">{{name}}</dt><dd>{{description}}</dd>', n);
+                    '<dt class="uk-text-muted" style="margin-left: 8px">{{name}}</dt><dd>{{description}}</dd>', n);
                 }).join('')
               }
             }));
@@ -818,11 +836,11 @@ UI.new({
 
 
 function formatReturnsString(str) {
-  var regex = /\{[^\s}]*}/;
+  var regex = /\{[^}]*}/;
   var type = str.match(regex);
   type = type ? type[0].slice(1, -1) : '';
   return str.replace(regex, UI.interpolate(
-    '<div class="uk-badge uk-badge-notification">{{type}}</div>', {type: type}))
+    '<span class="uk-badge uk-badge-notification uk-margin-right">{{type}}</span>', {type: type}))
 }
 
 function getComponentMethods(component) {

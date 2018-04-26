@@ -26,6 +26,10 @@
 @base-code-color:                               @global-danger-background;
 @base-code-font-size:                           12px;
 @base-code-font-family:                         Consolas, monospace, serif;
+@base-code-border:                              @global-border;
+@base-code-border-radius:                       @global-border-radius;
+@base-code-padding:                             @global-margin-mini;
+
 @base-em-color:                                 @global-primary-background;
 @base-ins-background:                           #ffa;
 @base-ins-color:                                @global-color;
@@ -63,12 +67,14 @@
 @base-blockquote-line-height:                   22px;
 @base-blockquote-font-style:                    italic;
 
-@base-pre-padding:                              10px;
+@base-pre-padding:                              @global-margin-small;
 @base-pre-color:                                @global-color;
 @base-pre-background:                           @global-default-active-background;
 @base-pre-font-size:                            12px;
 @base-pre-line-height:                          18px;
 @base-pre-font-family:                          @base-code-font-family;
+@base-pre-border:                              @global-border;
+@base-pre-border-radius:                       @global-border-radius;
 
 @base-selection-background:                     #39f;
 @base-selection-color:                          #fff;
@@ -178,6 +184,9 @@ strong { font-weight: 500; }
     font-family: @base-code-font-family;
     /* 3 */
     color: @base-code-color;
+    border: 1px solid @base-code-border;
+    border-radius: @base-code-border-radius;
+    padding: 0 @base-code-padding;
     white-space: nowrap;
     .hook-base-code;
 }
@@ -446,10 +455,12 @@ blockquote {
  */
 
 pre {
-    padding: @base-pre-padding;
     font: @base-pre-font-size e("/") @base-pre-line-height @base-pre-font-family;
     color: @base-pre-color;
     background: @base-pre-background;
+    padding: @base-pre-padding;
+    border: 1px solid @base-pre-border;
+    border-radius: @base-pre-border-radius;
     -moz-tab-size: 4;
     tab-size: 4;
     /* 1 */
@@ -535,12 +546,13 @@ iframe { border: 0; }
 // Hooks
 // ========================================================================
 
-.hook-base-misc;
-
 .hook-base-body() {}
 .hook-base-link() {}
 .hook-base-link-hover() {}
-.hook-base-code() {}
+.hook-base-code() {
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
 .hook-base-h() {}
 .hook-base-h1() {}
 .hook-base-h2() {}
@@ -552,9 +564,5 @@ iframe { border: 0; }
 .hook-base-blockquote() {}
 .hook-base-pre() {
     white-space: pre-wrap;       /* css-3 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
-.hook-base-misc() {}

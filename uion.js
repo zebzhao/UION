@@ -334,6 +334,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     if (isFunction(templateObject)) {
       templateObject = templateObject.call(thisArg, config);
     }
+    
     if (isString(templateObject)) {
       parentNode.innerHTML = interpolate(templateObject, config);
     }
@@ -356,6 +357,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }
 
+  function assignClassToMethods(methods, cls) {
+    Object.keys(methods).forEach(function (name) {
+      if (isFunction(methods[name])) methods[name].__class__ = cls;
+    });
+  }
+
   function buildDef(config, bases) {
     assertPropertyValidator(config.__name__, '__name__', isDefined);
 
@@ -365,6 +372,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     var $defaults = config.$defaults || {};
     var $setters = config.$setters || {};
     var $events = config.$events || {};
+
+    assignClassToMethods($setters, config.__name__);
+    assignClassToMethods(config, config.__name__);
 
     var baseNames = bases.reduce(function (names, base, index) {
       assertPropertyValidator(base, config.__name__ + ' base[' + index + ']', isDefined);
@@ -524,7 +534,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param type The type of event.
        * @param func The handling function.
        * @param id An optional event id that can be used to remove the listener.
-       * @returns The event id, automatically generated if id is not set.
+       * @returns {number} The event id, automatically generated if id is not set.
        * @example addListener('onClick', function(config, element, event) {})
        */
       assertPropertyValidator(func, "listener for " + type, isFunction);
@@ -743,6 +753,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "z-index": "",
       "": ""
     }, 'uk-position-', true),
+    responsive: prefixClassOptions({
+      "width": "",
+      "height": "",
+      "": ""
+    }, 'uk-responsive-', true),
     fill: prefixClassOptions({
       height: "height-1-1",
       width: "width-100",
@@ -757,8 +772,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }, 'uk-float-', true, ['clearfix']),
     scroll: prefixClassOptions({
       xy: "container",
-	  y: "ycontainer",
-	  x: "xcontainer",
+      y: "ycontainer",
+      x: "xcontainer",
       text: "uk-scrollable-text",
       "": ""
     }, 'uk-overflow-', false, ['text']),
@@ -768,35 +783,31 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       hover: "uk-hidden-hover"
     },
     margin: prefixClassOptions({
-      "none": "remove",
-      "top-rm": "top-remove",
-      "bottom-rm": "bottom-remove",
-      "left-rm": "left-remove",
-      "right-rm": "right-remove",
       "": "",
-      "all-sm": ["small-x", "small-y"],
-      "all": ["x", "y"],
-      "all-lg": ["large-x", "large-y"],
       "x": "x",
+      "x-mi": "mini-x",
       "x-sm": "small-x",
       "x-lg": "large-x",
       "y": "y",
+      "y-mi": "mini-y",
       "y-sm": "small-y",
       "y-lg": "large-y",
-      "lg": "large",
-      "sm": "small",
       "top": "top",
       "top-lg": "large-top",
       "top-sm": "small-top",
+      "top-mi": "mini-top",
       "bottom": "bottom",
       "bottom-lg": "large-bottom",
       "bottom-sm": "small-bottom",
+      "bottom-mi": "mini-bottom",
       "left": "left",
       "left-lg": "large-left",
       "left-sm": "small-left",
+      "left-mi": "mini-left",
       "right": "right",
       "right-lg": "large-right",
-      "right-sm": "small-right"
+      "right-sm": "small-right",
+      "right-mi": "mini-right"
     }, 'uk-margin-'),
     screen: prefixClassOptions({
       "small": "visible-small",
@@ -812,10 +823,36 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       notouch: "touch",
       "": ""
     }, 'uk-hidden-'),
+    text: prefixClassOptions({
+      small: "",
+      large: "",
+      bold: "",
+      capitalize: "",
+      lowercase: "",
+      uppercase: "",
+      "": ""
+    }, 'uk-text-', true),
+    textColor: prefixClassOptions({
+      bold: "",
+      muted: "",
+      primary: "",
+      success: "",
+      warning: "",
+      danger: "",
+      contrast: "",
+      "": ""
+    }, 'uk-text-', true),
     textAlign: prefixClassOptions({
       middle: "",
       top: "",
       bottom: "",
+      left: "",
+      "left-small": "",
+      right: "",
+      "right-small": "",
+      center: "",
+      "center-small": "",
+      justify: "",
       "": ""
     }, 'uk-text-', true),
     animation: prefixClassOptions({
@@ -1078,7 +1115,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getBoundingClientRect: function () {
       /**
        * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
-       * @returns {*|ClientRect}
+       * @returns {any | ClientRect}
        */
       return this.el.getBoundingClientRect();
     },
@@ -1158,6 +1195,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     }
   };
+
+  assignClassToMethods(exports.AbsolutePositionMethods, 'AbsolutePositionMethods');
 
 
   exports.new = function (config, callback) {
@@ -1286,6 +1325,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: classSetters(exports.classOptions)
   };
 
+  assignClassToMethods(exports.CommonCSS.$setters, exports.CommonCSS.__name__);
+
 
   exports.CommonEvents = {
     __name__: "CommonEvents",
@@ -1362,9 +1403,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         self.addListener(config.dropdownEvent, function (config, node) {
           var relativeNode = $$(dropdownOptions.relativeTo);
           relativeNode = relativeNode ? relativeNode.el : node;
+          var bb = {left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight};
           ui.open(config);
           ui.positionNextTo(relativeNode, dropdown.pos, dropdownOptions.marginX, dropdownOptions.marginY);
-          ui.moveWithinBoundary();
+          ui.moveWithinBoundary(bb);
         });
         self.dropdownPopup = ui;
       },
@@ -1480,7 +1522,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets a child component from a key value match.
        * @param key The key to look up.
        * @param value The compared value.
-       * @returns {UI.definitions.element}
+       * @returns {Component}
        */
       return this.$components.filter(function (item) {
         return item[key] === value;
@@ -1529,7 +1571,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Inserts a child configuration object at a particular index.
        * @param index Index to insert at.
        * @param config The configuration object representing the new child.
-       * @returns {object} The child component
+       * @returns {Component} The child component
        */
       var self = this;
       var ui;
@@ -1560,7 +1602,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Adds a child to the end of the stack.
        * @param config Configuration of the new child.
-       * @returns {object} The child component
+       * @returns {Component} The child component
        */
       var self = this;
       var component = config.element ? config : exports.new(config, function (el) {
@@ -1593,21 +1635,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Get a child of the flexgrid by id.
        * @param id The string id of the component.
-       * @returns {UI.definitions.element}
+       * @returns {Component}
        */
       return this.getComponent('id', id);
     },
     getChildren: function () {
       /**
        * Get a list of all children. Make a copy if mutating this object.
-       * @returns {Array} Array of child components.
+       * @returns {Component[]} Array of child components.
        */
       return this.$components;
     },
     getItems: function () {
       /**
        * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
-       * @returns {Array} Array of child components config objects.
+       * @returns {any[]} Array of child components config objects.
        */
       return this.$components.map(function (item) {
         return item.config;
@@ -1781,7 +1823,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValue: function () {
       /**
        * Get the value of the form control.
-       * @returns {*}
+       * @returns {any}
        */
       return this.getFormControl().value;
     },
@@ -2289,7 +2331,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValue: function () {
       /**
        * Get the value of the HTML input element.
-       * @returns {string|boolean}
+       * @returns {string | boolean}
        */
       var self = this;
       if (self.config.type == "checkbox")
@@ -2438,7 +2480,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getBoundingClientRect: function () {
       /**
        * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
-       * @returns {*|ClientRect}
+       * @returns {any | ClientRect}
        */
       return this.config.dropdownRect || this.el.firstChild.getBoundingClientRect();
     },
@@ -2505,7 +2547,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Assigns an id to an object if one doesn't exist.
        * @param data The object to assign an id to.
-       * @returns {*|string} The id of the object.
+       * @returns {any | string} The id of the object.
        */
       return data.id || (data.id = uid("data"));
     },
@@ -2513,7 +2555,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Gets a configuration object by its id.
        * @param id The id of the element.
-       * @returns {object}
+       * @returns {string}
        */
       return this.findOne('id', id);
     },
@@ -2547,7 +2589,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Plucks a property from all child objects.
        * @param key The key of the child objects.
-       * @returns {Array}
+       * @returns {any[]}
        */
       return this.each(function (item) {
         return item[key]
@@ -2558,7 +2600,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Invokes a function on each child.
        * @param func The invoked function.
        * @param thisArg The 'this' object passed to the invoked function.
-       * @returns Return an array containing the results of the invoked call.
+       * @returns {any[]} Return an array containing the results of the invoked call.
        */
       var node = this.headNode;
       var nextNode;
@@ -2575,7 +2617,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Adds an item to the end.
        * @param item The item to add.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       return this.insertBefore(item, node);
     },
@@ -2585,7 +2627,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item The item to add.
        * @param node The reference item to add the item before.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       var self = this;
       assertPropertyValidator(item, 'HTMLElement', isObject);
@@ -2630,7 +2672,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item The item to add.
        * @param node The reference item to add the item after.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       var self = this;
       assertPropertyValidator(item, 'item object ' + item, isObject);
@@ -2674,7 +2716,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Removes an item.
        * @param item The item to remove.
        * @dispatch onDelete, onDeleted
-       * @returns The item object.
+       * @returns {any} The item object.
        */
       assertPropertyValidator(item, 'item', isObject);
 
@@ -2714,6 +2756,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Checks if an item exists.
        * @param item The item to check for.
+       * @returns {boolean} True if the item exists.
        */
       return this.$items.indexOf(item) != -1;
     },
@@ -2722,7 +2765,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets the index of an item.
        * @param item The item to find the index for.
        * @param beginNode An optional node which specifies the start.
-       * @returns {int|undefined} The index of the item, or undefined if doesn't exist.
+       * @returns {int | undefined} The index of the item, or undefined if doesn't exist.
        */
       var i = 0;
       var node = beginNode || this.headNode;
@@ -2740,7 +2783,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param key The key to look at for matching.
        * @param value The value of the key.
        * @param beginNode An optional node which specifies the start.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var result = [];
       var node = beginNode || this.headNode;
@@ -2758,7 +2801,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param key The key to look at for matching.
        * @param value The value of the key.
        * @param beginNode An optional node which specifies the start.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       while (node) {
@@ -2774,7 +2817,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param cond The condition function.
        * @param beginNode An optional node which specifies the start.
        * @param thisArg The 'this' argument to pass to the function.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       while (node) {
@@ -2790,7 +2833,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param cond The condition function.
        * @param beginNode An optional node which specifies the start.
        * @param thisArg The 'this' argument to pass to the function.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       var lastNode = null;
@@ -2806,6 +2849,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       return lastNode;
     }
   };
+
+  assignClassToMethods(exports.LinkedList, 'LinkedList');
+
 
   $definitions.stack = def({
     __name__: "stack",
@@ -3215,7 +3261,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getSelected: function () {
       /**
        * Return all selected items.
-       * @returns {Array} A list of selected items.
+       * @returns {any[]} A list of selected items.
        */
       return this.findWhere('$selected', true);
     },
@@ -3833,7 +3879,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValues: function () {
       /**
        * Gets the values of the form's components.
-       * @returns {object} Object of key values of the form.
+       * @returns {any} Object of key values of the form.
        */
       var result = {};
       this.$fieldsets.forEach(function (fs) {
@@ -3854,7 +3900,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Retrieves the fieldset component of the form.
        * @param index The index of the fieldset in the form, default 0.
-       * @returns {UI.definitions.fieldset}
+       * @returns {Component}
        */
       return this.$fieldsets[index || 0];
     }
@@ -3938,7 +3984,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValues: function () {
       /**
        * Gets the values of the form's components.
-       * @returns {object} Object of key values of the fieldset.
+       * @returns {any} Object of key values of the fieldset.
        */
       var results = {};
 

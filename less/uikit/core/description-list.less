@@ -12,14 +12,14 @@
 // Variables
 // ========================================================================
 
-@description-list-horizontal-width:             160px;
-@description-list-horizontal-margin-left:       180px;
+@description-list-horizontal-width:             120px;
+@description-list-horizontal-margin-left:       140px;
 
-@description-list-line-margin-top:              5px;
-@description-list-line-padding-vertical:        5px;
+@description-list-line-margin-top:              @global-margin-small;
+@description-list-line-padding-vertical:        @global-margin-small;
 @description-list-line-border-width:            1px;
-@description-list-line-border:                  #ddd;
-@description-list-line-color:                   #999;
+@description-list-line-border:                  @global-border;
+@description-list-line-color:                   @global-border;
 
 @description-list-line-font-weight:             normal;
 
@@ -33,25 +33,22 @@
  ========================================================================== */
 
 /* Tablet and bigger */
-@media (min-width: @breakpoint-medium) {
+.uk-description-list-horizontal { overflow: hidden; }
 
-    .uk-description-list-horizontal { overflow: hidden; }
+.uk-description-list-horizontal > dt {
+    margin-top: 0;
+    width: @description-list-horizontal-width;
+    float: left;
+    clear: both;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: @description-list-line-padding-vertical 0;
+}
 
-    .uk-description-list-horizontal > dt {
-        margin-top: 0;
-        width: @description-list-horizontal-width;
-        float: left;
-        clear: both;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding: @description-list-line-padding-vertical 0;
-    }
-
-    .uk-description-list-horizontal > dd {
-        margin-left: @description-list-horizontal-margin-left;
-        padding: @description-list-line-padding-vertical 0;
-    }
+.uk-description-list-horizontal > dd {
+    margin-left: @description-list-horizontal-margin-left;
+    padding: @description-list-line-padding-vertical 0;
 }
 
 
@@ -78,6 +75,3 @@
 // Hooks
 // ========================================================================
 
-.hook-description-list-misc;
-
-.hook-description-list-misc() {}

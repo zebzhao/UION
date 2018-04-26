@@ -1,4 +1,4 @@
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(core) {
 
     var uikit;
@@ -45,7 +45,7 @@
 
     var UI = {}, _UI = window.UIkit || undefined;
 
-    UI.version = '2.27.4';
+    UI.version = '2.27.5';
 
     UI.noConflict = function() {
         // restore UIkit version
@@ -2658,8 +2658,12 @@
             this.element.attr('aria-hidden', this.element.hasClass('uk-open'));
 
             this.on('click', '.uk-modal-close', function(e) {
+
                 e.preventDefault();
-                $this.hide();
+
+                var modal = UI.$(e.target).closest('.uk-modal');
+                if (modal[0] === $this.element[0]) $this.hide();
+
             }).on('click', function(e) {
 
                 var target = UI.$(e.target);
@@ -3258,7 +3262,9 @@
 
                 var target = UI.$(e.target);
 
-                if (!e.type.match(/swipe/)) {
+                if (e.type.match(/swipe/)) {
+                    if (target.parents('.uk-offcanvas-bar:first').length) return;
+                } else {
 
                     if (!target.hasClass('uk-offcanvas-close')) {
                         if (target.hasClass('uk-offcanvas-bar')) return;
@@ -3915,7 +3921,7 @@
 
 })(UIkit2);
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4256,7 +4262,7 @@
     return UI.autocomplete;
 });
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4782,6 +4788,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     if (isFunction(templateObject)) {
       templateObject = templateObject.call(thisArg, config);
     }
+    
     if (isString(templateObject)) {
       parentNode.innerHTML = interpolate(templateObject, config);
     }
@@ -4804,6 +4811,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   }
 
+  function assignClassToMethods(methods, cls) {
+    Object.keys(methods).forEach(function (name) {
+      if (isFunction(methods[name])) methods[name].__class__ = cls;
+    });
+  }
+
   function buildDef(config, bases) {
     assertPropertyValidator(config.__name__, '__name__', isDefined);
 
@@ -4813,6 +4826,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     var $defaults = config.$defaults || {};
     var $setters = config.$setters || {};
     var $events = config.$events || {};
+
+    assignClassToMethods($setters, config.__name__);
+    assignClassToMethods(config, config.__name__);
 
     var baseNames = bases.reduce(function (names, base, index) {
       assertPropertyValidator(base, config.__name__ + ' base[' + index + ']', isDefined);
@@ -4972,7 +4988,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param type The type of event.
        * @param func The handling function.
        * @param id An optional event id that can be used to remove the listener.
-       * @returns The event id, automatically generated if id is not set.
+       * @returns {number} The event id, automatically generated if id is not set.
        * @example addListener('onClick', function(config, element, event) {})
        */
       assertPropertyValidator(func, "listener for " + type, isFunction);
@@ -5191,6 +5207,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "z-index": "",
       "": ""
     }, 'uk-position-', true),
+    responsive: prefixClassOptions({
+      "width": "",
+      "height": "",
+      "": ""
+    }, 'uk-responsive-', true),
     fill: prefixClassOptions({
       height: "height-1-1",
       width: "width-100",
@@ -5205,8 +5226,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }, 'uk-float-', true, ['clearfix']),
     scroll: prefixClassOptions({
       xy: "container",
-	  y: "ycontainer",
-	  x: "xcontainer",
+      y: "ycontainer",
+      x: "xcontainer",
       text: "uk-scrollable-text",
       "": ""
     }, 'uk-overflow-', false, ['text']),
@@ -5216,35 +5237,31 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       hover: "uk-hidden-hover"
     },
     margin: prefixClassOptions({
-      "none": "remove",
-      "top-rm": "top-remove",
-      "bottom-rm": "bottom-remove",
-      "left-rm": "left-remove",
-      "right-rm": "right-remove",
       "": "",
-      "all-sm": ["small-x", "small-y"],
-      "all": ["x", "y"],
-      "all-lg": ["large-x", "large-y"],
       "x": "x",
+      "x-mi": "mini-x",
       "x-sm": "small-x",
       "x-lg": "large-x",
       "y": "y",
+      "y-mi": "mini-y",
       "y-sm": "small-y",
       "y-lg": "large-y",
-      "lg": "large",
-      "sm": "small",
       "top": "top",
       "top-lg": "large-top",
       "top-sm": "small-top",
+      "top-mi": "mini-top",
       "bottom": "bottom",
       "bottom-lg": "large-bottom",
       "bottom-sm": "small-bottom",
+      "bottom-mi": "mini-bottom",
       "left": "left",
       "left-lg": "large-left",
       "left-sm": "small-left",
+      "left-mi": "mini-left",
       "right": "right",
       "right-lg": "large-right",
-      "right-sm": "small-right"
+      "right-sm": "small-right",
+      "right-mi": "mini-right"
     }, 'uk-margin-'),
     screen: prefixClassOptions({
       "small": "visible-small",
@@ -5260,10 +5277,36 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       notouch: "touch",
       "": ""
     }, 'uk-hidden-'),
+    text: prefixClassOptions({
+      small: "",
+      large: "",
+      bold: "",
+      capitalize: "",
+      lowercase: "",
+      uppercase: "",
+      "": ""
+    }, 'uk-text-', true),
+    textColor: prefixClassOptions({
+      bold: "",
+      muted: "",
+      primary: "",
+      success: "",
+      warning: "",
+      danger: "",
+      contrast: "",
+      "": ""
+    }, 'uk-text-', true),
     textAlign: prefixClassOptions({
       middle: "",
       top: "",
       bottom: "",
+      left: "",
+      "left-small": "",
+      right: "",
+      "right-small": "",
+      center: "",
+      "center-small": "",
+      justify: "",
       "": ""
     }, 'uk-text-', true),
     animation: prefixClassOptions({
@@ -5526,7 +5569,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getBoundingClientRect: function () {
       /**
        * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
-       * @returns {*|ClientRect}
+       * @returns {any | ClientRect}
        */
       return this.el.getBoundingClientRect();
     },
@@ -5606,6 +5649,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     }
   };
+
+  assignClassToMethods(exports.AbsolutePositionMethods, 'AbsolutePositionMethods');
 
 
   exports.new = function (config, callback) {
@@ -5734,6 +5779,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: classSetters(exports.classOptions)
   };
 
+  assignClassToMethods(exports.CommonCSS.$setters, exports.CommonCSS.__name__);
+
 
   exports.CommonEvents = {
     __name__: "CommonEvents",
@@ -5810,9 +5857,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         self.addListener(config.dropdownEvent, function (config, node) {
           var relativeNode = $$(dropdownOptions.relativeTo);
           relativeNode = relativeNode ? relativeNode.el : node;
+          var bb = {left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight};
           ui.open(config);
           ui.positionNextTo(relativeNode, dropdown.pos, dropdownOptions.marginX, dropdownOptions.marginY);
-          ui.moveWithinBoundary();
+          ui.moveWithinBoundary(bb);
         });
         self.dropdownPopup = ui;
       },
@@ -5928,7 +5976,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets a child component from a key value match.
        * @param key The key to look up.
        * @param value The compared value.
-       * @returns {UI.definitions.element}
+       * @returns {Component}
        */
       return this.$components.filter(function (item) {
         return item[key] === value;
@@ -5977,7 +6025,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Inserts a child configuration object at a particular index.
        * @param index Index to insert at.
        * @param config The configuration object representing the new child.
-       * @returns {object} The child component
+       * @returns {Component} The child component
        */
       var self = this;
       var ui;
@@ -6008,7 +6056,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Adds a child to the end of the stack.
        * @param config Configuration of the new child.
-       * @returns {object} The child component
+       * @returns {Component} The child component
        */
       var self = this;
       var component = config.element ? config : exports.new(config, function (el) {
@@ -6041,21 +6089,21 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Get a child of the flexgrid by id.
        * @param id The string id of the component.
-       * @returns {UI.definitions.element}
+       * @returns {Component}
        */
       return this.getComponent('id', id);
     },
     getChildren: function () {
       /**
        * Get a list of all children. Make a copy if mutating this object.
-       * @returns {Array} Array of child components.
+       * @returns {Component[]} Array of child components.
        */
       return this.$components;
     },
     getItems: function () {
       /**
        * Get a list of the children's JSON configuration objects. Do not need to make a copy if mutating.
-       * @returns {Array} Array of child components config objects.
+       * @returns {any[]} Array of child components config objects.
        */
       return this.$components.map(function (item) {
         return item.config;
@@ -6229,7 +6277,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValue: function () {
       /**
        * Get the value of the form control.
-       * @returns {*}
+       * @returns {any}
        */
       return this.getFormControl().value;
     },
@@ -6737,7 +6785,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValue: function () {
       /**
        * Get the value of the HTML input element.
-       * @returns {string|boolean}
+       * @returns {string | boolean}
        */
       var self = this;
       if (self.config.type == "checkbox")
@@ -6886,7 +6934,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getBoundingClientRect: function () {
       /**
        * Gets the bounding rectangle of the element. Needs to be added first since this delegates the call to element.getBoundingClientRect.
-       * @returns {*|ClientRect}
+       * @returns {any | ClientRect}
        */
       return this.config.dropdownRect || this.el.firstChild.getBoundingClientRect();
     },
@@ -6953,7 +7001,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Assigns an id to an object if one doesn't exist.
        * @param data The object to assign an id to.
-       * @returns {*|string} The id of the object.
+       * @returns {any | string} The id of the object.
        */
       return data.id || (data.id = uid("data"));
     },
@@ -6961,7 +7009,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Gets a configuration object by its id.
        * @param id The id of the element.
-       * @returns {object}
+       * @returns {string}
        */
       return this.findOne('id', id);
     },
@@ -6995,7 +7043,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Plucks a property from all child objects.
        * @param key The key of the child objects.
-       * @returns {Array}
+       * @returns {any[]}
        */
       return this.each(function (item) {
         return item[key]
@@ -7006,7 +7054,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Invokes a function on each child.
        * @param func The invoked function.
        * @param thisArg The 'this' object passed to the invoked function.
-       * @returns Return an array containing the results of the invoked call.
+       * @returns {any[]} Return an array containing the results of the invoked call.
        */
       var node = this.headNode;
       var nextNode;
@@ -7023,7 +7071,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Adds an item to the end.
        * @param item The item to add.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       return this.insertBefore(item, node);
     },
@@ -7033,7 +7081,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item The item to add.
        * @param node The reference item to add the item before.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       var self = this;
       assertPropertyValidator(item, 'HTMLElement', isObject);
@@ -7078,7 +7126,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param item The item to add.
        * @param node The reference item to add the item after.
        * @dispatch onAdd, onAdded
-       * @returns The object id after adding.
+       * @returns {string} The object id after adding.
        */
       var self = this;
       assertPropertyValidator(item, 'item object ' + item, isObject);
@@ -7122,7 +7170,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Removes an item.
        * @param item The item to remove.
        * @dispatch onDelete, onDeleted
-       * @returns The item object.
+       * @returns {any} The item object.
        */
       assertPropertyValidator(item, 'item', isObject);
 
@@ -7162,6 +7210,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Checks if an item exists.
        * @param item The item to check for.
+       * @returns {boolean} True if the item exists.
        */
       return this.$items.indexOf(item) != -1;
     },
@@ -7170,7 +7219,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * Gets the index of an item.
        * @param item The item to find the index for.
        * @param beginNode An optional node which specifies the start.
-       * @returns {int|undefined} The index of the item, or undefined if doesn't exist.
+       * @returns {int | undefined} The index of the item, or undefined if doesn't exist.
        */
       var i = 0;
       var node = beginNode || this.headNode;
@@ -7188,7 +7237,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param key The key to look at for matching.
        * @param value The value of the key.
        * @param beginNode An optional node which specifies the start.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var result = [];
       var node = beginNode || this.headNode;
@@ -7206,7 +7255,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param key The key to look at for matching.
        * @param value The value of the key.
        * @param beginNode An optional node which specifies the start.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       while (node) {
@@ -7222,7 +7271,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param cond The condition function.
        * @param beginNode An optional node which specifies the start.
        * @param thisArg The 'this' argument to pass to the function.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       while (node) {
@@ -7238,7 +7287,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
        * @param cond The condition function.
        * @param beginNode An optional node which specifies the start.
        * @param thisArg The 'this' argument to pass to the function.
-       * @returns {object} The item if found, undefined otherwise.
+       * @returns {any} The item if found, undefined otherwise.
        */
       var node = beginNode || this.headNode;
       var lastNode = null;
@@ -7254,6 +7303,9 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       return lastNode;
     }
   };
+
+  assignClassToMethods(exports.LinkedList, 'LinkedList');
+
 
   $definitions.stack = def({
     __name__: "stack",
@@ -7663,7 +7715,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getSelected: function () {
       /**
        * Return all selected items.
-       * @returns {Array} A list of selected items.
+       * @returns {any[]} A list of selected items.
        */
       return this.findWhere('$selected', true);
     },
@@ -8281,7 +8333,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValues: function () {
       /**
        * Gets the values of the form's components.
-       * @returns {object} Object of key values of the form.
+       * @returns {any} Object of key values of the form.
        */
       var result = {};
       this.$fieldsets.forEach(function (fs) {
@@ -8302,7 +8354,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       /**
        * Retrieves the fieldset component of the form.
        * @param index The index of the fieldset in the form, default 0.
-       * @returns {UI.definitions.fieldset}
+       * @returns {Component}
        */
       return this.$fieldsets[index || 0];
     }
@@ -8386,7 +8438,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     getValues: function () {
       /**
        * Gets the values of the form's components.
-       * @returns {object} Object of key values of the fieldset.
+       * @returns {any} Object of key values of the fieldset.
        */
       var results = {};
 
@@ -8437,167 +8489,171 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   var extend = exports.extend;
 
   (function ($setters) {
-    $setters.order.multipleAllowed = true;
-    $setters.screen.multipleAllowed = true;
-    $setters.margin.multipleAllowed = true;
-    $setters.position.multipleAllowed = true;
-    $setters.hidden.multipleAllowed = true;
-    $setters.animation.multipleAllowed = true;
+    $setters.order.$$desc = 'Flex order of the component';
+    $setters.screen.$$desc = 'Determines which screen size to show the component on';
+    $setters.margin.$$desc = 'Add margins to the component';
+    $setters.position.$$desc = 'Determines the CSS <code>position</code>';
+    $setters.hidden.$$desc = 'Show or hide the component';
+    $setters.animation.$$desc = 'Animation classes to use for the component';
   }(exports.CommonCSS.$setters));
 
 
   (function ($setters) {
-    $setters.disabled.isBoolean = true;
-    $setters.tooltip.isText = true;
-    $setters.css.isText = true;
-    $setters.dropdown.description = "Configuration object to show in a context menu.";
-    $setters.uploader.isBoolean = true;
+    $setters.disabled.$$type = 'boolean';
+    $setters.tooltip.$$type = 'string';
+    $setters.css.$$type = 'string';
+    $setters.dropdown.$$desc = "Configuration object to show in a context menu.";
+    $setters.uploader.$$type = 'boolean';
 
-    $setters._meta = extend({
+    $setters.$$meta = extend({
       dropdownEvent: "The event type to trigger a dropdown. Examples: onClick (default), onContext.",
       dropdownOptions: "Configuration passed to dropdown component.",
       template: "A string or a function that returns a HTML template string for the component. For examples, see source code on Github.",
       style: "A object containing properties to feed into the style attribute of the element"
-    }, $setters._meta || {});
+    }, $setters.$$meta || {});
   }($definitions.element.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.cells.description = "A list of configuration objects.";
+    $setters.cells.$$desc = "A list of configuration objects.";
   }($definitions.flexgrid.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.help.isText = true;
+    $setters.help.$$type = 'string';
     $setters.formClass.options = {"": "", "danger": "danger", "success": "success"};
-    $setters.type.description = "Set the type of the HTML input element.";
-    $setters.value.description = "Initial value of the HTML input element.";
+    $setters.type.$$desc = "Set the type of the HTML input element.";
+    $setters.value.$$desc = "Initial value of the HTML input element.";
   }(exports.FormControl.$setters));
 
 
   (function ($setters) {
-    $setters.light.isBoolean = true;
-    $setters.bodyWidth.isText = true;
-    $setters.bodyHeight.isText = true;
-    $setters.closeButton.isBoolean = true;
-    $setters.body.description = "Configuration object to put in the modal body.";
-    $setters.header.description = "Configuration object to put in the modal header.";
-    $setters.footer.description = "Configuration object to put in the modal footer.";
-    $setters.caption.isText = true;
-    $setters._meta = extend({
-      bgClose: {isBoolean: true},
-      keyboard: {isBoolean: true},
-      minScrollHeight: {isNumber: true},
-      closeModals: {isBoolean: true},
-      center: {isBoolean: true},
+    $setters.light.$$type = 'boolean';
+    $setters.bodyWidth.$$type = 'string';
+    $setters.bodyHeight.$$type = 'string';
+    $setters.closeButton.$$type = 'boolean';
+    $setters.body.$$desc = "Configuration object to put in the modal body.";
+    $setters.header.$$desc = "Configuration object to put in the modal header.";
+    $setters.footer.$$desc = "Configuration object to put in the modal footer.";
+    $setters.caption.$$type = 'string';
+    $setters.$$meta = extend({
+      bgClose: {$$type: 'boolean'},
+      keyboard: {$$type: 'boolean'},
+      minScrollHeight: {$$type: 'number'},
+      closeModals: {$$type: 'boolean'},
+      center: {$$type: 'boolean'},
       dialogClass: {options: ['', 'uk-modal-dialog-blank', 'uk-modal-dialog-full']}
-    }, $setters._meta || {});
+    }, $setters.$$meta || {});
   }($definitions.modal.prototype.$setters));
 
 
   (function ($setters) {
-    $setters._meta = extend({
-      iconClass: {isText: true},
-      icon: {isText: true}
-    }, $setters._meta || {});
+    $setters.$$meta = extend({
+      iconClass: {$$type: 'string'},
+      icon: {$$type: 'string'}
+    }, $setters.$$meta || {});
   }($definitions.button.prototype.$setters));
 
 
   (function ($setters) {
-    $setters._meta = extend({
-      href: {isText: true, placeholder: 'Href attribute'},
-      src: {isText: true, placeholder: 'Src attribute'},
-      target: {isText: true, placeholder: 'Target attribute'}
-    }, $setters._meta || {});
+    $setters.href.$$type = 'string';
+    $setters.src.$$type = 'string';
+    $setters.target.$$type = 'string';
   }($definitions.image.prototype.$setters));
 
 
   (function ($setters) {
-    $setters._meta = extend({
-      href: {isText: true, placeholder: 'Href attribute'},
-      target: {isText: true, placeholder: 'Target attribute'}
-    }, $setters._meta || {});
+    $setters.href.$$type = 'string';
+    $setters.target.$$type = 'string';
   }($definitions.link.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.iconStyle.multipleAllowed = true;
+    $setters.iconStyle.$$desc = 'Type of icon';
   }($definitions.icon.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.color.multipleAllowed = true;
-    $setters.color.description = "Set the style type of the progress element.";
+    $setters.color.$$desc = "Set the style type of the progress element.";
   }($definitions.progress.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.autocomplete.isBoolean = true;
-    $setters.autocapitalize.isBoolean = true;
-    $setters.autocorrect.isBoolean = true;
-    $setters.placeholder.isText = true;
+    $setters.autocomplete.$$type = 'boolean';
+    $setters.autocapitalize.$$type = 'boolean';
+    $setters.autocorrect.$$type = 'boolean';
+    $setters.placeholder.$$type = 'string';
   }(exports.InputControl.$setters));
 
   
   (function ($setters) {
-    $setters.checked.isBoolean = true;
+    $setters.checked.$$type = 'boolean';
   }($definitions.input.prototype.$setters));
 
 
   (function ($setters) {
-    $setters._meta = extend({
-      caseSensitive: {isBoolean: true},
-      minLength: {isNumber: true},
+    $setters.$$meta = extend({
+      caseSensitive: {$$type: 'boolean'},
+      minLength: {$$type: 'number'},
       sources: 'An array of sources for the autocomplete.',
       autocomplete: "A matching function that is passed a release callback to determine the final displayed autocomplete results. Default uses the 'sources' property."
-    }, $setters._meta || {});
+    }, $setters.$$meta || {});
   }($definitions.input.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.filter.description = 'A function to determine which child components to display. The function is passed the child component object.';
-    $setters.droppable.description = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
+    $setters.filter.$$desc = 'A function to determine which child components to display. The function is passed the child component object.';
+    $setters.droppable.$$desc = 'A function to determine if a child component can be drag and dropped upon. The function is passed the child component object.';
 
-    $setters._meta = extend({
+    $setters.$$meta = extend({
       data: 'An array of component objects.'
-    }, $setters._meta || {});
+    }, $setters.$$meta || {});
   }($definitions.stack.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.listStyle.multipleAllowed = true;
-    $setters.accordion.isBoolean = true;
-    $setters.tab.description = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
-    $setters._meta = extend({
-      selectable: {isBoolean: true},
-      itemTagClass: {isText: true}
-    }, $setters._meta || {});
+    $setters.listStyle.$$desc = 'Predefined list style';
+    $setters.accordion.$$type = 'boolean';
+    $setters.tab.$$desc = 'When true, sets additional behaviors for tabs such as responsiveness and onTabMenuClick';
+    $setters.$$meta = extend({
+      selectable: {$$type: 'boolean'},
+      itemTagClass: {$$type: 'string'}
+    }, $setters.$$meta || {});
   }($definitions.list.prototype.$setters));
 
 
   (function ($setters) {
-    $setters._meta = extend({
-      indentWidth: {isNumber: true},
+    $setters.$$meta = extend({
+      indentWidth: {$$type: 'number'},
       dataTransfer: 'The data representation of an item, only for FireFox.',
-      draggable: {isBoolean: true},
-      orderAfter: 'Low level function that determines ordering of tree items.',
-      droppable: 'Function that determines if an item can be dropped upon.'
-    }, $setters._meta || {});
+      draggable: {$$type: 'boolean'},
+      orderAfter: {$$type: '(other: any) => boolean', $$desc: 'Low level function that determines ordering of tree items.'},
+      droppable: {
+        $$type: '(target: any, src: any, srcElement: Element) => boolean',
+        $$desc: 'Function that determines if an item can be dropped upon.'
+      }
+    }, $setters.$$meta || {});
   }($definitions.tree.prototype.$setters));
 
   
   (function ($setters) {
-    $setters.tableStyle.multipleAllowed = true;
-    $setters.columns.description = "A list of schema objects containing data display info. Example: [{name: 'property.nested'}, {template: '<input type=&quot;checkbox&quot;>'}]";
-    $setters.header.description = "A list of header objects containing the header and alignment info. Example: [{header: 'Awesome', align: 'center'}]";
-    $setters.footer.description = "A list of footer objects containing the footer title.";
+    $setters.tableStyle.$$desc = 'Predefined table style';
+    $setters.columns.$$desc = "List of schema objects containing data display info";
+    $setters.columns.$$type = 'any[]';
+    $setters.header.$$desc = "List of header objects containing the header and alignment info";
+    $setters.header.$$type = 'boolean | any[]';
+    $setters.footer.$$desc = "List of footer objects containing the footer title";
+    $setters.footer.$$type = 'boolean | any[]';
+    $setters.caption.$$desc = 'Table caption';
+    $setters.caption.$$type = 'string';
   }($definitions.table.prototype.$setters));
 
 
   (function ($setters) {
-    $setters.formStyle.multipleAllowed = true;
-    $setters.fieldset.description = 'Fieldset object';
-    $setters.fieldsets.description = 'An array of Fieldset objects';
+    $setters.formStyle.$$desc = 'Predefined form style';
+    $setters.fieldset.$$desc = 'Fieldset object';
+    $setters.fieldsets.$$desc = 'An array of Fieldset objects';
+    $setters.fieldset.$$type = 'any[]';
   }($definitions.form.prototype.$setters));
 
   

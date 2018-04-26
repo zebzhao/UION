@@ -15,7 +15,7 @@
 
 @badge-padding-horizontal:                      @global-margin-small;
 @badge-font-size:                               10px;
-@badge-line-height:                             20px;
+@badge-line-height:                             @global-line-height;
 @badge-color:                                   @global-primary-background;
 
 @badge-success-color:                           @global-success-background;
@@ -38,6 +38,7 @@
     border: 1px solid fade(@badge-color, 20%);
     text-align: center;
     vertical-align: middle;
+    white-space: nowrap;
     .hook-badge;
 }
 
