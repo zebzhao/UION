@@ -5,15 +5,15 @@ var Model = {
     select: wrapInForm,
     fieldset: function (fieldset) {
       return {
-        view: "form",
+        view: 'form',
         fieldsets: [fieldset]
       }
     },
     dropdown: function (dropdown) {
       return {
-        view: "button",
-        label: "Show dropdown",
-        type: "primary",
+        view: 'button',
+        label: 'Show dropdown',
+        type: 'primary',
         dropdown: dropdown.dropdown
       }
     },
@@ -21,9 +21,9 @@ var Model = {
       return {
         cells: [
           {
-            view: "button",
-            label: "Show modal",
-            type: "primary",
+            view: 'button',
+            label: 'Show modal',
+            type: 'primary',
             on: {
               onClick: function () {
                 $$(modal.id).open();
@@ -42,22 +42,41 @@ var Model = {
   components: {
     autocomplete: function () {
       return {
-        view: "autocomplete",
-        placeholder: "Type something...",
+        view: 'autocomplete',
+        placeholder: 'Type something...',
         sources: [
-          {value: "Curl"},
-          {value: "Look"},
-          {value: "Age"},
-          {value: "Walk"},
-          {value: "Elope"},
-          {value: "Dig"}
+          {value: 'Curl'},
+          {value: 'Look'},
+          {value: 'Age'},
+          {value: 'Walk'},
+          {value: 'Elope'},
+          {value: 'Dig'}
         ]
       }
     },
     button: function () {
       return {
-        view: "button",
-        label: "Curl"
+        flex: false,
+        cells: [
+          {
+            view: 'button',
+            size: 'small',
+            label: 'Small Primary',
+            color: 'primary'
+          },
+          {
+            view: 'button',
+            label: 'Default',
+            margin: 'x'
+          },
+          {
+            view: 'button',
+            size: 'large',
+            label: 'Large Link',
+            link: true,
+            color: 'danger'
+          }
+        ]
       }
     },
     card: function () {
@@ -65,23 +84,27 @@ var Model = {
         layout: 'column',
         cells: [
           {
-            spacing: "between",
-            margin: "bottom-lg",
+            spacing: 'between',
+            margin: 'bottom-lg',
             cells: [
               {
-                view: "label",
-                label: "Default Card",
+                view: 'label',
+                flexSize: 'flex',
+                label: 'Default Card',
                 card: true
               },
               {
-                view: "label",
-                label: "Primary Card",
-                card: "primary"
+                view: 'label',
+                flexSize: 'flex',
+                label: 'Primary Card',
+                card: 'primary',
+                margin: 'x-lg'
               },
               {
-                view: "label",
-                label: "Secondary Card",
-                card: "secondary"
+                view: 'label',
+                flexSize: 'flex',
+                label: 'Secondary Card',
+                card: 'secondary'
               }
             ]
           },
@@ -90,21 +113,21 @@ var Model = {
             card: true,
             cells: [
               {
-                view: "label",
-                card: "badge",
-                badge: "danger",
-                label: "Awesome"
+                view: 'label',
+                card: 'badge',
+                badge: 'danger',
+                label: 'Awesome'
               },
               {
-                view: "label",
-                htmlTag: "h3",
-                label: "Card with Header",
-                card: "header title"
+                view: 'label',
+                htmlTag: 'h3',
+                label: 'Card with Header',
+                card: 'header title'
               },
               {
-                view: "label",
-                label: "Primary Card",
-                card: "body"
+                view: 'label',
+                label: 'Primary Card',
+                card: 'body'
               }
             ]
           }
@@ -114,42 +137,42 @@ var Model = {
     dropdown: function () {
       return {
         dropdown: {
-          view: "list",
+          view: 'list',
           data: [
-            {$header: true, label: "Random"},
-            {view: "link", label: "Curl into a furry donut."},
-            {view: "link", label: "Look into a furry donut."},
-            {view: "link", label: "Age into a furry donut."},
-            {view: "link", label: "Walk into a furry donut."},
-            {view: "link", label: "Elope into a furry donut."},
-            {view: "link", label: "Dig into a furry donut."}
+            {$header: true, label: 'Random'},
+            {view: 'link', label: 'Curl into a furry donut.'},
+            {view: 'link', label: 'Look into a furry donut.'},
+            {view: 'link', label: 'Age into a furry donut.'},
+            {view: 'link', label: 'Walk into a furry donut.'},
+            {view: 'link', label: 'Elope into a furry donut.'},
+            {view: 'link', label: 'Dig into a furry donut.'}
           ]
         }
       }
     },
     element: function () {
       return {
-        template: "<p>{{action}} into a furry donut.</p>",
-        action: "Curl"
+        template: '<p>{{action}} into a furry donut.</p>',
+        action: 'Curl'
       }
     },
     fieldset: function () {
       return {
-        view: "fieldset",
+        view: 'fieldset',
         data: [
-          {formLabel: "User", view: "input", value: "Hello"},
-          {formLabel: "Password", view: "input", type: "password", placeholder: "Password"},
-          {view: "button", type: "primary", label: "Login", inputWidth: "medium"}
+          {formLabel: 'User', view: 'input', value: 'Hello'},
+          {formLabel: 'Password', view: 'input', type: 'password', placeholder: 'Password'},
+          {view: 'button', type: 'primary', label: 'Login', inputWidth: 'medium', margin: 'top'}
         ]
       }
     },
     form: function () {
       return {
-        view: "form",
+        view: 'form',
         fieldset: [
-          {formLabel: "User", view: "input", value: "Hello"},
-          {formLabel: "Password", view: "input", type: "password", placeholder: "Password"},
-          {view: "button", type: "primary", label: "Login", inputWidth: "medium"}
+          {formLabel: 'User', view: 'input', value: 'Hello'},
+          {formLabel: 'Password', view: 'input', type: 'password', placeholder: 'Password'},
+          {view: 'button', type: 'primary', label: 'Login', inputWidth: 'medium', margin: 'top'}
         ]
       }
     },
@@ -157,24 +180,24 @@ var Model = {
       return {
         cells: [
           {
-            view: "list",
-            listStyle: "side",
+            view: 'list',
+            listStyle: 'side',
             data: [
-              {view: "link", label: "Curl into a furry donut."},
-              {view: "link", label: "Look into a furry donut."},
-              {view: "link", label: "Age into a furry donut."},
-              {view: "link", label: "Walk into a furry donut."},
-              {view: "link", label: "Elope into a furry donut."},
-              {view: "link", label: "Dig into a furry donut."}
+              {view: 'link', label: 'Curl into a furry donut.'},
+              {view: 'link', label: 'Look into a furry donut.'},
+              {view: 'link', label: 'Age into a furry donut.'},
+              {view: 'link', label: 'Walk into a furry donut.'},
+              {view: 'link', label: 'Elope into a furry donut.'},
+              {view: 'link', label: 'Dig into a furry donut.'}
             ]
           },
           {
-            view: "form",
-            margin: "left-lg",
+            view: 'form',
+            margin: 'left-lg',
             fieldset: [
-              {formLabel: "User", view: "input", value: "Hello"},
-              {formLabel: "Password", view: "input", type: "password", placeholder: "Password"},
-              {view: "button", type: "primary", label: "Login", inputWidth: "medium"}
+              {formLabel: 'User', view: 'input', value: 'Hello'},
+              {formLabel: 'Password', view: 'input', type: 'password', placeholder: 'Password'},
+              {view: 'button', type: 'primary', label: 'Login', inputWidth: 'medium', margin: 'top'}
             ]
           }
         ]
@@ -182,70 +205,91 @@ var Model = {
     },
     icon: function () {
       return {
-        view: "icon",
-        icon: "uk-icon-information"
+        view: 'icon',
+        icon: 'uk-icon-information'
       }
     },
     image: function () {
       return {
-        view: "image",
+        view: 'image',
         src: "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'200'%20height%3D'100'%3E%3Crect%20width%3D'100%25'%20height%3D'100%25'%20fill%3D'%2323b2ff'%2F%3E%3C%2Fsvg%3E"
       }
     },
     input: function () {
       return {
-        view: "input"
+        layout: 'column',
+        cells: [
+          {
+            view: 'input',
+            placeholder: 'Default Size'
+          },
+          {
+            view: 'input',
+            size: 'small',
+            placeholder: 'Small Size',
+            margin: 'y'
+          },
+          {
+            view: 'input',
+            size: 'large',
+            placeholder: 'Large Size'
+          }
+        ]
       }
     },
     label: function () {
       return {
-        view: "label",
-        label: "Curl into a furry donut."
+        view: 'label',
+        label: 'Curl into a furry donut.'
       }
     },
     link: function () {
       return {
-        view: "link",
-        label: "Curl into a furry donut."
+        view: 'link',
+        label: 'Curl into a furry donut.'
       }
     },
     list: function () {
       return {
-        view: "list",
+        view: 'list',
+        listStyle: ['side', 'line', 'striped'],
+        style: {
+          minWidth: '50%'
+        },
         data: [
-          {view: "link", label: "Curl into a furry donut."},
-          {view: "link", label: "Look into a furry donut."},
-          {view: "link", label: "Age into a furry donut."},
-          {view: "link", label: "Walk into a furry donut."},
-          {view: "link", label: "Elope into a furry donut."},
-          {view: "link", label: "Dig into a furry donut."}
+          {view: 'link', label: 'Curl into a furry donut.'},
+          {view: 'link', label: 'Look into a furry donut.'},
+          {view: 'link', label: 'Age into a furry donut.'},
+          {view: 'link', label: 'Walk into a furry donut.'},
+          {view: 'link', label: 'Elope into a furry donut.'},
+          {view: 'link', label: 'Dig into a furry donut.'}
         ]
       }
     },
     modal: function () {
       return {
-        view: "modal",
+        view: 'modal',
         header: {
-          view: "label",
-          htmlTag: "H3",
-          label: "Stale coffee is exquisite!"
+          view: 'label',
+          htmlTag: 'H3',
+          label: 'Stale coffee is exquisite!'
         },
         body: {
-          view: "label",
-          label: "Medium brewed, dripper to go filter iced kopi-luwak qui variety cortado acerbic. Plunger pot latte organic sweet single shot robust cappuccino. Plunger pot qui decaffeinated crema, variety cappuccino carajillo shop blue mountain milk. Dark single origin filter, fair trade at grounds aged caffeine froth. In pumpkin spice ristretto single shot chicory mocha kopi-luwak robusta trifecta french press dark."
+          view: 'label',
+          label: 'Medium brewed, dripper to go filter iced kopi-luwak qui variety cortado acerbic. Plunger pot latte organic sweet single shot robust cappuccino. Plunger pot qui decaffeinated crema, variety cappuccino carajillo shop blue mountain milk. Dark single origin filter, fair trade at grounds aged caffeine froth. In pumpkin spice ristretto single shot chicory mocha kopi-luwak robusta trifecta french press dark.'
         },
         footer: {
-          flexAlign: "right",
+          flexAlign: 'right',
           cells: [
-            {view: "button", label: "No way!", margin: "right"},
-            {view: "button", type: "primary", label: "Yup."}
+            {view: 'button', label: 'No way!', margin: 'right'},
+            {view: 'button', type: 'primary', label: 'Yup.'}
           ]
         }
       }
     },
     progress: function () {
       return {
-        view: "progress",
+        view: 'progress',
         on: {
           onInitialized: function () {
             this.setValue(80);
@@ -255,40 +299,40 @@ var Model = {
     },
     search: function () {
       return {
-        view: "search"
+        view: 'search'
       }
     },
     select: function () {
       return {
-        view: "select",
+        view: 'select',
         data: [
-          {label: "Curl"},
-          {label: "Look"},
-          {label: "Age"},
-          {label: "Walk"},
-          {label: "Elope"},
-          {label: "Dig"}
+          {label: 'Curl'},
+          {label: 'Look'},
+          {label: 'Age'},
+          {label: 'Walk'},
+          {label: 'Elope'},
+          {label: 'Dig'}
         ]
       }
     },
     table: function () {
       return {
-        view: "table",
+        view: 'table',
         header: true,
         footer: true,
         columns: [
-          {header: "Action", name: "action", footer: "1"},
-          {header: "Preposition", name: "preposition", footer: "2"},
-          {header: "Article", name: "directObject.article", footer: "3"},
-          {header: "Object", template: "<code>{{directObject.object}}</code>", footer: "Y"}
+          {header: 'Action', name: 'action', footer: '1'},
+          {header: 'Preposition', name: 'preposition', footer: '2'},
+          {header: 'Article', name: 'directObject.article', footer: '3'},
+          {header: 'Object', template: "<code>{{directObject.object}}</code>", footer: 'Y'}
         ],
         data: [
-          {action: "Curl", preposition: "into", directObject: {article: "a", object: "furry donut"}},
-          {action: "Look", preposition: "into", directObject: {article: "a", object: "furry donut"}},
-          {action: "Age", preposition: "into", directObject: {article: "a", object: "furry donut"}},
-          {action: "Walk", preposition: "into", directObject: {article: "a", object: "furry donut"}},
-          {action: "Elope", preposition: "into", directObject: {article: "a", object: "furry donut"}},
-          {action: "Dig", preposition: "into", directObject: {article: "a", object: "furry donut"}}
+          {action: 'Curl', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}},
+          {action: 'Look', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}},
+          {action: 'Age', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}},
+          {action: 'Walk', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}},
+          {action: 'Elope', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}},
+          {action: 'Dig', preposition: 'into', directObject: {article: 'a', object: 'furry donut'}}
         ]
       }
     },
@@ -298,27 +342,27 @@ var Model = {
         listStyle: 'tab',
         tab: true,
         data: [
-          {view: "link", label: "A", $selected: true},
-          {view: "link", label: "B"},
-          {view: "link", label: "C"}
+          {view: 'link', label: 'A', $selected: true},
+          {view: 'link', label: 'B'},
+          {view: 'link', label: 'C'}
         ]
       }
     },
     toggle: function () {
       return {
-        view: "toggle",
+        view: 'toggle',
         checked: true
       }
     },
     tree: function () {
       return {
-        view: "tree",
+        view: 'tree',
         data: [
-          {label: "Curl", id: "root"},
-          {label: "into", id: "into", $parent: "root"},
-          {label: "a", id: "a", $parent: "root"},
-          {label: "furry", id: "furry", $parent: "a"},
-          {label: "donut", id: "donut", $parent: "a"}
+          {label: 'Curl', id: 'root'},
+          {label: 'into', id: 'into', $parent: 'root'},
+          {label: 'a', id: 'a', $parent: 'root'},
+          {label: 'furry', id: 'furry', $parent: 'a'},
+          {label: 'donut', id: 'donut', $parent: 'a'}
         ]
       }
     }
@@ -330,7 +374,7 @@ var Model = {
 
 function wrapInForm(input) {
   return {
-    view: "form",
+    view: 'form',
     fieldset: [input]
   }
 }
@@ -355,8 +399,8 @@ UI.new({
           }
         },
         {
-          view: "link",
-          label: "Model UI"
+          view: 'link',
+          label: 'Model UI'
         }
       ]
     },
@@ -364,7 +408,7 @@ UI.new({
       view: 'list',
       listStyle: 'navbar',
       data: [
-        {view: 'link', label: "Github", href: "https://github.com/zebzhao/UION", css: "uk-text-contrast"}
+        {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/UION', css: 'uk-text-contrast'}
       ]
     }
   ]
@@ -381,7 +425,7 @@ function sidebarTemplate() {
     data: [
       {view: 'link', label: 'Getting Started', $selected: true},
       {$divider: true},
-      {$header: true, label: "Components"}
+      {$header: true, label: 'Components'}
     ].concat(Object.keys(Model.components).sort().map(function (n) {
       return {
         view: 'link',
@@ -417,7 +461,12 @@ function sidebarTemplate() {
 }
 
 UI.new(sidebarTemplate(), document.getElementById('sidebar'));
-UI.new(UI.extend(sidebarTemplate(), {css: ['uk-offcanvas-bar']}), document.getElementById('offcanvas'));
+UI.new(
+  UI.extend(sidebarTemplate(),
+    {css: 'uk-offcanvas-bar', style: {paddingTop: '32px'}}
+  ),
+  document.getElementById('offcanvas')
+);
 
 UI.new({
   id: 'mainView',
@@ -435,6 +484,7 @@ UI.new({
       card: true,
       flexSize: 'none',
       layout: 'column',
+      margin: 'bottom-lg',
       cells: [
         {
           batch: 'tab',
@@ -444,8 +494,8 @@ UI.new({
           card: 'header',
           margin: 'bottom-lg',
           data: [
-            {view: "link", label: "Preview", value: "component", $selected: true},
-            {view: "link", label: "Code", value: "code"}
+            {view: 'link', label: 'Preview', value: 'component', $selected: true},
+            {view: 'link', label: 'Code', value: 'code'}
           ],
           on: {
             onItemClick: function (item) {
@@ -516,16 +566,17 @@ UI.new({
       id: 'apiView',
       flexSize: 'none',
       layout: 'column',
+      card: true,
       cells: [
         {
           batch: 'tab',
           view: 'list',
           listStyle: 'tab',
           tab: true,
-          margin: "top-lg",
+          card: 'header',
           data: [
-            {view: "link", label: "Properties", value: "properties", $selected: true},
-            {view: "link", label: "Methods", value: "methods"}
+            {view: 'link', label: 'Properties', value: 'properties', $selected: true},
+            {view: 'link', label: 'Methods', value: 'methods'}
           ],
           on: {
             onItemClick: function (item) {
@@ -547,19 +598,20 @@ UI.new({
         {
           batch: 'props',
           layout: 'column',
+          card: 'body',
           cells: [
             {
-              view: 'label', margin: "top-lg", css: 'uk-alert',
+              view: 'label', margin: 'top-lg', css: 'uk-alert',
               label: '<span class="uk-badge uk-badge-warning">TIP</span>&nbsp;&nbsp;Changing these properties will affect the displayed component.'
             },
             {
-              view: 'label', margin: "top",
+              view: 'label', margin: 'top',
               label: '<strong>CSS</strong>'
             },
             {
               id: 'cssForm',
               view: 'form',
-              margin: "top",
+              margin: 'top',
               formStyle: 'horizontal',
               parseProperties: function (component) {
                 var setters = component.prototype.$setters;
@@ -584,7 +636,7 @@ UI.new({
                       view: 'list',
                       data: Object.keys(setter.options).sort().map(function (option) {
                         return {
-                          view: "link",
+                          view: 'link',
                           label: option || '[empty]',
                           value: option,
                           $selected: option ? cssValue.toString().indexOf(option) != -1 : model[cssName] == ''
@@ -628,11 +680,11 @@ UI.new({
                 }));
               }
             },
-            {view: 'label', margin: "top-lg", label: '<strong>MISC</strong>'},
+            {view: 'label', margin: 'top-lg', label: '<strong>MISC</strong>'},
             {
               id: 'miscForm',
               view: 'form',
-              margin: "top",
+              margin: 'top',
               formStyle: 'horizontal',
               parseProperties: function (component) {
                 var meta = UI.extend({}, component.prototype.$setters._meta);
@@ -710,10 +762,11 @@ UI.new({
           ]
         },
         {
-          batch: 'methods',
           id: 'methodList',
+          batch: 'methods',
           view: 'list',
           listStyle: 'line',
+          card: 'body',
           selectable: true,
           parseMethods: function (component) {
             this.setData(getComponentMethods(component).map(function (method) {

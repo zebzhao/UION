@@ -1,4 +1,4 @@
-/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(core) {
 
     var uikit;
@@ -45,7 +45,7 @@
 
     var UI = {}, _UI = window.UIkit || undefined;
 
-    UI.version = '2.27.5';
+    UI.version = '2.27.4';
 
     UI.noConflict = function() {
         // restore UIkit version
@@ -2658,12 +2658,8 @@
             this.element.attr('aria-hidden', this.element.hasClass('uk-open'));
 
             this.on('click', '.uk-modal-close', function(e) {
-
                 e.preventDefault();
-
-                var modal = UI.$(e.target).closest('.uk-modal');
-                if (modal[0] === $this.element[0]) $this.hide();
-
+                $this.hide();
             }).on('click', function(e) {
 
                 var target = UI.$(e.target);
@@ -3262,9 +3258,7 @@
 
                 var target = UI.$(e.target);
 
-                if (e.type.match(/swipe/)) {
-                    if (target.parents('.uk-offcanvas-bar:first').length) return;
-                } else {
+                if (!e.type.match(/swipe/)) {
 
                     if (!target.hasClass('uk-offcanvas-close')) {
                         if (target.hasClass('uk-offcanvas-bar')) return;
@@ -3921,7 +3915,7 @@
 
 })(UIkit2);
 
-/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4262,7 +4256,7 @@
     return UI.autocomplete;
 });
 
-/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -5252,14 +5246,6 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       "right-lg": "large-right",
       "right-sm": "small-right"
     }, 'uk-margin-'),
-    inputWidth: prefixClassOptions({
-      "": "",
-      mini: "",
-      small: "",
-      medium: "",
-      large: "",
-      full: "uk-width-100"
-    }, 'uk-form-width-', true, ['full']),
     screen: prefixClassOptions({
       "small": "visible-small",
       "medium": "visible-medium",
@@ -5691,6 +5677,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
   }
 
   function prefixClassOptions(obj, prefix, mirrorKey, exclude) {
+    prefix = prefix || '';
+
     return forIn(function (key, value) {
       if (isArray(exclude) && exclude.indexOf(key) != -1) {
         return value;
@@ -5782,7 +5770,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       dropdownOptions: {
         pos: "bottom-center",
         marginX: 0,
-        marginY: 0
+        marginY: 8
       }
     },
     $setters: {
@@ -6411,11 +6399,14 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       selectable: false
     },
     $setters: classSetters({
+      link: prefixClassOptions({
+        true: "uk-button-link",
+        "": ""
+      }),
       color: prefixClassOptions({
         primary: "",
         success: "",
         danger: "",
-        link: "",
         "": ""
       }, 'uk-button-', true),
       size: prefixClassOptions({
@@ -6701,14 +6692,30 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       htmlTag: "INPUT",
       inputWidth: "medium"
     },
-    $setters: {
+    $setters: extend(
+      classSetters({
+        width: prefixClassOptions({
+          "": "",
+          mini: "",
+          small: "",
+          medium: "",
+          large: "",
+          full: "uk-width-100"
+        }, 'uk-form-width-', true, ['full']),
+        size: prefixClassOptions({
+          "": "",
+          small: "",
+          large: ""
+        }, 'uk-form-', true)
+      }),
+      {
       checked: function (value) {
         this.getFormControl().checked = value;
       },
       readonly: function (value) {
         setAttributes(this.getFormControl(), {readonly: value});
       }
-    },
+    }),
     reset: function () {
       /**
        * Clear the HTML input element.
@@ -7470,7 +7477,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           "nav": "nav",
           "side": ["nav", "nav-side"],
           "dropdown": ["nav", "nav-dropdown", "nav-side"],
-          "stripped": ["nav", "list", "list-stripped"],
+          "striped": ["nav", "list", "list-striped"],
           "line": ["list", "list-line"],
           "navbar": "navbar-nav",
           "subnav": "subnav",

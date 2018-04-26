@@ -71,16 +71,16 @@
 
 @form-small-height:                             @global-height-small;
 @form-large-height:                             @global-height-large;
-@form-small-padding:                            0 @global-margin-small;
+@form-small-padding:                            0 @global-margin;
 @form-large-padding:                            8px 6px;
 @form-small-font-size:                          round((@global-font-size * 0.85)); // 12px / 14px
 @form-large-font-size:                          round((@global-font-size * 1.14)); // 16px / 18px
 
-@form-danger-border:                            #f0506e;
-@form-danger-color:                             #f0506e;
+@form-danger-border:                            @button-danger-background;
+@form-danger-color:                             @button-danger-background;
 
-@form-success-border:                           #32d296;
-@form-success-color:                            #32d296;
+@form-success-border:                           @button-success-background;
+@form-success-color:                            @button-success-background;
 
 @form-blank-border:                             @global-border;
 @form-blank-border-style:                       dashed;
@@ -90,17 +90,17 @@
 @form-medium-width:                             200px;
 @form-large-width:                              500px;
 
-@form-help-inline-margin-left:                  5px;
-@form-help-block-margin-top:                    5px;
+@form-help-inline-margin-left:                  @global-margin-small;
+@form-help-block-margin-top:                    @global-margin-small;
 
-@form-controls-condensed-margin-vertical:       5px;
+@form-controls-condensed-margin-vertical:       @global-margin-small;
 
-@form-stacked-margin-bottom:                    5px;
+@form-stacked-margin-bottom:                    @global-margin-small;
 @form-stacked-font-weight:                      500;
 
 @form-horizontal-label-width:                   200px;
-@form-horizontal-label-margin-top:              5px;
-@form-horizontal-controls-text-padding-top:     5px;
+@form-horizontal-label-margin-top:              @global-margin-small;
+@form-horizontal-controls-text-padding-top:     @global-margin-small;
 
 @form-icon-font-size:                           @global-font-size;
 @form-icon-width:                               30px;
