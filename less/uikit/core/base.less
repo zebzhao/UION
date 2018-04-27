@@ -25,7 +25,7 @@
 
 @base-code-color:                               @global-danger-background;
 @base-code-font-size:                           12px;
-@base-code-font-family:                         Consolas, monospace, serif;
+@base-code-font-family:                         Menlo,Monaco,Consolas,Courier,monospace;
 @base-code-border:                              @global-border;
 @base-code-border-radius:                       @global-border-radius;
 @base-code-padding:                             @global-margin-mini;
@@ -73,8 +73,8 @@
 @base-pre-font-size:                            12px;
 @base-pre-line-height:                          18px;
 @base-pre-font-family:                          @base-code-font-family;
-@base-pre-border:                              @global-border;
-@base-pre-border-radius:                       @global-border-radius;
+@base-pre-border:                               @global-border;
+@base-pre-border-radius:                        @global-border-radius;
 
 @base-selection-background:                     #39f;
 @base-selection-color:                          #fff;
@@ -466,6 +466,10 @@ pre {
     /* 1 */
     overflow: auto;
     .hook-base-pre;
+}
+
+pre > code {
+    font: inherit;
 }
 
 
