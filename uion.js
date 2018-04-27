@@ -383,7 +383,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         names.push(base.__name__);
       } else if (isFunction(base)) {
         names.push(base.prototype.__name__);
-        return names.concat(base.prototype.__base__);
+        return names.concat(base.prototype.__baseNames__);
       }
       return names;
     }, []);
@@ -426,7 +426,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         after[h].apply(this, arguments);
     };
     compiled.__name__ = config.__name__;
-    compiled.__base__ = baseNames;
+    compiled.__baseNames__ = baseNames;
+    compiled.__bases__ = bases;
     compiled.$defaults = $defaults;
     compiled.$events = $events;
     compiled.$setters = $setters;
@@ -587,6 +588,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
+  assignClassToMethods(exports.Dispatcher, exports.Dispatcher.__name__);
+
 
   exports.Responder = {
     __name__: "Responder",
@@ -626,6 +629,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       return this.el;
     }
   };
+
+  assignClassToMethods(exports.Responder, exports.Responder.__name__);
 
 
   exports.selectors = {
@@ -1069,8 +1074,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
+  assignClassToMethods(exports.PropertySetter, exports.PropertySetter.__name__);
+
 
   exports.AbsolutePositionMethods = {
+    __name__: "AbsolutePositionMethods",
     positionNextTo: function (node, position, marginX, marginY) {
       /**
        * Positions this element next to another element.
@@ -1196,7 +1204,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
-  assignClassToMethods(exports.AbsolutePositionMethods, 'AbsolutePositionMethods');
+  assignClassToMethods(exports.AbsolutePositionMethods, exports.AbsolutePositionMethods.__name__);
 
 
   exports.new = function (config, callback) {
@@ -1836,7 +1844,10 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     }
   };
 
-  
+  assignClassToMethods(exports.FormControl.$setters, exports.FormControl.__name__);
+  assignClassToMethods(exports.FormControl, exports.FormControl.__name__);
+
+
   exports.ClickEvents = {
     __name__: 'ClickEvents',
     $events: {
@@ -1859,6 +1870,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       assertBasesCheck('Responder', 'ClickEvents', bases);
     }
   };
+
+  assignClassToMethods(exports.ClickEvents.$setters, exports.ClickEvents.__name__);
 
 
   $definitions.modal = def({
@@ -1921,26 +1934,23 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       },
       body: function (value) {
         var self = this;
-        var innerBody = exports.new(value, function (el) {
+        self.bodyContent = exports.new(value, function (el) {
           if (self._footer.parentNode) {
             self._body.insertBefore(el, self._footer);
           } else {
             self._body.appendChild(el);
           }
         });
-        self.bodyContent = innerBody;
         self.$components.push(self.bodyContent);
       },
       header: function (value) {
         var self = this;
-        var innerHeader = exports.new(value, self._header);
-        self.headerContent = innerHeader;
+        self.headerContent = exports.new(value, self._header);
         self.$components.push(self.headerContent);
       },
       footer: function (value) {
         var self = this;
-        var innerFooter = exports.new(value, self._footer);
-        self.footerContent = innerFooter;
+        self.footerContent = exports.new(value, self._footer);
         self.$components.push(self.footerContent);
       },
       caption: function (value) {
@@ -2054,7 +2064,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       getConfig(this).label = value;
       this.render();
     }
-  }, exports.ClickEvents, $definitions.element);
+  }, $definitions.element, exports.ClickEvents);
 
 
   $definitions.icon = def({
@@ -2077,7 +2087,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }, 'uk-icon-', true)
     }),
     template: "<i class='{{icon}}'>{{content}}</i>"
-  }, exports.ClickEvents, $definitions.element);
+  }, $definitions.element, exports.ClickEvents);
 
 
   $definitions.label = def({
@@ -2123,7 +2133,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     template: function (config) {
       return config.label;
     }
-  }, exports.ClickEvents, $definitions.element);
+  }, $definitions.element, exports.ClickEvents);
 
 
   $definitions.progress = def({
@@ -2187,7 +2197,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         setAttributes(this.el, {src: value});
       }
     }
-  }, exports.ClickEvents, $definitions.element);
+  }, $definitions.element, exports.ClickEvents);
 
 
   exports.ChangeEvent = {
@@ -2225,6 +2235,8 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       }
     }
   };
+
+  assignClassToMethods(exports.InputControl.$setters, exports.InputControl.__name__);
 
 
   $definitions.toggle = def({
@@ -2450,8 +2462,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
           value.listStyle = "dropdown";
         }
         self.el.appendChild(dropdownContainer);
-        var ui = exports.new(value, dropdownContainer);
-        self._inner = ui;
+        self._inner = exports.new(value, dropdownContainer);
         self.$components.push(self._inner);
       }
     },

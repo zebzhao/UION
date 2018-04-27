@@ -1,3 +1,10 @@
+window.onload = function () {
+  handleHashChange();
+  UI.removeClass(document.body, "uk-hidden");
+};
+window.onhashchange = handleHashChange;
+
+
 var Model = {
   containers: {
     input: wrapInForm,
@@ -36,8 +43,9 @@ var Model = {
     }
   },
   aliases: {
-    tab: 'list',
-    card: 'flexgrid'
+    breadcrumb: 'list',
+    card: 'flexgrid',
+    tab: 'list'
   },
   components: {
     autocomplete: function () {
@@ -51,6 +59,17 @@ var Model = {
           {value: 'Walk'},
           {value: 'Elope'},
           {value: 'Dig'}
+        ]
+      }
+    },
+    breadcrumb: function () {
+      return {
+        view: 'list',
+        listStyle: 'breadcrumb',
+        data: [
+          {view: 'link', label: 'Root'},
+          {view: 'link', label: 'Parent'},
+          {view: 'link', label: 'Child'}
         ]
       }
     },
@@ -373,6 +392,7 @@ var Model = {
   }, UI.definitions)
 };
 
+
 function wrapInForm(input) {
   return {
     view: 'form',
@@ -380,11 +400,6 @@ function wrapInForm(input) {
   }
 }
 
-window.onload = function () {
-  handleHashChange();
-  UI.removeClass(document.body, "uk-hidden");
-}
-window.onhashchange = handleHashChange;
 
 function handleHashChange() {
   var value = location.hash.substring(1);
@@ -393,12 +408,12 @@ function handleHashChange() {
     // If link is empty, assume it points to a component
     UI.addClass(document.getElementById('gettingStarted'), 'uk-hidden');
     $$('methodList').parseMethods(UI.definitions[view]);
-    $$('inheritedTable').parseProperties(UI.definitions[view]);
     $$('propertiesTable').parseProperties(UI.definitions[view]);
     var config = $$('codeView').parseCode(value);
     $$('componentView').parseConfig(config, view);
     $$('mainTitle').setValue(UI.capitalize(value));
     $$('mainView').show();
+    highlightBlocks();
   }
   else {
     $$('mainView').hide();
@@ -517,8 +532,7 @@ UI.new({
                   break;
 
                 case 'code':
-                view.showBatch(['tab', 'code']);
-                  // Apply syntax highlighting
+                  view.showBatch(['tab', 'code']);
                   highlightBlocks();
                   break;
               }
@@ -619,88 +633,14 @@ UI.new({
               columns: [
                 {
                   header: 'Name',
-                  template: '<code class="uk-text-nowrap">{{name}}</code>'
-                },
-                {
-                  header: 'Type',
-                  template: '<span class="uk-badge uk-badge-notification">{{type}}</code>'
-                },
-                {
-                  header: 'Description',
-                  name: 'desc'
-                },
-                {
-                  header: 'Options',
                   template: function (item) {
-                    return item.options ? {
-                      view: 'button',
-                      label: 'Show',
-                      size: 'small',
-                      dropdown: {
-                        view: 'list',
-                        data: Object.keys(item.options).sort()
-                          .map(function (option) {
-                            return {
-                              view: 'link',
-                              label: option,
-                              value: option
-                            }
-                          })
-                      }
-                    } : '';
-                  }
-                }
-              ],
-              parseProperties: function (component) {
-                var meta = UI.extend({}, component.prototype.$setters.$$meta);
-                var setters = component.prototype.$setters;
-                var name = component.prototype.__name__;
-                var model = Model.properties[name];
-
-                var properties = Object.keys(meta)
-                  .filter(function (n) {
-                    return n.charAt(0) != '$' && n.charAt(0) != '_';
-                  })
-                  .map(function (n) {
-                    return {
-                      name: n,
-                      type: meta[n].$$type || 'string',
-                      desc: UI.isString(meta[n]) ? meta[n] : meta[n].$$desc || ''
+                    if (item.title) {
+                      return '<h3 style="margin:32px 0 8px -16px">{{name}}</h3>';
+                    } else if (item.header) {
+                      return '<div style="margin: 16px 0 8px -8px"><b>{{name}}</b></div>';
+                    } else {
+                      return '<code class="uk-text-nowrap">{{name}}</code>';
                     }
-                  });
-
-                properties = properties.concat(Object.keys(setters)
-                  .filter(function (s) {
-                    return setters[s].__class__ === name;
-                  })
-                  .map(function (s) {
-                    return {
-                      name: s,
-                      type: setters[s].$$type || (setters[s].options ? 'string | string[]' : 'any'),
-                      desc: setters[s].$$desc || '',
-                      options: setters[s].options
-                    }
-                  })
-                );
-
-                this.setData(properties);
-              }
-            },
-            {
-              view: 'label', margin: 'top-lg bottom', htmlTag: 'h4',
-              label: 'Inherited'
-            },
-            {
-              id: 'inheritedTable',
-              view: 'table',
-              margin: 'top',
-              columns: [
-                {
-                  header: 'Name',
-                  template: function (item) {
-                    return item.header ?
-                      '<div style="margin: 16px 0 8px -8px"><b>{{name}}</b></div>' :
-                      '<code class="uk-text-nowrap">{{name}}</code>';
                   }
                 },
                 {
@@ -741,18 +681,33 @@ UI.new({
               ],
               parseProperties: function (component) {
                 var setters = component.prototype.$setters;
+                var meta = UI.extend({}, setters.$$meta);
                 var name = component.prototype.__name__;
-                var model = Model.properties[name];
                 var bases = {};
                 var baseOrder = {};
 
-                component.prototype.__base__.forEach(function (name, i) {
+                component.prototype.__baseNames__.forEach(function (name, i) {
                   baseOrder[name] = ('00' + i).substr(-3);
                 });
 
-                var properties = Object.keys(setters)
+                baseOrder[name] = '$$';
+
+                var properties = Object.keys(meta)
+                  .filter(function (n) {
+                    return n.charAt(0) != '$' && n.charAt(0) != '_';
+                  })
+                  .map(function (n) {
+                    return {
+                      name: n,
+                      sortKey: baseOrder[meta[n].__class__] + '_' + n,
+                      type: meta[n].$$type || 'string',
+                      desc: UI.isString(meta[n]) ? meta[n] : meta[n].$$desc || ''
+                    }
+                  });
+
+                properties = properties.concat(Object.keys(setters)
                   .filter(function (s) {
-                    return setters[s].__class__ !== name;
+                    return s.charAt(0) != '$' && s.charAt(0) != '_';
                   })
                   .map(function (s) {
                     bases[setters[s].__class__] = true;
@@ -766,13 +721,15 @@ UI.new({
                   })
                   .concat(Object.keys(bases).map(function (b) {
                     return {
-                      name: b,
-                      sortKey: baseOrder[b],
+                      name: b == name ? 'Inherited' : b,
+                      sortKey: b == name ? '$_' : baseOrder[b],
                       header: true,
+                      title: b == name,
                       type: '',
                       desc: ''
                     }
-                  }));
+                  }))
+                );
 
                 this.setData(properties.sort(function (a, b) {
                   if (a.sortKey > b.sortKey) {

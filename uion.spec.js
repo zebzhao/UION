@@ -124,7 +124,7 @@ describe('class system', function () {
     expect(inst1.func1).toBeDefined();
     expect(inst1.init1).toBe(2);
     expect(inst1.init2).toBe(3);
-    expect(inst1.__base__).toEqual(["base1"]);
+    expect(inst1.__baseNames__).toEqual(["base1"]);
   });
 
   it('should extend from ebase 1', function () {
@@ -132,7 +132,7 @@ describe('class system', function () {
     expect(einst1.func1).toBeDefined();
     expect(einst1.init1).toBeDefined(1);
     expect(einst1.init2).toBeDefined(3);
-    expect(einst1.__base__).toEqual(["ebase1", "base1"]);
+    expect(einst1.__baseNames__).toEqual(["ebase1", "base1"]);
   });
 });
 
