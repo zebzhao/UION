@@ -30,8 +30,10 @@
 @progress-small-height:                         8px;
 
 @progress-margin-vertical:                      0;
-@progress-background:                           transparent;
+@progress-background:                           @global-border;
+@progress-border-radius:                        @global-border-radius;
 
+@progress-bar-border-radius:                    @global-border-radius;
 @progress-bar-background:                       @global-primary-background;
 @progress-bar-font-size:                        round((@global-font-size * 0.85)); // 12px / 14px
 @progress-bar-color:                            @global-contrast-color;
@@ -56,6 +58,7 @@
     height: @progress-height;
     margin-bottom: @progress-margin-vertical;
     background: @progress-background;
+    border-radius: @progress-border-radius;
     /* 1 */
     overflow: hidden;
     /* 2 */
@@ -82,6 +85,7 @@
     width: 0;
     height: 100%;
     background: @progress-bar-background;
+    border-radius: @progress-bar-border-radius;
     float: left;
     /* 1 */
     -webkit-transition: width 0.6s ease;

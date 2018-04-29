@@ -5,6 +5,15 @@ window.onload = function () {
 window.onhashchange = handleHashChange;
 
 
+document.body.onscroll = function () {
+  if (document.documentElement.scrollTop > 5) {
+    UI.addClass($$('navBar').el, 'uk-box-shadow');
+  } else {
+    UI.removeClass($$('navBar').el, 'uk-box-shadow');
+  }
+};
+
+
 var Model = {
   containers: {
     input: wrapInForm,
@@ -44,7 +53,7 @@ var Model = {
   },
   aliases: {
     breadcrumb: 'list',
-    card: 'flexgrid',
+    card: 'element',
     tab: 'list'
   },
   components: {
@@ -117,13 +126,7 @@ var Model = {
                 flexSize: 'flex',
                 label: 'Primary Card',
                 card: 'primary',
-                margin: 'x-lg'
-              },
-              {
-                view: 'label',
-                flexSize: 'flex',
-                label: 'Secondary Card',
-                card: 'secondary'
+                margin: 'left-lg'
               }
             ]
           },
@@ -139,7 +142,7 @@ var Model = {
               },
               {
                 view: 'label',
-                htmlTag: 'h3',
+                htmlTag: 'h5',
                 label: 'Card with Header',
                 card: 'header title'
               },
@@ -290,7 +293,7 @@ var Model = {
         view: 'modal',
         header: {
           view: 'label',
-          htmlTag: 'H3',
+          htmlTag: 'h5',
           label: 'Stale coffee is exquisite!'
         },
         body: {
@@ -308,12 +311,25 @@ var Model = {
     },
     progress: function () {
       return {
-        view: 'progress',
-        on: {
-          onInitialized: function () {
-            this.setValue(80);
+        layout: 'column',
+        cells: [
+          {
+            view: 'progress',
+            value: 80
+          },
+          {
+            view: 'progress',
+            size: 'small',
+            value: 50,
+            margin: 'y-lg'
+          },
+          {
+            view: 'progress',
+            size: 'mini',
+            value: 20
           }
-        }
+        ]
+        
       }
     },
     search: function () {
@@ -422,10 +438,9 @@ function handleHashChange() {
 }
 
 UI.new({
-  css: 'uk-block-secondary',
-  flexSize: 'none',
+  id: "navBar",
+  css: 'uk-navbar',
   margin: 'bottom-lg',
-  spacing: 'between',
   cells: [
     {
       view: 'list',
@@ -453,7 +468,15 @@ UI.new({
         {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/UION', css: 'uk-text-contrast'}
       ]
     }
-  ]
+  ],
+  on: {
+    onInitialized: function () {
+      var $this = this;
+      setTimeout(function () {
+        $this.set('sticky', true);
+      }, 0);
+    }
+  }
 }, document.getElementById('navbar'));
 
 function sidebarTemplate() {
@@ -614,7 +637,7 @@ UI.new({
                   break;
 
                 case 'methods':
-                view.showBatch(['tab', 'methods']);
+                  view.showBatch(['tab', 'methods']);
                   break;
               }
             }
@@ -635,9 +658,9 @@ UI.new({
                   header: 'Name',
                   template: function (item) {
                     if (item.title) {
-                      return '<h3 style="margin:32px 0 8px -16px">{{name}}</h3>';
+                      return '<h5 style="margin:32px 0 8px -16px">{{name}}</h5>';
                     } else if (item.header) {
-                      return '<div style="margin: 16px 0 8px -8px"><b>{{name}}</b></div>';
+                      return '<div class="uk-text-capitalize" style="margin: 16px 0 8px -8px"><b>{{name}}</b></div>';
                     } else {
                       return '<code class="uk-text-nowrap">{{name}}</code>';
                     }
@@ -752,32 +775,50 @@ UI.new({
           card: 'body',
           selectable: true,
           parseMethods: function (component) {
-            this.setData(getComponentMethods(component).map(function (method) {
-              return {
-                view: 'element',
-                template: [
-                  '<dl class="uk-description-list-horizontal">',
-                  '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
-                  '</dl>',
-                  '<dl class="uk-description-list-horizontal uk-margin-left">',
-                  (method.params && method.params.length ?
-                    '<dt>Parameters</dt><dd>&nbsp;</dd>{{parameters}}' : ''),
-                  (method.dispatch ? '<dt>Dispatch</dt><dd><code>{{dispatch}}</code></dd>' : ''),
-                  (method.returns ? '<dt>Returns</dt><dd>{{returns}}</dd>' : ''),
-                  (method.example ? '<dt>Example</dt><dd><code>{{example}}</code></dd>' : ''),
-                  '</dl>'
-                ].join(''),
-                name: method.name,
-                summary: method.summary,
-                dispatch: method.dispatch,
-                returns: method.returns ? formatReturnsString(method.returns) : null,
-                example: method.example,
-                parameters: method.params.map(function (n) {
-                  return UI.interpolate(
-                    '<dt class="uk-text-muted" style="margin-left: 8px">{{name}}</dt><dd>{{description}}</dd>', n);
-                }).join('')
-              }
-            }));
+            this.setData(getComponentMethods(component)
+              .map(function (method) {
+                if (method.header) {
+                  return {
+                    view: 'label',
+                    text: 'capitalize',
+                    htmlTag: method.title ? 'h5' : 'div',
+                    label: method.title ? method.header : '<b>' + method.header + '</b>',
+                    style: method.title ? {
+                      marginTop:  '40px',
+                      marginBottom: '24px'
+                    } : {
+                      marginTop: '24px',
+                      marginBottom: '16px'
+                    }
+                  }
+                } else {
+                  return {
+                    view: 'element',
+                    template: [
+                      '<dl class="uk-description-list-horizontal">',
+                      '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
+                      '</dl>',
+                      '<dl class="uk-description-list-horizontal uk-margin-left">',
+                      (method.params && method.params.length ?
+                        '<dt>Parameters</dt><dd>&nbsp;</dd>{{parameters}}' : ''),
+                      (method.dispatch ? '<dt>Dispatch</dt><dd><code>{{dispatch}}</code></dd>' : ''),
+                      (method.returns ? '<dt>Returns</dt><dd>{{returns}}</dd>' : ''),
+                      (method.example ? '<dt>Example</dt><dd><code>{{example}}</code></dd>' : ''),
+                      '</dl>'
+                    ].join(''),
+                    name: method.name,
+                    summary: method.summary,
+                    dispatch: method.dispatch,
+                    returns: method.returns ? formatReturnsString(method.returns) : null,
+                    example: method.example,
+                    parameters: method.params.map(function (n) {
+                      return UI.interpolate(
+                        '<dt class="uk-text-muted" style="margin-left: 8px">{{name}}</dt><dd>{{description}}</dd>', n);
+                    }).join('')
+                  }
+                }
+              })
+            );
           }
         }
       ]
@@ -801,16 +842,51 @@ function formatReturnsString(str) {
 }
 
 function getComponentMethods(component) {
+  var classes = {};
+  var name = component.prototype.__name__;
+  var baseOrder = {};
+
+  component.prototype.__baseNames__.forEach(function (name, i) {
+    baseOrder[name] = ('00' + i).substr(-3);
+  });
+
+  baseOrder[name] = '$$';
+
   return Object.keys(component.prototype)
-    .sort()
     .filter(function (n) {
       return (n.charAt(0) != '$' && n.charAt(0) != '_');
     })
     .map(function (n) {
-      return extractDocString(n, component.prototype[n]);
+      var meta = extractDocString(n, component.prototype[n]);
+      if (meta) {
+        var cls = component.prototype[n].__class__;
+        if (cls) {
+          meta.sortKey = cls === name ? '$' : baseOrder[cls] + n.name;
+          classes[cls] = true;
+        }
+      }
+      return meta;
     })
     .filter(function (n) {
       return !!n;
+    })
+    .concat(Object.keys(classes)
+      .map(function (cls) {
+        return {
+          sortKey: cls == name ? '$_' : baseOrder[cls],
+          title: cls == name,
+          header: cls == name ? 'Inherited' : cls
+        }
+      })
+    )
+    .sort(function (a, b) {
+      if (a.sortKey > b.sortKey) {
+        return 1;
+      } else if (a.sortKey < b.sortKey) {
+        return -1;
+      } else {
+        return 0;
+      }
     });
 }
 

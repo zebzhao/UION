@@ -1384,6 +1384,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       css: function (value) {
         addClass(this.el, classString(value));
       },
+      sticky: function (value) {
+        if (value) {
+          this._sticky = UIkit.sticky(this.el, value);
+        }
+      },
       tooltip: function (value) {
         var self = this;
 
@@ -2143,7 +2148,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
       tagClass: "uk-progress",
       fill: "width"
     },
-    $setters: classSetters({
+    $setters: extend(classSetters({
       size: prefixClassOptions({
         mini: "",
         small: "",
@@ -2156,6 +2161,11 @@ window.UION = window.UI = (function (exports, window, UIkit) {
         striped: "",
         "": ""
       }, 'uk-progress-', true)
+    }), {
+      value: function (value) {
+        if (isDefined(value))
+          this.setValue(value);
+      }
     }),
     render: function () {
     },

@@ -8,6 +8,7 @@ var files = [
   'bower_components/uikit/js/uikit.js',
   'bower_components/uikit/js/components/autocomplete.js',
   'bower_components/uikit/js/components/notify.js',
+  'bower_components/uikit/js/components/sticky.js',
   'uion.js'];
 
 gulp.task('build', function () {

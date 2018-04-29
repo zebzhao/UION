@@ -36,12 +36,12 @@
 // Variables
 // ========================================================================
 
-@navbar-background:                             #eee;
+@navbar-background:                             @global-background;
 @navbar-color:                                  #444;
 @navbar-link-color:                             #07D;
 @navbar-link-hover-color:                       #059;
 
-@navbar-nav-height:                             40px;
+@navbar-nav-height:                             64px;
 @navbar-nav-line-height:                        @navbar-nav-height;
 @navbar-nav-padding-horizontal:                 15px;
 @navbar-nav-color:                              #444;
@@ -314,12 +314,11 @@
 // Hooks
 // ========================================================================
 
-.hook-navbar-misc;
-
-.hook-navbar() {}
+.hook-navbar() {
+    z-index: 1;
+}
 .hook-navbar-nav() {}
 .hook-navbar-nav-hover() {}
 .hook-navbar-nav-onclick() {}
 .hook-navbar-nav-active() {}
 .hook-navbar-content() {}
-.hook-navbar-misc() {}
