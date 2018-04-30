@@ -1,11 +1,10 @@
 {
   "name": "lumi",
   "version": "0.1.0",
-  "description": "UION (User Interface Object Notation) is a JSON user interface builder based on UIkit.",
-  "main": "",
+  "description": "Lumi is a lightweight, complete, declarative UI library.",
+  "main": "lumi.min.js",
   "private": false,
   "dependencies": {
-    "gulp-dot-template": "^0.2.1"
   },
   "devDependencies": {
     "jasmine-core": "^2.8.0",
@@ -26,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zebzhao/UION"
+    "url": "https://github.com/zebzhao/lumi"
   },
   "author": "Zeb Zhao",
   "license": "MIT"

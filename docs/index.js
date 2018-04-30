@@ -440,7 +440,7 @@ function handleHashChange() {
 
 UI.new({
   id: "navBar",
-  css: 'uk-navbar',
+  css: ['uk-navbar', 'uk-container'],
   margin: 'bottom-lg',
   cells: [
     {
@@ -449,7 +449,9 @@ UI.new({
       data: [
         {
           view: 'image',
-          src: 'lumi.svg'
+          src: 'lumi.svg',
+          width: 160,
+          height: 64
         },
         {
           view: 'icon', icon: 'uk-icon-menu',
@@ -459,10 +461,6 @@ UI.new({
               UIkit.offcanvas.show('#offcanvas', {mode: 'slide'});
             }
           }
-        },
-        {
-          view: 'link',
-          label: 'Model UI'
         }
       ]
     },
@@ -470,7 +468,7 @@ UI.new({
       view: 'list',
       listStyle: 'navbar',
       data: [
-        {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/UION', css: 'uk-text-contrast'}
+        {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'}
       ]
     }
   ]

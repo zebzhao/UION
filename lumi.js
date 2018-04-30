@@ -1,4 +1,4 @@
-window.UION = window.UI = (function (exports, window, UIkit) {
+window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window, UIkit) {
   var
     ACTIVE_CLASS = 'uk-active',
     HIDDEN_CLASS = 'uk-hidden';
@@ -2204,6 +2204,12 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     $setters: {
       src: function (value) {
         setAttributes(this.el, {src: value});
+      },
+      width: function (value) {
+        setAttributes(this.el, {width: value});
+      },
+      height: function (value) {
+        setAttributes(this.el, {height: value});
       }
     }
   }, $definitions.element, exports.ClickEvents);
