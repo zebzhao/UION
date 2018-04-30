@@ -36,6 +36,7 @@
 @base-mark-background:                          #ffa;
 @base-mark-color:                               @global-color;
 @base-quote-font-style:                         italic;
+@base-margin-vertical:                          @global-margin;
 
 @base-heading-font-weight:                      normal;
 @base-heading-color:                            @global-color;
@@ -309,7 +310,7 @@ blockquote,
 pre,
 address,
 fieldset,
-figure { margin: 0; }
+figure { margin-bottom: @base-margin-vertical; }
 
 * + p,
 * + ul,
@@ -319,7 +320,7 @@ figure { margin: 0; }
 * + pre,
 * + address,
 * + fieldset,
-* + figure { margin-top: 0; }
+* + figure { margin-top: @base-margin-vertical; }
 
 
 /* Headings

@@ -1,6 +1,7 @@
 window.onload = function () {
   handleHashChange();
   UI.removeClass(document.body, "uk-hidden");
+  $$('navBar').set('sticky', true);
 };
 window.onhashchange = handleHashChange;
 
@@ -447,6 +448,10 @@ UI.new({
       listStyle: 'navbar',
       data: [
         {
+          view: 'image',
+          src: 'lumi.svg'
+        },
+        {
           view: 'icon', icon: 'uk-icon-menu',
           css: 'uk-text-muted', screen: 'small',
           on: {
@@ -468,16 +473,9 @@ UI.new({
         {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/UION', css: 'uk-text-contrast'}
       ]
     }
-  ],
-  on: {
-    onInitialized: function () {
-      var $this = this;
-      setTimeout(function () {
-        $this.set('sticky', true);
-      }, 0);
-    }
-  }
+  ]
 }, document.getElementById('navbar'));
+
 
 function sidebarTemplate() {
   return {

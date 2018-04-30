@@ -9,18 +9,18 @@ var files = [
   'bower_components/uikit/js/components/autocomplete.js',
   'bower_components/uikit/js/components/notify.js',
   'bower_components/uikit/js/components/sticky.js',
-  'uion.js'];
+  'lumi.js'];
 
 gulp.task('build', function () {
   return gulp.src(files)
-    .pipe(concat('uion.min.js'))
+    .pipe(concat('lumi.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest('.'));
 });
 
 gulp.task('build-debug', function () {
-  return gulp.src(files.concat('uion.meta.js'))
-    .pipe(concat('uion.debug.js'))
+  return gulp.src(files.concat('lumi.meta.js'))
+    .pipe(concat('lumi.debug.js'))
     .pipe(gulp.dest('.'))
     .pipe(gulp.dest('./docs'));
 });

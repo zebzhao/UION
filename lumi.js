@@ -1769,8 +1769,7 @@ window.UION = window.UI = (function (exports, window, UIkit) {
     ),
     responder: function () {
       /**
-       * The responder to events.
-       * This element will get bound to events such as blur/focus/change etc.
+       * The responder to events. This element will get bound to events such as blur/focus/change etc.
        * @returns {Element}
        */
       return this.getFormControl();

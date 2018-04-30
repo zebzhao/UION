@@ -1,36 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Model UI</title>
-    <script src="./jquery.min.js"></script>
-    <script src="./uion.debug.js"></script>
-    <link rel="stylesheet" href="./css/uikit/uikit.css">
-    <link rel="stylesheet" href="./css/uikit/icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/9.10.0/styles/default.min.css">
-    <style>
-        .hljs {
-            background: inherit;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Model UI</title>
+  <script src="./jquery.min.js"></script>
+  <script src="./lumi.debug.js"></script>
+  <link rel="stylesheet" href="./css/uikit/uikit.css">
+  <link rel="stylesheet" href="./css/uikit/icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/9.10.0/styles/default.min.css">
+  <style>
+    .hljs {
+      background: inherit;
+    }
+  </style>
 </head>
 <body class="uk-hidden">
 <div class="uk-flex-column uk-flex">
-    <div id="navbar" class="uk-flex-item-none"></div>
-    <div class="uk-container uk-flex">
-        <div id="sidebar" class="uk-flex uk-flex-item-none uk-hidden-small"></div>
-        <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
-        <div id="main" class="uk-flex-item-1">
-            <div id="gettingStarted" class="uk-width-1-1">
-                <h2>Getting Started with UION</h2>
-                <hr>
-                <p><b>UION</b> stands for <b>U</b>ser <b>I</b>nterface <b>O</b>bject <b>N</b>otation is a highly customizable, simple, testable JSON UI framework.</p>
-                <br>
-                <h3>UIkit</h3>
-                <hr>
-                <p><b>UION</b> uses <a href="https://getuikit.com/v2/">UIkit</a> components, so it's kind of like a wrapper on top of <b>UIkit</b> that allows JSON ot be used instead of HTML.</p>
-                <p>An example of a modal:</p>
-                <pre>
+  <div id="navbar" class="uk-flex-item-none"></div>
+  <div class="uk-container uk-flex">
+    <div id="sidebar" class="uk-flex uk-flex-item-none uk-hidden-small"></div>
+    <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
+    <div id="main" class="uk-flex-item-1">
+      <div id="gettingStarted" class="uk-width-1-1">
+        <h2>Getting Started</h2>
+        <hr>
+        <p>
+          <b>Lumi</b> UI is a lightweight, complete, declarative UI library eliminating the need for using
+          <b>HTML</b>, <b>CSS </b>for creating <b>SPAs</b> (Single Page Applications).
+        </p>
+
+        <p>
+          <b>Lumi</b> is purely the <b>View</b> part of <b>MVC</b>, and works using
+            vanilla JavaScript, <b>jQuery</b>, and the popular components library <b>UIkit</b>.
+        </p>
+
+        <p>As demonstration of its proof of concept, this entire site is built using <b>Lumi UI</b>.</p>
+
+        <h3 class="uk-margin-large-top">Philosophy</h3>
+        <hr>
+        <p>
+          <b>Lumi</b> aims to eliminate the use of <b>HTML</b> and <b>CSS</b> for general JavaScript web applications.
+          <b>Lumi</b> takes the approach of using simple JavaScript objects instead of <b>HTML</b> as it is more flexible,
+            integrates better with code and eliminates the need of using <b>JSX</b> or other templating markup.
+        </p>
+        <p>
+          <b>Lumi</b> is against redefining the way JavaScript interacts with the template by using additional
+            transpilers or compilers. This all aims for the simplification of debugging, testing, and deploying.
+        </p>
+        <p>
+          To simplify the learning curve, <b>Lumi</b> tries to resemble traditional <b>HTML</b> tags and <b>CSS</b> as
+          much as possible, while also using modern things like <code>flexbox</code> to simplify layouts.
+        </p>
+
+        <h3 class="uk-margin-large-top">Installation & Setup</h3>
+        <hr>
+
+        <p><b>Lumi</b> can be installed using <b>npm</b> or <b>bower</b>:</p>
+        <p><code>bower install lumi</code></p>
+        <p><code>npm install lumi</code></p>
+
+        <p>To add styling, add this tag to your <b>HTML</b> file:</p>
+        <pre>
+<code class="html">&lt;link rel="stylesheet" href="css/uikit/uikit.css"&gt;</code></pre>
+
+        <p>To use include the icon files, also add:</p>
+        <pre>
+<code class="html">&lt;link rel="stylesheet" href="css/uikit/icon.css"&gt;</code></pre>
+
+        <p>For development, add the following script files:</p>
+        <pre>
+<code class="html">&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="lumi.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+
+        <p>For release, use:</p>
+        <pre>
+<code class="html">&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="lumi.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+
+        <h3 class="uk-margin-large-top">Example Usage</h3>
+        <hr>
+          <pre>
 <code class="js">var modal = UI.new({
   "view": "modal",
   "header": {
@@ -62,157 +111,108 @@
 // Opens the modal
 modal.open();
 </code></pre>
-                <p>If you want to see an more in-depth example, checkout the source code for this site. It's built almost entirely using UION.</p>
-                <br>
-                <h3>Usage</h3>
-                <hr>
-                <p>For release, use:</p>
-                <pre>
-<code class="html">&lt;link rel="stylesheet" href="css/uikit/uikit.css"&gt;
-&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
-&lt;script src="uion.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
-                <p>For debugging, use:</p>
-                <pre>
-<code class="html">&lt;link rel="stylesheet" href="css/uikit/uikit.css"&gt;
-&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
-&lt;script src="uion.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
 
-                <br>
-                <h3>Flexible and Extensible</h3>
-                <hr>
-                <p>Many paid-to-use similar frameworks such as Kendo UI or Webix do not offer the flexibility of UION.</p>
-                <p>UION allows you to control every aspect of components, allowing you to even create custom components. For examples on how to create your own components, see the documentation on <a href="https://github.com/zebzhao/UION">Github</a>.</p>
+        <h3 class="uk-margin-large-top">Extensible</h3>
+        <hr>
+        <p><b>Lumi</b> components can also be defined using JavaScript objects. This includes defining
+          new components with new libraries or inventing new components like switchers, drawers, etc.</p>
 
-                <br>
-                <h3>Highly extensible JSON UI Components</h3>
-                <hr>
+        <p>To understand how to create your own custom components,
+          lets take a look at an example from the source code.</p>
 
-                <p>To understand how to create your own custom components, lets take a look at an example from the library itself.</p>
-
-                <pre><code>exports.def({
-    __name__: "toggle",
-    $setters: exports.setCSS({
-        type: {
-            "success": "uk-toggle-success",
-            "danger": "uk-toggle-danger",
-            "warning": "uk-toggle-warning",
-            "": ""
-        }
+        <pre>
+<code>exports.def({
+  __name__: "toggle",
+  $setters: extend(
+    classSetters({
+      color: prefixClassOptions({
+        "success": "",
+        "danger": "",
+        "warning": "",
+        "": ""
+      }, 'uk-toggle-', true)
     }),
-    $defaults: {
-        htmlTag: "LABEL",
-        tagClass: "uk-toggle"
-    },
-    __after__: function () {
-        exports.event(this._html, "change", this._onChange, this);
-    },
-    _onChange: function () {
-        this.dispatch("onChange");
-    },
-    template: function (config) {
-        return exports.replaceString('&lt;input type="checkbox"{{checked}}&gt;&lt;div class="uk-toggle-slider"&gt;&lt;/div&gt;',
-            {checked: config.checked ? " checked" : ""});
-    },
-    getFormControl: function() {
-        /**
-         * Get the HTML input element.
-         * @returns {Element}
-         */
-        return this._html.firstChild;
-    },
-    reset: function () {
-        /**
-         * Reset the toggle.
-         */
-        this.getFormControl().checked = false;
-    },
-    getValue: function () {
-        /**
-         * Get the value of the toggle.
-         * @returns {boolean}
-         */
-        return this.getFormControl().checked;
-    },
-    setValue: function (value) {
-        /**
-         * Set the value of the toggle.
-         * @paramm value
-         */
+    {
+      checked: function (value) {
         this.getFormControl().checked = value;
+      }
     }
-}, exports.components.element)</code></pre>
+  ),
+  $defaults: {
+    htmlTag: "LABEL",
+    tagClass: "uk-toggle",
+    type: 'checkbox'
+  },
+  template: '&lt;input&gt;&lt;div class="uk-toggle-slider"&gt;&lt;/div&gt;',
+  getFormControl: function () {
+    /**
+     * Get the HTML input element.
+     * @returns {Element}
+     */
+    return this.el.firstChild;
+  },
+  reset: function () {
+    /**
+     * Reset the toggle.
+     */
+    this.getFormControl().checked = false;
+  },
+  getValue: function () {
+    /**
+     * Get the value of the toggle.
+     * @returns {boolean}
+     */
+    return this.getFormControl().checked;
+  },
+  setValue: function (value) {
+    /**
+     * Set the value of the toggle.
+     * @param value
+     */
+    this.getFormControl().checked = value;
+  }
+}, exports.ChangeEvent, exports.FormControl, $definitions.element);</code></pre>
 
-                <p>The above toggle component is a fine example of how to define your own components. Any functions on the JSON object will be integrated into the component itself. With `this` referring to the component.</p>
+        <h4>Inheritance</h4>
+        <hr>
+        <p>You can chain previously defined components or mixins at the end of the
+          <code>UI.def(config, ext1, ext2, ...)</code>,
+          please note that overriding occurs from right to left, with the right-most object being the ancestor. It's
+          properties can be overridden by anything left of it.</p>
 
-                <h4><em>this.config</em></h4>
-                <p>This refers to the configuration or JSON data initially used to initialize the component.</p>
+        <h3>Testing</h3>
+        <hr>
+        <p>Writing UI as ordinary components actually makes things very testable. <b>Lumi</b> uses its own
+          event-dispatching system and you can simulate button clicks, change events, etc.</p>
 
-                <h4><em>this.element</em></h4>
-                <p>This is the underlying HTML element.</p>
-
-                <p><em>__init__</em></p>
-                <p>This function will be called when the coomponent is instantiated with `UI.new`. This method should be used to create the HTML elements and initializing variables, nothing else.</p>
-
-                <h4><em>__after__</em></h4>
-                <p>At this point the HTML elements should be initialized and is usually where event listeners are attached to the elements. UION uses it's own dispatcher system, and elements can inherit it from UI.Dispatcher Mixin object.</p>
-
-                <p>A number of useful Mixins exist within the library. All components are just plain old JavaScript objects, and nothing more. You can even write your own Mixins are integrate them using UI.extend.</p>
-
-                <h4><em>template</em></h4>
-                <p>This defines the template string for your component. This is set using the `innerHTML` attribute during a `render()` call. You can overwrite render to define your own rendering behavior if you don't want to use the default template protocol.</p>
-
-                <h4><em>$setters</em></h4>
-                <p>This is used for properties that require special handling when they are set using the `set` function. Any initial configuration properties are taken and ran through its $setter function if possible. This is how most CSS properties are set in the default components.</p>
-
-                <h4><em>$defaults</em></h4>
-                <p>These are the default fields that are fed into the $setter functions if nothing is provided.</p>
-
-                <h4>Inheritance</h4>
-                <hr>
-                <p>You can chain previously defined components or Mixins at the end of the `UI.def(config, ext1, ext2, ...)`, please note that overriding occurs from right to left, with the right-most object being the ancestor. It's properties can be overridden by anything left of it.</p>
-
-                <p>I hope you get the essence of how to write custom components from the introduction above. I plan to extend this guide into a full step by step thing in the future.</p>
-
-                <br>
-                <h3>Testability</h3>
-                <hr>
-                <p>Writing UI as ordinary components actually makes things very testable. As UION uses its own event dispatching system, you can simulate button clicks, select elements and create components all within headless unit testing.</p>
-
-                <p>Below is an example of what can be done with UION components: </p>
-                <pre><code>it("someToggle onChange", function () {
-    spyOn(self, "someAction");
-    $$("someToggle").setData([{label: "someLabel1", value: 1}, {label: "someLabel2", value: 2}])
-    $$("someToggle").setValue(1);
-    $$("someToggle").dispatch("onChange");
-    expect(self.someAction).toHaveBeenCalledWith(1);
-    $$("someToggle").setValue(2);
-    $$("someToggle").dispatch("onChange");
-    // And so on...
+        <p>Below is an example:</p>
+        <pre>
+<code>it("someToggle dispatch onChange event", function () {
+  spyOn(self, "someAction");
+  $$("someToggle").setData([
+    {label: "someLabel1", value: 1},
+    {label: "someLabel2", value: 2}
+  ]);
+  $$("someToggle").setValue(1);
+  $$("someToggle").dispatch("onChange", []);
+  expect(self.someAction).toHaveBeenCalledWith(1);
+  $$("someToggle").setValue(2);
+  $$("someToggle").dispatch("onChange", []);
+  // And so on...
 });</code></pre>
 
-                <p>After writing lots of E2E tests using Nightwatch, I found testing is very, very slow. For test driven development, it makes a minor code change takes an extra few minutes. As more and more tests pile up, the full suite of E2E tests can take 5-20 minutes to run.</p>
-                <p>In general, Chrome just runs code more slowly than PhantomJS or other headless browsers, even for unit tests it can be up to 10x slower.</p>
-
-                <p>It's much faster to write lots and lots of unit test which run quickly and catch mistakes in the UI logic.</p>
-
-                <br>
-                <h3>Maintainable</h3>
-                <hr>
-
-                <p>UION aims to be an extremely simple, maintainable library, that anyone can fork and take over themselves. There is no worry about framework lock in, as once you understand the basis of how to define components, you could create your own set of components yourself.</p>
-
-                <p>The test coverage right now for UION is pretty poor. Writing a full test suite for each and every UI component is an item on the project's todo list.</p>
-                <br>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </div>
-<script src="index.js"></script>
-<br>
+
 <footer class="uk-text-center uk-block-secondary uk-text-muted" style="margin-top:48px; padding:64px">
-    <p>UION is licensed under the MIT license. This website is licensed under CC Commons Attribution 4.0.</p>
-    <p>Copyright 2017 Zeb Zhao. Some rights reserved.</p>
+  <p>UION is licensed under the MIT license. This website is licensed under CC Commons Attribution 4.0.</p>
+  <p>Copyright 2017 Zeb Zhao. Some rights reserved.</p>
 </footer>
+
+<script src="index.js"></script>
 <script src="https://cdn.jsdelivr.net/highlight.js/9.10.0/highlight.min.js"></script>
+
 </body>
 </html>

@@ -34,7 +34,7 @@ For debugging
 ```html
 <link rel="stylesheet" href="css/uikit/uikit.css">
 <script src="jquery.js" type="text/javascript"></script>
-<script src="uion.debug.js" type="text/javascript"></script>
+<script src="lumi.debug.js" type="text/javascript"></script>
 ```
 
 For production

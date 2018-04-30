@@ -1,6 +1,6 @@
 {
-  "name": "uion",
-  "version": "0.11.0",
+  "name": "lumi",
+  "version": "0.1.0",
   "description": "UION (User Interface Object Notation) is a JSON user interface builder based on UIkit.",
   "main": "",
   "private": false,
