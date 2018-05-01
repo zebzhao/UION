@@ -4055,3 +4055,5 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
   return exports;
 })({}, window, window.UIkit);
+
+window.UI.VERSION = '0.1.0';

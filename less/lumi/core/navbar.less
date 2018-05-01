@@ -37,33 +37,33 @@
 // ========================================================================
 
 @navbar-background:                             @global-background;
-@navbar-color:                                  #444;
-@navbar-link-color:                             #07D;
-@navbar-link-hover-color:                       #059;
+@navbar-color:                                  @global-color;
+@navbar-link-color:                             @global-link-color;
+@navbar-link-hover-color:                       @global-link-hover-color;
 
 @navbar-nav-height:                             64px;
 @navbar-nav-line-height:                        @navbar-nav-height;
-@navbar-nav-padding-horizontal:                 15px;
-@navbar-nav-color:                              #444;
+@navbar-nav-padding-horizontal:                 @global-margin;
+@navbar-nav-color:                              #8391a5;
 @navbar-nav-font-size:                          14px;
 @navbar-nav-font-weight:                        normal;
 @navbar-nav-font-family:                        "Helvetica Neue", Helvetica, Arial, sans-serif;
-@navbar-nav-hover-background:                   #f5f5f5;
-@navbar-nav-hover-color:                        #444;
-@navbar-nav-onclick-background:                 #ddd;
-@navbar-nav-onclick-color:                      #444;
-@navbar-nav-active-background:                  #f5f5f5;
-@navbar-nav-active-color:                       #444;
+@navbar-nav-hover-background:                   transparent;
+@navbar-nav-hover-color:                        #1f2d3d;
+@navbar-nav-onclick-background:                 @navbar-nav-hover-background;
+@navbar-nav-onclick-color:                      @navbar-nav-hover-color;
+@navbar-nav-active-background:                  @navbar-nav-onclick-background;
+@navbar-nav-active-color:                       @navbar-nav-onclick-color;
 @navbar-nav-subtitle-font-size:                 10px;
 @navbar-nav-subtitle-offset:                    2px;
 
 @navbar-brand-font-size:                        18px;
-@navbar-brand-color:                            #444;
-@navbar-brand-hover-color:                      #444;
+@navbar-brand-color:                            @global-color;
+@navbar-brand-hover-color:                      @global-color;
 
 @navbar-toggle-font-size:                       18px;
-@navbar-toggle-color:                           #444;
-@navbar-toggle-hover-color:                     #444;
+@navbar-toggle-color:                           @global-color;
+@navbar-toggle-hover-color:                     @global-color;
 @navbar-toggle-icon:                            "\f0c9";
 @navbar-toggle-icon-alt:                        "\f002";
 

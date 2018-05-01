@@ -235,7 +235,7 @@ var Model = {
     image: function () {
       return {
         view: 'image',
-        src: "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'200'%20height%3D'100'%3E%3Crect%20width%3D'100%25'%20height%3D'100%25'%20fill%3D'%2323b2ff'%2F%3E%3C%2Fsvg%3E"
+        src: "lumi.svg"
       }
     },
     input: function () {
@@ -429,6 +429,8 @@ function handleHashChange() {
     var config = $$('codeView').parseCode(value);
     $$('componentView').parseConfig(config, view);
     $$('mainTitle').setValue(UI.capitalize(value));
+    $$('sideBar').setActiveLabel(UI.capitalize(value));
+    $$('sideBarOffcanvas').setActiveLabel(UI.capitalize(value));
     $$('mainView').show();
     highlightBlocks();
   }
@@ -441,7 +443,7 @@ function handleHashChange() {
 UI.new({
   id: "navBar",
   css: ['uk-navbar', 'uk-container'],
-  margin: 'bottom-lg',
+  margin: 'bottom',
   cells: [
     {
       view: 'list',
@@ -467,7 +469,12 @@ UI.new({
     {
       view: 'list',
       listStyle: 'navbar',
+      style: {
+        marginLeft: 'auto'
+      },
       data: [
+        {view: 'link', label: 'Version ' + lumi.VERSION},
+        {view: 'link', label: 'Issues', href: 'https://github.com/zebzhao/lumi/issues'},
         {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'}
       ]
     }
@@ -475,8 +482,9 @@ UI.new({
 }, document.getElementById('navbar'));
 
 
-function sidebarTemplate() {
+function sidebarTemplate(id) {
   return {
+    id: id,
     view: 'list',
     listStyle: 'side',
     style: {
@@ -505,9 +513,9 @@ function sidebarTemplate() {
   };
 }
 
-UI.new(sidebarTemplate(), document.getElementById('sidebar'));
+UI.new(sidebarTemplate('sideBar'), document.getElementById('sidebar'));
 UI.new(
-  UI.extend(sidebarTemplate(),
+  UI.extend(sidebarTemplate('sideBarOffcanvas'),
     {css: 'uk-offcanvas-bar', style: {paddingTop: '32px'}}
   ),
   document.getElementById('offcanvas')
