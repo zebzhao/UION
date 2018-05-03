@@ -4,20 +4,22 @@
   "description": "Lumi is a lightweight, complete, declarative UI library.",
   "main": "lumi.min.js",
   "private": false,
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "grunt": "^1.0.2",
+    "grunt-webfont": "^1.6.0",
+    "gulp": "^3.9",
+    "gulp-clean": "^0.3.1",
+    "gulp-clean-css": "^3.8.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-less": "^3.0.3",
+    "gulp-uglify": "^2.1.2",
+    "gulp-webfont": "0.0.1-3",
     "jasmine-core": "^2.8.0",
     "karma": "^1.7.1",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
-    "karma-phantomjs-launcher": "^1.0.4",
-    "gulp": "^3.9",
-    "gulp-clean": "^0.3.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-less": "^3.0.3",
-    "gulp-clean-css": "^3.8.0",
-    "gulp-uglify": "^2.1.2"
+    "karma-phantomjs-launcher": "^1.0.4"
   },
   "scripts": {
     "test": "karma start karma.conf.js --single-run",

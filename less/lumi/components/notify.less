@@ -26,25 +26,27 @@
 @notify-position:                               10px;
 @notify-z-index:                                @global-z-index + 40;
 @notify-width:                                  350px;
+@notify-message-border-radius:                          8px;
 
-@notify-message-margin-bottom:                  10px;
-@notify-message-padding:                        15px;
-@notify-message-background:                     #444;
-@notify-message-color:                          #fff;
+@notify-message-margin-bottom:                  @global-margin-small;
+@notify-message-padding:                        @global-margin;
+@notify-message-box-shadow:                     @global-box-shadow;
+@notify-message-background:                     @global-background;
+@notify-message-color:                          @global-color;
 
-@notify-message-font-size:                      round((@global-font-size * 1.14)); // 16px / 18px
-@notify-message-line-height:                    round((@notify-message-font-size * 1.36)); // 22px / 24px
+@notify-message-font-size:                      @global-font-size;
+@notify-message-line-height:                    @global-line-height;
 
-@notify-message-primary-background:             #ebf7fd;
+@notify-message-primary-background:             lighten(@global-primary-background, 90%);
 @notify-message-primary-color:                  @global-primary-background;
 
-@notify-message-success-background:             #f2fae3;
+@notify-message-success-background:             lighten(@global-success-background, 90%);
 @notify-message-success-color:                  @global-success-background;
 
-@notify-message-warning-background:             #fffceb;
+@notify-message-warning-background:             lighten(@global-warning-background, 90%);
 @notify-message-warning-color:                  @global-warning-background;
 
-@notify-message-danger-background:              #fff1f0;
+@notify-message-danger-background:              lighten(@global-danger-background, 90%);
 @notify-message-danger-color:                   @global-danger-background;
 
 
@@ -121,6 +123,8 @@
     color: @notify-message-color;
     font-size: @notify-message-font-size;
     line-height: @notify-message-line-height;
+    border-radius: @notify-message-border-radius;
+    box-shadow: @notify-message-box-shadow;
     cursor: pointer;
     .hook-notify-message;
 }
@@ -180,12 +184,9 @@
 // Hooks
 // ========================================================================
 
-.hook-notify-misc;
-
 .hook-notify() {}
 .hook-notify-message() {}
 .hook-notify-message-primary() {}
 .hook-notify-message-success() {}
 .hook-notify-message-warning() {}
 .hook-notify-message-danger() {}
-.hook-notify-misc() {}
