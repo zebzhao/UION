@@ -229,13 +229,16 @@ var Model = {
     icon: function () {
       return {
         spacing: 'between',
+
+
         cells: [
           'cog', 'bolt', 'heart', 'instagram', 'reply', 'close', 'cloud-upload', 'cloud-download',
           'more', 'more-vertical', 'plus', 'minus', 'image'
         ].map(function (icon) {
           return {
             view: 'icon',
-            icon: 'uk-icon-' + icon
+            icon: 'uk-icon-' + icon,
+            iconStyle: 'medium'
           }
         })
       }
