@@ -5,10 +5,12 @@ module.exports = function(grunt) {
     webfont: {
       icons: {
         src: 'fonts/svg/*.svg',
-        dest: 'fonts',
-        destCss: 'css',
+        dest: 'less/lumi',
+        destLess: 'less/lumi',
         options: {
-          syntax: 'bem',
+          font: 'lumi-icons',
+          syntax: 'bootstrap',
+          stylesheets: ['less'],
           embed: true,
           types: 'ttf,woff',
           templateOptions: {

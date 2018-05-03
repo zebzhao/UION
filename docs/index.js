@@ -228,8 +228,16 @@ var Model = {
     },
     icon: function () {
       return {
-        view: 'icon',
-        icon: 'uk-icon-information'
+        spacing: 'between',
+        cells: [
+          'cog', 'bolt', 'heart', 'instagram', 'reply', 'close', 'cloud-upload', 'cloud-download',
+          'more', 'more-vertical', 'plus', 'minus', 'image'
+        ].map(function (icon) {
+          return {
+            view: 'icon',
+            icon: 'uk-icon-' + icon
+          }
+        })
       }
     },
     image: function () {
