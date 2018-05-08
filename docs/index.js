@@ -453,43 +453,54 @@ function handleHashChange() {
 
 UI.new({
   id: "navBar",
-  css: ['uk-navbar', 'uk-container'],
+  css: ['uk-navbar'],
   margin: 'bottom',
-  cells: [
-    {
-      view: 'list',
-      listStyle: 'navbar',
-      data: [
-        {
-          view: 'image',
-          src: 'lumi.svg',
-          width: 160,
-          height: 64
-        },
-        {
-          view: 'icon', icon: 'uk-icon-menu',
-          css: 'uk-text-muted', screen: 'small',
-          on: {
-            onClick: function () {
-              UIkit.offcanvas.show('#offcanvas', {mode: 'slide'});
+  template: {
+    css: ['uk-container', 'uk-container-center'],
+    cells: [
+      {
+        view: 'list',
+        listStyle: 'navbar',
+        data: [
+          {
+            view: 'image',
+            src: 'lumi.svg',
+            width: 160,
+            height: 64
+          },
+          {
+            view: 'icon', icon: 'uk-icon-menu',
+            css: 'uk-text-muted', screen: 'small',
+            on: {
+              onClick: function () {
+                UIkit.offcanvas.show('#offcanvas', {mode: 'slide'});
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      view: 'list',
-      listStyle: 'navbar',
-      style: {
-        marginLeft: 'auto'
+        ]
       },
-      data: [
-        {view: 'link', label: 'Version ' + lumi.VERSION},
-        {view: 'link', label: 'Issues', href: 'https://github.com/zebzhao/lumi/issues'},
-        {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'}
-      ]
-    }
-  ]
+      {
+        view: 'list',
+        listStyle: 'navbar',
+        css: 'uk-form',
+        flex: true,
+        flexAlign: 'middle',
+        style: {
+          marginLeft: 'auto'
+        },
+        data: [
+          {
+            view: 'select',
+            data: [
+              {value: lumi.VERSION, label: lumi.VERSION}
+            ]
+          },
+          {view: 'link', label: 'Issues', href: 'https://github.com/zebzhao/lumi/issues'},
+          {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'}
+        ]
+      }
+    ]
+  }
 }, document.getElementById('navbar'));
 
 
@@ -813,7 +824,7 @@ UI.new({
                       '<dl class="uk-description-list-horizontal">',
                       '<dt><code>{{name}}</code></dt><dd>{{summary}}</dd>',
                       '</dl>',
-                      '<dl class="uk-description-list-horizontal uk-margin-left">',
+                      '<dl class="uk-description-list-horizontal">',
                       (method.params && method.params.length ?
                         '<dt>Parameters</dt><dd>&nbsp;</dd>{{parameters}}' : ''),
                       (method.dispatch ? '<dt>Dispatch</dt><dd><code>{{dispatch}}</code></dd>' : ''),

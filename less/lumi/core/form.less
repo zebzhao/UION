@@ -60,7 +60,7 @@
 @form-disabled-background:                      @global-muted-color;
 @form-disabled-color:                           darken(@global-border, 15%);
 
-@form-placeholder-color:                        #999;
+@form-placeholder-color:                        lighten(@global-color, 10%);
 
 @form-gutter:                                   20px;
 
@@ -85,10 +85,10 @@
 @form-blank-border:                             @global-border;
 @form-blank-border-style:                       dashed;
 
-@form-mini-width:                               40px;
-@form-small-width:                              130px;
-@form-medium-width:                             200px;
-@form-large-width:                              500px;
+@form-mini-width:                               64px;
+@form-small-width:                              128px;
+@form-medium-width:                             256px;
+@form-large-width:                              512px;
 
 @form-help-inline-margin-left:                  @global-margin-small;
 @form-help-block-margin-top:                    @global-margin-small;
@@ -104,7 +104,7 @@
 
 @form-icon-font-size:                           @global-font-size;
 @form-icon-width:                               30px;
-@form-icon-color:                               #999;
+@form-icon-color:                               @form-placeholder-color;
 
 /* ========================================================================
    Component: Form
@@ -148,7 +148,7 @@
 }
 
 .uk-form select:not([multiple]):not([size]) {
-    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%201%201%206%207%206%22%3E%3C%2Fpolygon%3E%0A%20%20%20%20%3Cpolygon%20fill%3D%22%23666%22%20points%3D%224%2013%201%208%207%208%22%3E%3C%2Fpolygon%3E%0A%3C%2Fsvg%3E") no-repeat 100% 50%;
+    background: data-uri('image/svg+xml;charset=UTF-8', "../../fonts/svg/form-select-icon.svg") no-repeat 100% 50%;
     padding-right: 20px;
 }
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Model UI</title>
+  <title>Lumi UI</title>
   <script src="./jquery.min.js"></script>
   <script src="./lumi.debug.js"></script>
   <link rel="stylesheet" href="./css/lumi.css">
@@ -17,70 +17,71 @@
 <body class="uk-hidden">
 <div class="uk-flex-column uk-flex">
   <div id="navbar" class="uk-flex-item-none"></div>
-  <div class="uk-container uk-flex">
-    <div id="sidebar" class="uk-flex uk-flex-item-none uk-hidden-small"></div>
-    <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
-    <div id="main" class="uk-flex-item-1">
-      <div id="gettingStarted" class="uk-width-1-1">
-        <h2>Getting Started</h2>
-        <hr>
-        <p>
-          <b>Lumi UI</b> is a lightweight, complete, declarative UI library eliminating the need for using
-          <b>HTML</b>, <b>CSS </b>for creating <b>SPAs</b> (Single Page Applications).
-        </p>
+  <div class="uk-container uk-container-center">
+    <div class="uk-flex">
+        <div id="sidebar" class="uk-flex uk-flex-item-none uk-hidden-small"></div>
+        <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
+        <div id="main" class="uk-flex-item-1">
+        <div id="gettingStarted" class="uk-width-1-1">
+            <h2>Getting Started</h2>
+            <hr>
+            <p>
+            <b>Lumi UI</b> is a lightweight, complete, declarative UI library eliminating the need for using
+            <b>HTML</b>, <b>CSS </b>for creating <b>SPAs</b> (Single Page Applications).
+            </p>
 
-        <p>
-          <b>Lumi</b> is purely the <b>View</b> part of <b>MVC</b>, and works using
-            vanilla JavaScript, <b>jQuery</b>, and the popular components library <b>UIkit</b>.
-        </p>
+            <p>
+            <b>Lumi</b> is purely the <b>View</b> part of <b>MVC</b>, and works using
+                vanilla JavaScript, <b>jQuery</b>, and the popular components library <b>UIkit</b>.
+            </p>
 
-        <p>As demonstration of its proof of concept, this entire site is built using <b>Lumi UI</b>.</p>
+            <p>As demonstration of its proof of concept, this entire site is built using <b>Lumi UI</b>.</p>
 
-        <h3 class="uk-margin-large-top">Philosophy</h3>
-        <hr>
-        <p>
-          <b>Lumi</b> aims to eliminate the use of <b>HTML</b> and <b>CSS</b> for general JavaScript web applications.
-          <b>Lumi</b> takes the approach of using simple JavaScript objects instead of <b>HTML</b> as it is more flexible,
-            integrates better with code and eliminates the need of using <b>JSX</b> or other templating markup.
-        </p>
-        <p>
-          <b>Lumi</b> is against redefining the way JavaScript interacts with the template by using additional
-            transpilers or compilers. This all aims for the simplification of debugging, testing, and deploying.
-        </p>
-        <p>
-          To simplify the learning curve, <b>Lumi</b> tries to resemble traditional <b>HTML</b> tags and <b>CSS</b> as
-          much as possible, while also using modern things like <code>flexbox</code> to simplify layouts.
-        </p>
+            <h3 class="uk-margin-large-top">Philosophy</h3>
+            <hr>
+            <p>
+            <b>Lumi</b> aims to eliminate the use of <b>HTML</b> and <b>CSS</b> for general JavaScript web applications.
+            <b>Lumi</b> takes the approach of using simple JavaScript objects instead of <b>HTML</b> as it is more flexible,
+                integrates better with code and eliminates the need of using <b>JSX</b> or other templating markup.
+            </p>
+            <p>
+            <b>Lumi</b> is against redefining the way JavaScript interacts with the template by using additional
+                transpilers or compilers. This all aims for the simplification of debugging, testing, and deploying.
+            </p>
+            <p>
+            To simplify the learning curve, <b>Lumi</b> tries to resemble traditional <b>HTML</b> tags and <b>CSS</b> as
+            much as possible, while also using modern things like <code>flexbox</code> to simplify layouts.
+            </p>
 
-        <h3 class="uk-margin-large-top">Installation & Setup</h3>
-        <hr>
+            <h3 class="uk-margin-large-top">Installation & Setup</h3>
+            <hr>
 
-        <p><b>Lumi</b> can be installed using <b>npm</b> or <b>bower</b>:</p>
-        <p><code>bower install lumi</code></p>
-        <p><code>npm install lumi</code></p>
+            <p><b>Lumi</b> can be installed using <b>npm</b> or <b>bower</b>:</p>
+            <p><code>bower install lumi</code></p>
+            <p><code>npm install lumi</code></p>
 
-        <p>To add styling, add this tag to your <b>HTML</b> file:</p>
-        <pre>
-<code class="html">&lt;link rel="stylesheet" href="css/lumi.css"&gt;</code></pre>
+            <p>To add styling, add this tag to your <b>HTML</b> file:</p>
+            <pre>
+    <code class="html">&lt;link rel="stylesheet" href="css/lumi.css"&gt;</code></pre>
 
-        <p>To use include the icon files, also add:</p>
-        <pre>
-<code class="html">&lt;link rel="stylesheet" href="css/lumi-icon.css"&gt;</code></pre>
+            <p>To use include the icon files, also add:</p>
+            <pre>
+    <code class="html">&lt;link rel="stylesheet" href="css/lumi-icon.css"&gt;</code></pre>
 
-        <p>For development, add the following script files:</p>
-        <pre>
-<code class="html">&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
-&lt;script src="lumi.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+            <p>For development, add the following script files:</p>
+            <pre>
+    <code class="html">&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script src="lumi.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
 
-        <p>For release, use:</p>
-        <pre>
-<code class="html">&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
-&lt;script src="lumi.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+            <p>For release, use:</p>
+            <pre>
+    <code class="html">&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script src="lumi.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
 
-        <h3 class="uk-margin-large-top">Example Usage</h3>
-        <hr>
-          <pre>
-<code class="js">var modal = UI.new({
+            <h3 class="uk-margin-large-top">Example Usage</h3>
+            <hr>
+            <pre>
+    <code class="js">var modal = UI.new({
   "view": "modal",
   "header": {
     "view": "label",
@@ -173,19 +174,19 @@ modal.open();
   }
 }, exports.ChangeEvent, exports.FormControl, $definitions.element);</code></pre>
 
-        <h4>Inheritance</h4>
+        <h3 class="uk-margin-large-top">Inheritance</h3>
         <hr>
         <p>You can chain previously defined components or mixins at the end of the
           <code>UI.def(config, ext1, ext2, ...)</code>,
           please note that overriding occurs from right to left, with the right-most object being the ancestor. It's
           properties can be overridden by anything left of it.</p>
 
-        <h3>Testing</h3>
+        <h3 class="uk-margin-large-top">Testing</h3>
         <hr>
-        <p>Writing UI as ordinary components actually makes things very testable. <b>Lumi</b> uses its own
+        <p>Writing UI as ordinary JavaScript components actually makes things very testable. <b>Lumi</b> uses its own
           event-dispatching system and you can simulate button clicks, change events, etc.</p>
 
-        <p>Below is an example:</p>
+        <p>Below is an example of a <b>Jasmine</b> test case:</p>
         <pre>
 <code>it("someToggle dispatch onChange event", function () {
   spyOn(self, "someAction");
@@ -201,9 +202,10 @@ modal.open();
   // And so on...
 });</code></pre>
 
-      </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <footer class="uk-text-center uk-block-secondary uk-text-muted" style="margin-top:48px; padding:64px">

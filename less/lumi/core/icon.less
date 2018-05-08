@@ -26,10 +26,6 @@
 @icon-medium-font-size:                         200%;
 @icon-large-font-size:                          250%;
 
-@icon-small-vertical-align:                     -10%;
-@icon-medium-vertical-align:                    -16%;
-@icon-large-vertical-align:                     -22%;
-
 @icon-hover-color:                              lighten(@global-color, 10%);
 @icon-hover-hover-color:                        lighten(@global-color, 10%);
 
@@ -59,7 +55,6 @@
 
 [class*='uk-icon-']:before {
     position: relative;
-    top: 0.12em;
 }
 
 /* Size modifiers
@@ -67,17 +62,14 @@
 
 .uk-icon-small {
     font-size: @icon-small-font-size;
-    vertical-align: @icon-small-vertical-align;
 }
 
 .uk-icon-medium {
     font-size: @icon-medium-font-size;
-    vertical-align: @icon-medium-vertical-align;
 }
 
 .uk-icon-large {
     font-size: @icon-large-font-size;
-    vertical-align: @icon-large-vertical-align;
 }
 
 

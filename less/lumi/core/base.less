@@ -188,7 +188,6 @@ strong { font-weight: 500; }
     border: 1px solid @base-code-border;
     border-radius: @base-code-border-radius;
     padding: 0 @base-code-padding;
-    white-space: nowrap;
     .hook-base-code;
 }
 
@@ -555,8 +554,8 @@ iframe { border: 0; }
 .hook-base-link() {}
 .hook-base-link-hover() {}
 .hook-base-code() {
-    white-space: pre-wrap;       /* css-3 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    white-space: normal;       /* css-3 */
+    word-wrap: break-word;     /* Internet Explorer 5.5+ */
 }
 .hook-base-h() {}
 .hook-base-h1() {}

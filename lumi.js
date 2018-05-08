@@ -3591,11 +3591,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
         '<a><i class="uk-icon-{{icon}}" style="margin-left: {{margin}}px">' +
         '</i><span class="uk-margin-small-left">{{label}}</span></a>',
         {
-          icon: config.$branch ?
-            (config.$children.length ?
-              "folder" :
-              "folder-o") :
-            "file-o",
+          icon: config.$branch ? "folder" : "file",
           label: config.label,
           margin: config.$depth * this.indentWidth
         });
