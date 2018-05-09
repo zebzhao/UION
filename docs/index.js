@@ -489,14 +489,14 @@ UI.new({
           marginLeft: 'auto'
         },
         data: [
+          {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'},
+          {view: 'link', label: 'Issues', href: 'https://github.com/zebzhao/lumi/issues'},
           {
             view: 'select',
             data: [
               {value: lumi.VERSION, label: lumi.VERSION}
             ]
-          },
-          {view: 'link', label: 'Issues', href: 'https://github.com/zebzhao/lumi/issues'},
-          {view: 'link', label: 'Github', href: 'https://github.com/zebzhao/lumi'}
+          }
         ]
       }
     ]
