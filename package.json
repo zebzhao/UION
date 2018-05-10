@@ -1,7 +1,7 @@
 {
   "name": "lumi",
   "version": "0.1.0",
-  "description": "Lumi is a lightweight, complete, declarative UI library.",
+  "description": "Lumi is a lightweight, declarative UI library.",
   "main": "lumi.min.js",
   "private": false,
   "dependencies": {},

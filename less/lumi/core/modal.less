@@ -39,7 +39,7 @@
 @modal-background:                              rgba(0,0,0,.1);
 
 @modal-dialog-margin-vertical:                  50px;
-@modal-dialog-padding:                          @global-margin-large;
+@modal-dialog-padding:                          @global-margin;
 @modal-dialog-width:                            450px;
 @modal-dialog-background:                       #fff;
 @modal-dialog-box-shadow:                       @global-box-shadow;
@@ -284,12 +284,12 @@
  ========================================================================== */
 
 .uk-modal-header {
-    margin-bottom: @modal-header-margin-bottom;
+    margin: 0 -@modal-dialog-padding @modal-header-margin-bottom;
     .hook-modal-header;
 }
 
 .uk-modal-footer {
-    margin-top: @modal-footer-margin-top;
+    margin: @modal-footer-margin-top -@modal-dialog-padding 0;
     .hook-modal-footer;
 }
 
