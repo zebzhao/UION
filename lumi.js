@@ -887,7 +887,10 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
   function createElement(name, attributes, html) {
     attributes = attributes || {};
-    var element = document.createElement(name);
+    
+    var element = name.toLowerCase() == "svg" ?
+      document.createElementNS("http://www.w3.org/2000/svg", "SVG") :
+      document.createElement(name);
 
     setAttributes(element, attributes);
     
@@ -1294,13 +1297,14 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     }, obj);
   }
 
-  function classSetters(classOptions) {
+  function classSetters(classOptions, elementPropetyName) {
     return forIn(function (property, options) {
       var setter = function (value) {
         var self = this;
         var oldValue = self.config[property];
+        var el = self[elementPropetyName || 'el'];
         if (options[oldValue])
-          removeClass(self.el, options[oldValue]);
+          removeClass(el, options[oldValue]);
 
         var values = classString(value).split(" ");
 
@@ -1313,9 +1317,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
           if (isArray(classes))
             for (var c = 0; c < classes.length; c++)
-              addClass(self.el, classes[c]);
+              addClass(el, classes[c]);
           else
-            addClass(self.el, classes);
+            addClass(el, classes);
         }
       };
       setter.options = options;
@@ -1910,61 +1914,68 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       if (config.header) self._body.appendChild(self._header);
       if (config.footer) self._body.appendChild(self._footer);
     },
-    $setters: {
-      light: function (value) {
-        if (value)
-          addClass(this.el, "uk-modal-dialog-lightbox");
-      },
-      bodyWidth: function (value) {
-        value = isNumber(value) ? value + "px" : value;
-        this._body.style.width = value;
-      },
-      bodyHeight: function (value) {
-        value = isNumber(value) ? value + "px" : value;
-        this._body.style.height = value;
-      },
-      closeButton: function (value) {
-        if (value) {
+    $setters: extend(
+      classSetters({
+        dialogStyle: prefixClassOptions({
+          lightbox: "",
+          large: "",
+          blank: "",
+          full: "",
+          "": ""
+        }, 'uk-modal-dialog-', true)
+      }, "_body"),
+      {
+        bodyWidth: function (value) {
+          value = isNumber(value) ? value + "px" : value;
+          this._body.style.width = value;
+        },
+        bodyHeight: function (value) {
+          value = isNumber(value) ? value + "px" : value;
+          this._body.style.height = value;
+        },
+        closeButton: function (value) {
+          if (value) {
+            var self = this;
+            self._close = createElement("A",
+              {class: "uk-modal-close uk-close"});
+            if (self._body.firstChild) {
+              self._body.insertBefore(self._close, self._body.firstChild);
+            }
+            else {
+              self._body.appendChild(self._close);
+            }
+          }
+        },
+        body: function (value) {
           var self = this;
-          self._close = createElement("A",
-            {class: "uk-modal-close uk-close"});
-          if (self._body.firstChild) {
-            self._body.insertBefore(self._close, self._body.firstChild);
-          }
-          else {
-            self._body.appendChild(self._close);
-          }
+          self.bodyContent = exports.new(value, function (el) {
+            if (self._footer.parentNode) {
+              self._body.insertBefore(el, self._footer);
+            } else {
+              self._body.appendChild(el);
+            }
+          });
+          self.$components.push(self.bodyContent);
+        },
+        header: function (value) {
+          var self = this;
+          self.headerContent = exports.new(value, self._header);
+          self.$components.push(self.headerContent);
+        },
+        footer: function (value) {
+          var self = this;
+          self.footerContent = exports.new(value, self._footer);
+          self.$components.push(self.footerContent);
+        },
+        caption: function (value) {
+          var self = this;
+          if (!self._caption)
+            self._caption = createElement("DIV", {class: "uk-modal-caption"});
+          self._caption.innerHTML = value;
+          self._body.appendChild(self._caption);
         }
-      },
-      body: function (value) {
-        var self = this;
-        self.bodyContent = exports.new(value, function (el) {
-          if (self._footer.parentNode) {
-            self._body.insertBefore(el, self._footer);
-          } else {
-            self._body.appendChild(el);
-          }
-        });
-        self.$components.push(self.bodyContent);
-      },
-      header: function (value) {
-        var self = this;
-        self.headerContent = exports.new(value, self._header);
-        self.$components.push(self.headerContent);
-      },
-      footer: function (value) {
-        var self = this;
-        self.footerContent = exports.new(value, self._footer);
-        self.$components.push(self.footerContent);
-      },
-      caption: function (value) {
-        var self = this;
-        if (!self._caption)
-          self._caption = createElement("DIV", {class: "uk-modal-caption"});
-        self._caption.innerHTML = value;
-        self._body.appendChild(self._caption);
       }
-    },
+    ),
     open: function (args) {
       /**
        * Opens the modal.
@@ -3119,10 +3130,6 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
         }, 'uk-')
       }),
       {
-        accordion: function (value) {
-          if (value) setAttributes(this.el, {"data-uk-nav": ""});
-          else this.el.removeAttribute("data-uk-nav");
-        },
         tab: function (value) {
           if (value) {
             var self = this;
