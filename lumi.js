@@ -889,7 +889,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     attributes = attributes || {};
     
     var element = name.toLowerCase() == "svg" ?
-      document.createElementNS("http://www.w3.org/2000/svg", "SVG") :
+      document.createElementNS("http://www.w3.org/2000/svg", "svg") :
       document.createElement(name);
 
     setAttributes(element, attributes);
