@@ -36,9 +36,8 @@
 // Variables
 // ========================================================================
 
-@nav-padding-vertical:                          0;
+@nav-padding-vertical:                          6px;
 @nav-padding-horizontal:                        20px;
-@nav-line-height:                               36px;
 
 @nav-header-padding-vertical:                   @nav-padding-vertical;
 @nav-header-padding-horizontal:                 @nav-padding-horizontal;
@@ -52,7 +51,7 @@
 
 @nav-side-color:                                #5e6d82;
 @nav-side-hover-background:                     transparent;
-@nav-side-hover-color:                          #66b1ff;
+@nav-side-hover-color:                          @nav-side-color;
 @nav-side-active-background:                    @nav-side-hover-background;
 @nav-side-active-color:                         @global-primary-background;
 @nav-side-header-color:                         #909399;
@@ -223,17 +222,13 @@
 .hook-nav-header() {}
 .hook-nav-divider() {}
 
-.hook-nav-side() {
-    line-height: @nav-line-height;
-}
+.hook-nav-side() {}
 .hook-nav-side-hover() {}
 .hook-nav-side-active() {}
 .hook-nav-side-header() {}
 .hook-nav-side-divider() {}
 
-.hook-nav-dropdown() {
-    line-height: @nav-line-height;
-}
+.hook-nav-dropdown() {}
 .hook-nav-dropdown-hover() {}
 .hook-nav-dropdown-header() {}
 .hook-nav-dropdown-divider() {}

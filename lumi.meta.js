@@ -52,7 +52,6 @@
 
 
   (function ($setters) {
-    $setters.light.$$type = 'boolean';
     $setters.bodyWidth.$$type = 'string';
     $setters.bodyHeight.$$type = 'string';
     $setters.closeButton.$$type = 'boolean';
@@ -144,7 +143,6 @@
 
   (function ($setters) {
     $setters.listStyle.$$desc = 'Predefined list style';
-    $setters.accordion.$$type = 'boolean';
     $setters.tab.$$type = 'boolean';
     $setters.tab.$$desc = 'When true, sets additional behaviors for tabs such as responsiveness and events ' +
       '<code>onTabMenuClick, onItemSelectionChanged</code>';
