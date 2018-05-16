@@ -45,9 +45,6 @@
 @navbar-nav-line-height:                        @navbar-nav-height;
 @navbar-nav-padding-horizontal:                 @global-margin;
 @navbar-nav-color:                              #8391a5;
-@navbar-nav-font-size:                          14px;
-@navbar-nav-font-weight:                        normal;
-@navbar-nav-font-family:                        "Helvetica Neue", Helvetica, Arial, sans-serif;
 @navbar-nav-hover-background:                   transparent;
 @navbar-nav-hover-color:                        #1f2d3d;
 @navbar-nav-onclick-background:                 @navbar-nav-hover-background;
@@ -126,9 +123,6 @@
     line-height: @navbar-nav-line-height;
     /* 2 */
     color: @navbar-nav-color;
-    font-size: @navbar-nav-font-size;
-    font-family: @navbar-nav-font-family;
-    font-weight: @navbar-nav-font-weight;
     .hook-navbar-nav;
 }
 
@@ -173,7 +167,6 @@
 .uk-navbar-nav .uk-navbar-nav-subtitle { line-height: @navbar-nav-line-height - @navbar-nav-subtitle-font-size - @navbar-nav-subtitle-offset; }
 
 .uk-navbar-nav-subtitle > div {
-    margin-top: ((@navbar-nav-line-height - @navbar-nav-subtitle-font-size - @navbar-nav-font-size) / -2) + @navbar-nav-subtitle-offset;
     font-size: @navbar-nav-subtitle-font-size;
     line-height: @navbar-nav-subtitle-font-size + @navbar-nav-subtitle-offset;
 }

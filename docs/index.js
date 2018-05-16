@@ -467,19 +467,25 @@ UI.new({
         listStyle: 'navbar',
         data: [
           {
-            view: 'image',
-            src: 'lumi.svg',
-            width: 160,
-            height: 64
-          },
-          {
-            view: 'icon', icon: 'uk-icon-menu',
+            view: 'icon',
+            icon: 'uk-icon-menu',
+            iconStyle: 'large',
             css: 'uk-text-muted', screen: 'small',
+            style: {
+              paddingLeft: '0'
+            },
             on: {
               onClick: function () {
                 UIkit.offcanvas.show('#offcanvas', {mode: 'slide'});
               }
             }
+          },
+          {
+            view: 'image',
+            src: 'lumi.svg',
+            screen: 'except-small',
+            width: 160,
+            height: 64
           }
         ]
       },
