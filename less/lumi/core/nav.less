@@ -146,7 +146,15 @@
 
 /* Active */
 .uk-nav-side > li.uk-active > a {
-    color: @nav-side-active-color;
+    &, &:hover {
+        color: @nav-side-active-color;
+        background: none;
+    }
+
+    &.uk-active-line:before {
+        left: 0;
+    }
+
     .hook-nav-side-active;
 }
 
@@ -157,8 +165,8 @@
         content: "";
         position: absolute;
         top: ~"calc(50% - 1px)";
-        left: -8px;
-        width: 16px;
+        left: -24px;
+        width: 12px;
         border-top: 2px solid @nav-side-active-border-color;
     }
 }
@@ -191,6 +199,7 @@
 
 .uk-nav-dropdown > li > a {
     color: @nav-dropdown-color;
+
     .hook-nav-dropdown;
 }
 
