@@ -457,6 +457,10 @@ UI.new({
   margin: 'bottom',
   template: {
     css: ['uk-container', 'uk-container-center'],
+    style: {
+      paddingTop: '12px',
+      paddingBottom: '12px'
+    },
     cells: [
       {
         view: 'list',
@@ -510,16 +514,17 @@ function sidebarTemplate(id) {
     view: 'list',
     listStyle: 'side',
     style: {
-      minWidth: '180px',
+      minWidth: '192px',
       marginRight: '64px'
     },
     data: [
-      {view: 'link', label: 'Getting Started', $selected: true},
+      {view: 'link', css: 'uk-active-line', label: 'Getting Started', $selected: true},
       {$divider: true},
       {$header: true, label: 'Components'}
     ].concat(Object.keys(Model.components).sort().map(function (n) {
       return {
         view: 'link',
+        css: 'uk-active-line',
         label: UI.capitalize(n),
         margin: 'left',
         value: n
