@@ -242,10 +242,7 @@
  ========================================================================== */
 
 .uk-modal-dialog-blank {
-    margin: 0;
     padding: 0;
-    width: 100%;
-    max-width: 100%;
 }
 
 /*
@@ -259,6 +256,14 @@
     z-index: 1;
     margin: 0;
     float: none;
+}
+
+.uk-modal-dialog-blank > .uk-modal-header {
+    margin: 0;
+}
+
+.uk-modal-footer > .uk-modal-header {
+    margin: 0;
 }
 
 
@@ -316,28 +321,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     .hook-modal-caption;
-}
-
-
-/* Sub-Object: `uk-modal-spinner`
- ========================================================================== */
-
-.uk-modal-spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%,-50%);
-    transform: translate(-50%,-50%);
-    font-size: 25px;
-    color: #ddd;
-    .hook-modal-spinner;
-}
-
-.uk-modal-spinner:after {
-    content: "\e050";
-    font-family: "dripicons-v2" !important;
-    -webkit-animation: uk-rotate 2s infinite linear;
-    animation: uk-rotate 2s infinite linear;
 }
 
 
