@@ -50,17 +50,24 @@
 @nav-divider-margin-horizontal:                 @nav-padding-horizontal;
 
 @nav-side-color:                                #5e6d82;
+@nav-side-dark-color:                           #ccc;
 @nav-side-hover-background:                     transparent;
 @nav-side-hover-color:                          @nav-side-color;
+@nav-side-hover-dark-color:                     @nav-side-dark-color;
 @nav-side-active-color:                         @global-primary-background;
+@nav-side-active-dark-color:                    #fff;
 @nav-side-active-border-color:                  @tab-item-active-color;
+@nav-side-active-dark-border-color:                  @tab-item-active-dark-color;
 @nav-side-header-color:                         #909399;
 @nav-side-divider-border:                       @global-border;
+@nav-side-divider-dark-border:                  @global-dark-border;
 @nav-side-divider-border-width:                 1px;
 
 @nav-dropdown-color:                            #606266;
 @nav-dropdown-hover-background:                 #ecf5ff;
+@nav-dropdown-hover-dark-background:            #323b44;
 @nav-dropdown-hover-color:                      @nav-side-active-color;
+@nav-dropdown-hover-dark-color:                 @nav-side-active-dark-color;
 @nav-dropdown-header-color:                     @nav-side-header-color;
 @nav-dropdown-divider-border:                   @global-border;
 @nav-dropdown-divider-border-width:             1px;
@@ -168,6 +175,10 @@
         left: -24px;
         width: 12px;
         border-top: 2px solid @nav-side-active-border-color;
+
+        .dark & {
+            border-color: @nav-side-active-dark-border-color;
+        }
     }
 }
 
@@ -243,13 +254,38 @@
 .hook-nav-header() {}
 .hook-nav-divider() {}
 
-.hook-nav-side() {}
-.hook-nav-side-hover() {}
-.hook-nav-side-active() {  }
+.hook-nav-side() {
+    .dark & {
+        color: @nav-side-dark-color;
+    }
+}
+.hook-nav-side-hover() {
+    .dark & {
+        color: @nav-side-hover-dark-color;
+    }
+}
+.hook-nav-side-active() {
+    .dark &, .dark &:hover {
+        color: @nav-side-active-dark-color;
+    }
+}
 .hook-nav-side-header() {}
-.hook-nav-side-divider() {}
+.hook-nav-side-divider() {
+    .dark & {
+        border-color: @nav-side-divider-dark-border
+    }
+}
 
 .hook-nav-dropdown() {}
-.hook-nav-dropdown-hover() {}
+.hook-nav-dropdown-hover() {
+    .dark & {
+        background: @nav-dropdown-hover-dark-background;
+        color: @nav-dropdown-hover-dark-color;
+    }
+}
 .hook-nav-dropdown-header() {}
-.hook-nav-dropdown-divider() {}
+.hook-nav-dropdown-divider() {
+    .dark & {
+        border-color: @nav-side-divider-dark-border
+    }
+}

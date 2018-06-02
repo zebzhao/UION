@@ -838,7 +838,6 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       "": ""
     }, 'uk-text-', true),
     textColor: prefixClassOptions({
-      bold: "",
       muted: "",
       primary: "",
       success: "",

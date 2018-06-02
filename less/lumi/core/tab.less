@@ -24,8 +24,10 @@
 @tab-item-padding-vertical:              0;
 @tab-item-color:                         #8391a5;
 @tab-item-hover-color:                   #1f2d3d;
+@tab-item-hover-dark-color:              #ddd;
 @tab-item-hover-text-decoration:         none;
 @tab-item-active-color:                  #20a0ff;
+@tab-item-active-dark-color:             #ffd04b;
 @tab-item-disabled-color:                #8391a5;
 
 @tab-border-width:                       1px;
@@ -34,6 +36,7 @@
 @tab-item-border-width:                  3px;
 
 @tab-item-active-border:                 @tab-item-active-color;
+@tab-item-active-dark-border:            @tab-item-active-dark-color;
 
 /* ========================================================================
    Component: Tab
@@ -183,8 +186,16 @@
     height: @tab-item-height;
     line-height: @tab-item-height;
 }
-.hook-tab-item-hover() {}
-.hook-tab-item-active() {}
+.hook-tab-item-hover() {
+    .dark & {
+        color: @tab-item-hover-dark-color;
+    }
+}
+.hook-tab-item-active() {
+    .dark & {
+        color: @tab-item-active-dark-color;
+    }
+}
 .hook-tab-item-disabled() {}
 .hook-tab-bottom() {}
 .hook-tab-bottom-item() {}
@@ -224,7 +235,12 @@
 
 .hook-tab-item-hover() {}
 
-.hook-tab-item-active() { border-color: @tab-item-active-border; }
+.hook-tab-item-active() {
+    border-color: @tab-item-active-border;
+    .dark & {
+        border-color: @tab-item-active-dark-border;
+    }
+}
 
 .hook-tab-item-disabled() {}
 

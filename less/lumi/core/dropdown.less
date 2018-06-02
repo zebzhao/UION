@@ -45,6 +45,7 @@
 
 @dropdown-navbar-margin:                        0;
 @dropdown-navbar-background:                    #ecf5ff;
+@dropdown-navbar-dark-background:               #37414a;
 @dropdown-navbar-color:                         @global-color;
 @dropdown-navbar-animation:                     uk-slide-top-fixed;
 
@@ -162,6 +163,10 @@
     box-shadow: @dropdown-box-shadow;
     border: 1px solid @dropdown-border;
     border-radius: @global-border-radius;
+
+    .dark & {
+        background: @dropdown-navbar-dark-background;
+    }
 }
 .hook-dropdown-navbar() {}
 .hook-dropdown-overlay() {}

@@ -31,7 +31,8 @@
 
 @offcanvas-bar-width:                           270px;
 @offcanvas-bar-shadow:                          0 5px 10px rgba(0,0,0,0.15);
-@offcanvas-bar-background:                      white;
+@offcanvas-bar-background:                      #fff;
+@offcanvas-bar-dark-background:                 #2e343c;
 
 
 /* ========================================================================
@@ -142,5 +143,8 @@
 .hook-offcanvas() {}
 .hook-offcanvas-bar() {
     box-shadow: @offcanvas-bar-shadow;
+    .dark & {
+        background: @offcanvas-bar-dark-background;
+    }
 }
 .hook-offcanvas-panel() {}
