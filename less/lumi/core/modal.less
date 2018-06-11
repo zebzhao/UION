@@ -42,6 +42,7 @@
 @modal-dialog-padding:                          @global-margin;
 @modal-dialog-width:                            450px;
 @modal-dialog-background:                       #fff;
+@modal-dialog-dark-background:                  #2b3946;
 @modal-dialog-box-shadow:                       @global-box-shadow;
 
 @modal-dialog-large-width:                      600px;
@@ -211,7 +212,7 @@
 .uk-modal-dialog-lightbox {
     margin: @global-margin auto;
     padding: 0;
-    max-width: 95%;
+    //max-width: 95%;
     max-width: ~"calc(100% - 30px)";
     .hook-modal-dialog-lightbox;
 }
@@ -332,6 +333,9 @@
 .hook-modal() {}
 .hook-modal-dialog() {
     box-shadow: @modal-dialog-box-shadow;
+    .dark & {
+        background-color: @modal-dialog-dark-background;
+    }
 }
 .hook-modal-dialog-lightbox() {}
 .hook-modal-header() {}

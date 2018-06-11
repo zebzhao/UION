@@ -12,11 +12,13 @@
 // ========================================================================
 
 @base-body-background:                          #fff;
+@base-body-dark-background:                     #232c35;
 @base-body-font-family:                         Ubuntu,-apple-system,BlinkMacSystemFont,Lato,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 @base-body-font-weight:                         normal;
 @base-body-font-size:                           @global-font-size;
 @base-body-line-height:                         @global-line-height;
 @base-body-color:                               @global-color;
+@base-body-dark-color:                          @global-dark-color;
 
 @base-link-color:                               @global-link-color;
 @base-link-text-decoration:                     none;
@@ -39,7 +41,6 @@
 @base-margin-vertical:                          @global-margin;
 
 @base-heading-font-weight:                      normal;
-@base-heading-color:                            @global-color;
 @base-heading-text-transform:                   none;
 @base-heading-margin-top:                       0;
 @base-h1-font-size:                             40px;
@@ -88,7 +89,6 @@
 /*
  * 1. Normalize default `font-family` and set `font-size` to support `rem` units
  * 2. Prevents iOS text size adjust after orientation change, without disabling user zoom
- * 3. Style
  */
 
 html {
@@ -97,17 +97,19 @@ html {
     /* 2 */
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
-    /* 3 */
-    background: @base-body-background;
-    color: @base-body-color;
-    .hook-base-body;
 }
 
 /*
  * Removes default margin.
  */
 
-body { margin: 0; }
+body {
+    margin: 0;
+    /* Style */
+    background: @base-body-background;
+    color: @base-body-color;
+    .hook-base-body;
+}
 
 
 /*
@@ -116,7 +118,6 @@ body { margin: 0; }
 button, a {
     -webkit-tap-highlight-color: transparent;
 }
-
 
 /* Links
  ========================================================================== */
@@ -328,7 +329,6 @@ figure { margin-bottom: @base-margin-vertical; }
 h1, h2, h3, h4, h5, h6 {
     margin: 0;
     font-weight: @base-heading-font-weight;
-    color: @base-heading-color;
     text-transform: @base-heading-text-transform;
     .hook-base-h;
 }
@@ -550,7 +550,12 @@ iframe { border: 0; }
 // Hooks
 // ========================================================================
 
-.hook-base-body() {}
+.hook-base-body() {
+    .dark & {
+        color: @base-body-dark-color;
+        background: @base-body-dark-background;
+    }
+}
 .hook-base-link() {}
 .hook-base-link-hover() {}
 .hook-base-code() {
