@@ -1469,7 +1469,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     },
     render: function () {
       /**
-       * Force a rerender of the element, which runs the template function.
+       * Force a re-render of the element, which runs the template function.
        */
       var self = this;
       template(self.template, self.config, self, self.el);
@@ -1519,13 +1519,13 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        * Checks if the element is enabled.
        * @returns {boolean}
        */
-      return !this.el.getAttribute('disabled');
+      return !this.el.hasAttribute('disabled');
     },
     disable: function () {
       /**
        * Disables the element.
        */
-      setAttributes(this.el, {disabled: ""});
+      setAttributes(this.el, {disabled: "disabled"});
     },
     enable: function () {
       /**
