@@ -26,13 +26,16 @@
 @notify-position:                               10px;
 @notify-z-index:                                @global-z-index + 40;
 @notify-width:                                  350px;
-@notify-message-border-radius:                          8px;
+@notify-message-border-radius:                  8px;
 
 @notify-message-margin-bottom:                  @global-margin-small;
 @notify-message-padding:                        @global-margin;
 @notify-message-box-shadow:                     @global-box-shadow;
 @notify-message-background:                     @global-background;
+@notify-message-dark-background:                @modal-dialog-dark-background;
+
 @notify-message-color:                          @global-color;
+@notify-message-dark-color:                     @global-dark-color;
 
 @notify-message-font-size:                      @global-font-size;
 @notify-message-line-height:                    @global-line-height;
@@ -185,7 +188,12 @@
 // ========================================================================
 
 .hook-notify() {}
-.hook-notify-message() {}
+.hook-notify-message() {
+    .dark & {
+        background-color: @notify-message-dark-background;
+        color: @notify-message-dark-color;
+    }
+}
 .hook-notify-message-primary() {}
 .hook-notify-message-success() {}
 .hook-notify-message-warning() {}

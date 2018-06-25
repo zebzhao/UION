@@ -26,7 +26,8 @@
 @breadcrumb-divider-margin:                     8px;
 @breadcrumb-disabled-color:                     #999;
 
-@breadcrumb-color:                              #c0c4cc;
+@breadcrumb-color:                              #606266;
+@breadcrumb-divider-color:                      #c0c4cc;
 
 /* ========================================================================
    Component: Breadcrumb
@@ -65,6 +66,7 @@
 
 .uk-breadcrumb > li > a {
     transition: color .2s cubic-bezier(.645,.045,.355,1);
+    color: @breadcrumb-color;
 }
 
 .uk-breadcrumb > li:nth-child(n+2):before {
@@ -88,6 +90,6 @@
 
 .hook-breadcrumb() {}
 .hook-breadcrumb-divider() {
-    color: @breadcrumb-color;
+    color: @breadcrumb-divider-color;
 }
 .hook-breadcrumb-misc() {}

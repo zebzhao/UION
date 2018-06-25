@@ -16,7 +16,8 @@
 @list-nested-padding-left:                      0;
 
 @list-line-margin-top:                          0;
-@list-line-border:                              @global-border;
+@list-line-border:                              fade(@global-border, 75%);
+@list-dark-line-border:                         fade(@global-dark-border, 60%);
 @list-line-border-width:                        1px;
 
 @list-striped-background:                       @global-default-active-background;
@@ -93,6 +94,10 @@
 
 .hook-list-misc;
 
-.hook-list-line() {}
+.hook-list-line() {
+    .dark & {
+        border-color: @list-dark-line-border;
+    }
+}
 .hook-list-striped() {}
 .hook-list-misc() {}

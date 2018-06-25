@@ -45,15 +45,13 @@
 
 
 @form-height:                                   @global-height;
-@form-padding:                                  0 @global-margin;
-@form-border:                                   #dcdfe6;
+@form-padding:                                  0 @global-margin-small;
+@form-border:                                   @global-border;
+@form-dark-border:                              @global-dark-border;
 @form-border-width:                             1px;
-@form-background:                               @global-background;
 @form-color:                                    @global-color;
-@form-border-radius:                            @global-border-radius;
+@form-border-radius:                            0;
 
-@form-focus-border:                             @button-primary-background;
-@form-focus-background:                         @global-default-background;
 @form-focus-color:                              @global-color;
 
 @form-disabled-border:                          @global-border;
@@ -82,7 +80,8 @@
 @form-success-border:                           @button-success-background;
 @form-success-color:                            @button-success-background;
 
-@form-blank-border:                             @global-border;
+@form-blank-border:                             fade(@global-border, 75%);
+@form-dark-blank-border:                        fade(@global-dark-border, 60%);
 @form-blank-border-style:                       dashed;
 
 @form-mini-width:                               64px;
@@ -307,8 +306,8 @@
     /* 3 */
     padding: @form-padding;
     /* 4 */
-    border: @form-border-width solid @form-border;
-    background: @form-background;
+    border-width: 0;
+    border-bottom: @form-border-width solid @form-border;
     color: @form-color;
     -webkit-transition: all linear 0.2s;
     transition: all linear 0.2s;
@@ -316,9 +315,7 @@
 
     // Focus state
     &:focus {
-        border-color: @form-focus-border;
         outline: 0;
-        background: @form-focus-background;
         color: @form-focus-color;
         .hook-form-focus;
     }
@@ -501,6 +498,10 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
 .uk-form-line .uk-form-row {
     border-bottom: solid 1px @form-blank-border;
     padding: 0 @form-gutter @form-gutter;
+
+    .dark & {
+        border-color: @form-dark-blank-border;
+    }
 }
 
 
@@ -653,7 +654,11 @@ select.uk-form-width-mini { width: (@form-mini-width + 25px); }
 
 .hook-form-misc;
 
-.hook-form() {}
+.hook-form() {
+    .dark & {
+        border-color: @form-dark-border;
+    }
+}
 .hook-form-focus() {}
 .hook-form-disabled() {}
 .hook-form-legend() {}
