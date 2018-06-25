@@ -327,17 +327,32 @@ var Model = {
         cells: [
           {
             view: 'progress',
+            color: 'primary',
             value: 80
+          },
+          {
+            view: 'progress',
+            color: 'success striped',
+            value: 65,
+            margin: 'y-lg'
           },
           {
             view: 'progress',
             size: 'small',
             value: 50,
-            margin: 'y-lg'
+            margin: 'bottom-lg'
+          },
+          {
+            view: 'progress',
+            size: 'small',
+            color: ['warning', 'striped'],
+            value: 35,
+            margin: 'bottom-lg'
           },
           {
             view: 'progress',
             size: 'mini',
+            color: 'danger',
             value: 20
           }
         ]

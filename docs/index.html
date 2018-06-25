@@ -22,19 +22,24 @@
         <div id="sidebar" class="uk-flex uk-flex-item-none uk-hidden-small"></div>
         <div id="offcanvas" class="uk-offcanvas uk-visible-small"></div>
         <div id="main" class="uk-flex-item-1">
-        <div id="gettingStarted" class="uk-width-1-1">
+        <div id="gettingStarted" class="uk-width-1-1" style="line-height:32px">
             <h2>Getting Started</h2>
             <hr>
             <p>
-            <b>Lumi UI</b> is a lightweight, complete, declarative UI components library for creating <b>SPAs</b>
-              (Single Page Applications). <b>Lumi</b> takes the approach of declaring simple <b>JavaScript</b>
-              objects as it is more flexible, integrates better with code and eliminates the need of using <b>JSX</b>
-              or other template markup.
+            <b>Lumi UI</b> is a lightweight, declarative UI components library for creating <b>SPAs</b>
+            (Single Page Applications).
             </p>
-
+            
             <p>
-            To simplify the learning curve, <b>Lumi</b> tries to resemble traditional <b>HTML</b> tags and <b>CSS</b> as
-            much as possible, while also using modern things like <code>flexbox</code> to simplify layouts.
+            <b>Lumi</b> takes the simple approach that can be summarized in the following points:
+            <ul>
+                <li>Each UI element is declared by a plain <b>JS</b> object</li>
+                <li>Listener callbacks are handled through normal JavaScript functions</li>
+                <li>Component access is handled using an unique id for each UI component and a global accessor function <code>$$('id')</code></li>
+            </ul>
+            This is not an innovative framework, nor does it try to be. If you're after something more progressive,
+            try something like <b>Vue</b> or <b>React</b>. Rather, <b>Lumi</b> tries an arguably simpler and more
+            straight-forward that's been around for quite some time.
             </p>
 
             <h3 class="uk-margin-large-top">Installation & Setup</h3>
@@ -45,36 +50,46 @@
             <p><code>npm install lumi</code></p>
 
             <p>To add styling, add this tag to your <b>HTML</b> file:</p>
-            <pre>
-    <code class="html">&lt;link rel="stylesheet" href="css/lumi.css"&gt;</code></pre>
+            <pre><code class="html">&lt;link rel="stylesheet" href="css/lumi.css"&gt;</code></pre>
 
             <p>To use include the icon files, also add:</p>
-            <pre>
-    <code class="html">&lt;link rel="stylesheet" href="css/lumi-icon.css"&gt;</code></pre>
+            <pre><code class="html">&lt;link rel="stylesheet" href="css/lumi-icon.css"&gt;</code></pre>
 
             <p>For development, add the following script files:</p>
-            <pre>
-    <code class="html">&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
-    &lt;script src="lumi.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+            <pre><code class="html">&lt;script src="jquery.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="lumi.min.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
 
             <p>For release, use:</p>
-            <pre>
-    <code class="html">&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
-    &lt;script src="lumi.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+            <pre><code class="html">&lt;script src="jquery.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="lumi.debug.js" type="text/javascript"&gt;&lt;/script&gt;</code></pre>
+
+            <h3 class="uk-margin-large-top">More Ramblings...</h3>
+            <hr>
+            <p>
+            The problem with many similar object-centric UI frameworks is the need to relearn mappings of property
+            names to functionality resulting in the need to constantly revisit the documentation. To simplify this
+            process, <b>Lumi</b> tries to resemble traditional HTML tags and CSS properties as much as possible.
+            </p>
+
+            <p>
+            Where this approach deviates from the traditional approach is with the layout system. Here, <b>Lumi</b>
+            takes a simpler and more modern approach with the <code>flexbox</code> system as opposed to a grid
+            system, as seen by popular frameworks like <b>Bootstrap</b>. The drawback to this, is older browsers
+            (mainly IE) do not support this.
+            </p>
 
             <h3 class="uk-margin-large-top">Example Usage</h3>
             <hr>
-            <pre>
-    <code class="js">var modal = UI.new({
+            <pre><code class="js">var modal = UI.new({
   "view": "modal",
   "header": {
     "view": "label",
-    "htmlTag": "H3",
-    "label": "Stale coffee is exquisite!"
+    "htmlTag": "H3",  // Optional, default is "SPAN"
+    "label": "Lumi is exquisite!"
   },
   "body": {
     "view": "label",
-    "label": "Medium brewed, dripper to go filter iced..."
+    "label": "Hello..."
   },
   "footer": {
     "flexAlign": "right",
@@ -99,14 +114,13 @@ modal.open();
 
         <h3 class="uk-margin-large-top">Extensible</h3>
         <hr>
-        <p><b>Lumi</b> components can also be defined using JavaScript objects. This includes defining
-          new components with new libraries or inventing new components like switchers, drawers, etc.</p>
+        <p>Brand new <b>Lumi</b> component templates can also be defined using JavaScript objects. This enables
+          the ability to define new components such as switchers, drawers, chips, etc.</p>
 
         <p>To understand how to create your own custom components,
-          lets take a look at an example from the source code.</p>
+            let's take a look at an example from the code below:</p>
 
-        <pre>
-<code>exports.def({
+        <pre><code>UI.def({
   __name__: "toggle",
   $setters: extend(
     classSetters({
@@ -156,19 +170,24 @@ modal.open();
      */
     this.getFormControl().checked = value;
   }
-}, exports.ChangeEvent, exports.FormControl, $definitions.element);</code></pre>
+}, UI.ChangeEvent, UI.FormControl, UI.definitions.element);</code></pre>
 
         <h3 class="uk-margin-large-top">Inheritance</h3>
         <hr>
-        <p>You can chain previously defined components or mixins at the end of the
-          <code>UI.def(config, ext1, ext2, ...)</code>,
-          please note that overriding occurs from right to left, with the right-most object being the ancestor. It's
-          properties can be overridden by anything left of it.</p>
+        <p>Notice that you can chain previously defined components or Mixins at the end of the definition object:
+          <code>UI.def(config, ext1, ext2, ...)</code>, thus providing the ability to extend library components.
+        </p>
+        
+        <p class="uk-card uk-card-box uk-card-box-primary" style="padding: 16px 64px 16px 24px">
+            <span class="uk-card-badge uk-badge unselectable">Note</span>
+            When overriding properties, the left-most object has the highest priority. In other words,
+            each object will have its properties overridden by anything <b>left</b> of it.
+        </p>
 
         <h3 class="uk-margin-large-top">Testing</h3>
         <hr>
         <p>Writing UI as ordinary JavaScript components actually makes things very testable. <b>Lumi</b> uses its own
-          event-dispatching system and you can simulate button clicks, change events, etc.</p>
+          event-dispatching system and you can simulate button clicks, change events, or even custom events!</p>
 
         <p>Below is an example of a <b>Jasmine</b> test case:</p>
         <pre>
@@ -193,8 +212,8 @@ modal.open();
 </div>
 
 <footer class="uk-text-center uk-block-secondary uk-text-muted" style="margin-top:48px; padding:64px">
-  <p>Lumi is licensed under the MIT license. This website is licensed under CC Commons Attribution 4.0.</p>
-  <p>Copyright 2017 Zeb Zhao. Some rights reserved.</p>
+  <p>Lumi UI is licensed under the MIT license. This website is licensed under CC Commons Attribution 4.0.</p>
+  <p>Copyright 2018 Zeb Zhao. Some rights reserved.</p>
 </footer>
 
 <script src="index.js"></script>

@@ -4,11 +4,12 @@
   "description": "Lumi is a lightweight, declarative UI library.",
   "main": "lumi.min.js",
   "private": false,
-  "dependencies": {},
+  "dependencies": {
+    "gulp": "^3.9.1"
+  },
   "devDependencies": {
     "grunt": "^1.0.2",
     "grunt-webfont": "^1.6.0",
-    "gulp": "^3.9",
     "gulp-clean": "^0.3.1",
     "gulp-clean-css": "^3.8.0",
     "gulp-concat": "^2.6.0",

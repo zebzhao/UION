@@ -2167,6 +2167,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
         danger: "",
         warning: "",
         success: "",
+        primary: "",
         striped: "",
         "": ""
       }, 'uk-progress-', true)
