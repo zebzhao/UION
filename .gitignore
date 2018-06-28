@@ -1,4 +1,5 @@
 /copy.sh
+.vscode
 node_modules
 .~
 *~

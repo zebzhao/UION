@@ -1210,6 +1210,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
 
   exports.new = function (config, callback) {
+    assertPropertyValidator(config, 'config', isObject);
+
     if (callback && !isFunction(callback)) callback = callback.appendChild.bind(callback);
     return makeView(config, callback);
 
@@ -2960,6 +2962,24 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       this.$elements[item.id] = el;
       return el;
     },
+    _addToDOM: function (obj) {
+      var self = this;
+      var node = self.getItemNode(obj.id);
+
+      if (!node) {
+        node = self.createItemElement(obj);
+      
+        if (obj.$tailNode)
+          self.containerElement().insertBefore(node, self._addToDOM(obj.$tailNode));
+        else
+          self.containerElement().appendChild(node);
+      }
+
+      if (obj.$hidden) addClass(node, HIDDEN_CLASS);
+      else removeClass(node, HIDDEN_CLASS);
+
+      return node;
+    },
     _onDispose: function () {
       var self = this;
       forInLoop(function (key, node) {
@@ -2981,26 +3001,24 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     },
     _onAdded: function (obj) {
       var self = this;
-      var node = self.createItemElement(obj);
 
       obj.$hidden = self._checkItemHidden(obj);
 
-      if (obj.$hidden) {
-        addClass(node, HIDDEN_CLASS);
+      if (!obj.$hidden) {
+        self._addToDOM(obj);
       }
-
-      if (obj.$tailNode)
-        self.containerElement().insertBefore(node, self.getItemNode(obj.$tailNode.id));
-      else
-        self.containerElement().appendChild(node);
 
       if (obj.$parent) {
         var parent = self.getItem(obj.$parent);
         if (parent && parent.$children && parent.$children.length === 1) {
           var parentNode = self.getItemNode(parent.id);
-          var newParentNode = self.createItemElement(parent);
-          if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
-          parentNode.parentNode.replaceChild(newParentNode, parentNode);
+          // If parentNode exists: replace it with a new one
+          // Otherwise: defer parent creation until it's needed
+          if (parentNode) {
+            var newParentNode = self.createItemElement(parent);
+            if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
+            parentNode.parentNode.replaceChild(newParentNode, parentNode);
+          }
         }
       }
 
@@ -3042,10 +3060,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     _onRefresh: function () {
       var self = this;
       self.each(function (item) {
-        var node = self.getItemNode(item.id);
         item.$hidden = self._checkItemHidden(item);
-        if (item.$hidden) addClass(node, HIDDEN_CLASS);
-        else removeClass(node, HIDDEN_CLASS);
+        self._addToDOM(item);
       });
 
       self.dispatch("onDOMChanged", [null, "refresh"]);
@@ -3518,9 +3534,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     },
     _showChildren: function (item) {
       forEachUntil(function (child, queue) {
-		child.$parentClosed = false;
-		child.$hidden = this._checkItemHidden(child);
-        removeClass(this.getItemNode(child.id), HIDDEN_CLASS);
+        child.$parentClosed = false;
+        child.$hidden = this._checkItemHidden(child);
+        this._addToDOM(child);
 
         if (child.$branch && !child.$closed) {
           for (var i = 0; i < child.$children.length; i++) {
@@ -3532,9 +3548,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     },
     _hideChildren: function (item) {
       forEachUntil(function (child, queue) {
-		child.$parentClosed = true;
-		child.$hidden = this._checkItemHidden(child);
-        addClass(this.getItemNode(child.id), HIDDEN_CLASS);
+        child.$parentClosed = true;
+        child.$hidden = this._checkItemHidden(child);
+        this._addToDOM(child);
 
         if (child.$branch) {
           for (var i = 0; i < child.$children.length; i++) {
@@ -3619,9 +3635,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       var node = self.getItemNode(item.id);
       node.parentNode.replaceChild(self.createItemElement(item), node);
 
-	  self._showChildren(item);
+      self._showChildren(item);
 
-	  item.$hidden = this._checkItemHidden(item);
+      item.$hidden = this._checkItemHidden(item);
 
       self.dispatch("onOpened", [item.id]);
 
@@ -3643,9 +3659,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       var node = self.getItemNode(item.id);
       node.parentNode.replaceChild(self.createItemElement(item), node);
 
-	  self._hideChildren(item);
-	  
-	  item.$hidden = this._checkItemHidden(item);
+      self._hideChildren(item);
+      
+      item.$hidden = this._checkItemHidden(item);
 
       self.dispatch("onClosed", [item.id]);
     },
