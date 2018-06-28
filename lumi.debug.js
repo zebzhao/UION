@@ -7797,6 +7797,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       if (obj.$hidden) addClass(node, HIDDEN_CLASS);
       else removeClass(node, HIDDEN_CLASS);
 
+      if (obj.$selected) addClass(node, ACTIVE_CLASS);
+      else removeClass(node, ACTIVE_CLASS);
+
       return node;
     },
     _onDispose: function () {
@@ -7851,14 +7854,22 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
           removeFromArray(parent.$children, obj);
           if (parent.$children.length === 0) {
             var parentNode = self.getItemNode(parent.id);
-            var newParentNode = self.createItemElement(parent);
-            if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
-            parentNode.parentNode.replaceChild(newParentNode, parentNode);
+            // If parentNode exists: replace it with a new one
+            // Otherwise: defer parent creation until it's needed
+            if (parentNode) {
+              var newParentNode = self.createItemElement(parent);
+              if (parent.$hidden) addClass(newParentNode, HIDDEN_CLASS);
+              parentNode.parentNode.replaceChild(newParentNode, parentNode);
+            }
           }
         }
       }
-      self.containerElement().removeChild(self.getItemNode(obj.id));
-      delete self.$elements[obj.id];
+
+      var node = self.getItemNode(obj.id);
+      if (node) {
+        self.containerElement().removeChild(node);
+        delete self.$elements[obj.id];
+      }
 
       // Dispose item global listeners
       var itemListeners = self.$itemListeners[obj.id];
@@ -8141,15 +8152,14 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       if (isString(item))
         item = this.getItem(item);
       item.$selected = true;
-      addClass(this.getItemNode(item.id), ACTIVE_CLASS);
+      var node = this.getItemNode(item.id);
+      if (node) addClass(node, ACTIVE_CLASS);
     },
     deselect: function (item) {
-      if (isString(item))
-        item = this.getItem(item);
-      var node = this.getItemNode(item.id);
+      if (isString(item)) item = this.getItem(item);
       item.$selected = false;
-      assert(node, "Node with id " + item.id + " does not exist");
-      removeClass(node, ACTIVE_CLASS);
+      var node = this.getItemNode(item.id);
+      if (node) removeClass(node, ACTIVE_CLASS);
     },
     deselectAll: function () {
       /**
@@ -8346,10 +8356,10 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     },
     _dragOver: function (item) {
       if (getConfig(this).droppable(item, exports.$dragged.config, exports.$dragged.node))
-        addClass(this.getItemNode(item.id), ACTIVE_CLASS);
+        addClass(this._addToDOM(item), ACTIVE_CLASS);
     },
     _dragLeave: function (item) {
-      removeClass(this.getItemNode(item.id), ACTIVE_CLASS);
+      removeClass(this._addToDOM(item), ACTIVE_CLASS);
     },
     _showChildren: function (item) {
       forEachUntil(function (child, queue) {
@@ -8449,10 +8459,10 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       var self = this;
       self.dispatch("onOpen", [item.id]);
 
-	  item.$closed = false;
+	    item.$closed = false;
 
       var node = self.getItemNode(item.id);
-      node.parentNode.replaceChild(self.createItemElement(item), node);
+      if (node) node.parentNode.replaceChild(self.createItemElement(item), node);
 
       self._showChildren(item);
 
@@ -8476,7 +8486,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
       item.$closed = true;
       var node = self.getItemNode(item.id);
-      node.parentNode.replaceChild(self.createItemElement(item), node);
+      if (node) node.parentNode.replaceChild(self.createItemElement(item), node);
 
       self._hideChildren(item);
       
