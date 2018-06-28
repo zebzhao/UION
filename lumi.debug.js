@@ -7399,7 +7399,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
     __init__: function () {
       this.headNode = null;
       this.tailNode = null;
-      this.$items = [];
+      this.$items = {};
+      this.$count = 0;
     },
     id: function (data) {
       /**
@@ -7415,14 +7416,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        * @param id The id of the element.
        * @returns {string}
        */
-      return this.findOne('id', id);
-    },
-    count: function () {
-      /**
-       * Gets a count of all objects.
-       * @returns {number}
-       */
-      return this.$items.length;
+      return this.$items[id];
     },
     updateItem: function (item, update) {
       /**
@@ -7488,8 +7482,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        * @returns {string} The object id after adding.
        */
       var self = this;
-      assertPropertyValidator(item, 'HTMLElement', isObject);
-      assert(self.$items.indexOf(item) == -1, "Circular reference detected with node insert!");
+      assertPropertyValidator(item, 'item', isObject);
+      assert(!self.$items[item.id], "Circular reference detected with node insert!");
 
       item.id = self.id(item);
 
@@ -7517,7 +7511,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
             self.headNode = item;
         }
 
-        self.$items.push(item);
+        self.$items[item.id] = item;
+        self.$count++;
 
         self.dispatch("onAdded", [item, node]);
 
@@ -7534,7 +7529,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        */
       var self = this;
       assertPropertyValidator(item, 'item object ' + item, isObject);
-      assert(self.$items.indexOf(item) == -1, "Circular reference detected with node insert!");
+      assert(!self.$items[item.id], "Circular reference detected with node insert!");
 
       item.id = self.id(item);
 
@@ -7562,7 +7557,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
             self.tailNode = item;
         }
 
-        self.$items.push(item);
+        self.$items[item.id] = item;
+        self.$count++;
 
         self.dispatch("onAdded", [item]);
 
@@ -7589,7 +7585,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
         self.tailNode = item.$headNode;
       item.$tailNode = item.$headNode = null;
 
-      removeFromArray(self.$items, item);
+      delete self.$items[item.id];
+      self.$count--;
 
       self.dispatch("onDeleted", [item]);
       return item;
@@ -7601,7 +7598,8 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       var self = this;
       self.headNode = null;
       self.tailNode = null;
-      self.$items = [];
+      self.$items = {};
+      self.$count = 0;
       self.dispatch("onClearAll", []);
     },
     previous: function (node) {
@@ -7616,7 +7614,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        * @param item The item to check for.
        * @returns {boolean} True if the item exists.
        */
-      return this.$items.indexOf(item) != -1;
+      return !!this.$items[item.id];
     },
     indexOf: function (item, beginNode) {
       /**

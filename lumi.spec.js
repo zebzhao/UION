@@ -321,9 +321,9 @@ describe('tree', function () {
     }, document.body);
     var parent = tree.getItem('parent');
     expect(parent.$children.length).toBe(2);
-    expect(tree.count()).toBe(4);
+    expect(tree.$count).toBe(4);
     tree.remove(parent);
-    expect(tree.count()).toBe(1);
+    expect(tree.$count).toBe(1);
     expect(tree.each(function (o) {
       return o.label
     })).toEqual(['Root']);
@@ -402,12 +402,12 @@ describe('responsive-tabs', function () {
   }, document.body);
 
   it('should remove 1 tab', function () {
-    expect(elem.count()).toBe(4);
+    expect(elem.$count).toBe(4);
     var item = elem.findOne("label", "Test 1");
     expect(elem.contains(item)).toBeTruthy();
     elem.remove(item);
     expect(elem.contains(item)).toBeFalsy();
-    expect(elem.count()).toBe(3);
+    expect(elem.$count).toBe(3);
   });
 
   it('should setActive and close tabs properly', function () {
@@ -417,6 +417,6 @@ describe('responsive-tabs', function () {
       console.log(item)
     });
     // Only responsive tab toggle should remain
-    expect(elem.count()).toBe(1);
+    expect(elem.$count).toBe(1);
   });
 });
