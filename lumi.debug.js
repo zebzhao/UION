@@ -6805,6 +6805,9 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
       var self = this;
       var config = self.config;
       self.dispatch("onOpen", [config, self.el, args]);
+      UIkit.modal('#' + config.id).one('show.uk.modal', function() {
+        self.dispatch("onOpened", [config, self.el, args]);
+      });
       UIkit.modal('#' + config.id, {
         center: config.center,
         bgclose: config.bgClose,
@@ -6812,7 +6815,6 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
         modal: config.closeModals,
         minScrollHeight: config.minScrollHeight
       }).show();
-      self.dispatch("onOpened", [config, self.el, args]);
     },
     close: function (args) {
       /**
@@ -6821,9 +6823,12 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
        * @param args Parameter to pass into the dispatch handlers. (3rd argument of the callback.)
        */
       var self = this;
-      self.dispatch("onClose", [self.config, self.el, args]);
-      UIkit.modal('#' + self.config.id).hide();
-      self.dispatch("onClosed", [self.config, self.el, args]);
+      var config = self.config;
+      self.dispatch("onClose", [config, self.el, args]);
+      UIkit.modal('#' + config.id).one('hide.uk.modal', function() {
+        self.dispatch("onClosed", [config, self.el, args]);
+      });
+      UIkit.modal('#' + config.id).hide();
     }
   }, $definitions.flexgrid);
 
