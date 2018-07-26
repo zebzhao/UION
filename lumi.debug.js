@@ -1,4 +1,4 @@
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(core) {
 
     var uikit;
@@ -45,7 +45,7 @@
 
     var UI = {}, _UI = window.UIkit || undefined;
 
-    UI.version = '2.27.4';
+    UI.version = '2.27.5';
 
     UI.noConflict = function() {
         // restore UIkit version
@@ -2658,8 +2658,12 @@
             this.element.attr('aria-hidden', this.element.hasClass('uk-open'));
 
             this.on('click', '.uk-modal-close', function(e) {
+
                 e.preventDefault();
-                $this.hide();
+
+                var modal = UI.$(e.target).closest('.uk-modal');
+                if (modal[0] === $this.element[0]) $this.hide();
+
             }).on('click', function(e) {
 
                 var target = UI.$(e.target);
@@ -3258,7 +3262,9 @@
 
                 var target = UI.$(e.target);
 
-                if (!e.type.match(/swipe/)) {
+                if (e.type.match(/swipe/)) {
+                    if (target.parents('.uk-offcanvas-bar:first').length) return;
+                } else {
 
                     if (!target.hasClass('uk-offcanvas-close')) {
                         if (target.hasClass('uk-offcanvas-bar')) return;
@@ -3915,7 +3921,7 @@
 
 })(UIkit2);
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4256,7 +4262,7 @@
     return UI.autocomplete;
 });
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -4446,7 +4452,7 @@
     return notify;
 });
 
-/*! UIkit 2.27.4 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
+/*! UIkit 2.27.5 | http://www.getuikit.com | (c) 2014 YOOtheme | MIT License */
 (function(addon) {
 
     var component;
@@ -7141,8 +7147,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
   $definitions.input = def({
     __name__: "input",
     $defaults: {
-      htmlTag: "INPUT",
-      inputWidth: "medium"
+      htmlTag: "INPUT"
     },
     $setters: extend(
       classSetters({

@@ -2328,8 +2328,7 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
   $definitions.input = def({
     __name__: "input",
     $defaults: {
-      htmlTag: "INPUT",
-      inputWidth: "medium"
+      htmlTag: "INPUT"
     },
     $setters: extend(
       classSetters({
