@@ -3433,13 +3433,11 @@ window.Lumi = window.LUMI = window.lumi = window.UI = (function (exports, window
 
       var $listeners = self.$itemListeners[item.id] = self.$itemListeners[item.id] || [];
 
-      if (on.onItemClick) {
-        listenerId = addListener(el, "click", function (e) {
-          if (!exports.$dragged) self.dispatch("onItemClick", [item, el, e]);
-        });
-        $listeners.push(listenerId);
-        self.$listeners.push(listenerId);
-      }
+      listenerId = addListener(el, "click", function (e) {
+        if (!exports.$dragged) self.dispatch("onItemClick", [item, el, e]);
+      });
+      $listeners.push(listenerId);
+      self.$listeners.push(listenerId);
 
       if (on.onItemContext) {
         listenerId = addListener(el, "contextmenu", function (e) {
